@@ -7,12 +7,13 @@ import { Toaster } from "sonner";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [client] = useState(() => new QueryClient());
+  const isDevelopment = process.env.NODE_ENV === "development";
 
   return (
     <QueryClientProvider client={client}>
       {children}
       <Toaster richColors />
-      <ReactQueryDevtools initialIsOpen={false} />
+      {isDevelopment ? <ReactQueryDevtools initialIsOpen={false} /> : null}
     </QueryClientProvider>
   );
 }
