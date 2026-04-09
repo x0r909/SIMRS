@@ -11,8 +11,9 @@ import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EmptyBlock, ErrorBlock, LoadingBlock } from "@/components/ui/state-block";
 import { createInvoice, getApiErrorMessage, listBilling, listVisits, markInvoicePaid } from "@/lib/simrs-api";
 
@@ -69,7 +70,7 @@ export default function BillingPage() {
   });
 
   return (
-    <div className="space-y-4 p-6">
+    <div className="space-y-6 p-6">
       <PageHeader title="Billing" description="Invoice kunjungan pasien" />
 
       <Card>
@@ -77,40 +78,82 @@ export default function BillingPage() {
           <CardTitle className="text-base">Buat invoice</CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="grid gap-3 md:grid-cols-4" onSubmit={form.handleSubmit((values) => create.mutate(values))}>
-            <div className="space-y-1.5 md:col-span-2">
-              <Label htmlFor="visitId">Visit</Label>
-              <select id="visitId" className="h-10 w-full rounded-md border border-[hsl(var(--border))] bg-transparent px-3 text-sm" {...form.register("visitId")}>
-                <option value="">Select visit</option>
-                {(visits.data?.data ?? []).map((visit) => (
-                  <option key={visit.id} value={visit.id}>
-                    {visit.id} - {visit.patient?.name ?? "Unknown"}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="itemName">Initial item (optional)</Label>
-              <Input id="itemName" {...form.register("itemName")} placeholder="Konsultasi" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="qty">Qty</Label>
-              <Input id="qty" type="number" {...form.register("qty")} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="price">Price</Label>
-              <Input id="price" type="number" {...form.register("price")} />
-            </div>
-            <div className="md:col-span-4">
-              <Button type="submit" disabled={create.isPending}>{create.isPending ? "Saving..." : "Create invoice"}</Button>
-            </div>
-          </form>
+          <Form {...form}>
+            <form className="grid gap-4 md:grid-cols-4" onSubmit={form.handleSubmit((values) => create.mutate(values))}>
+              <FormField
+                control={form.control}
+                name="visitId"
+                render={({ field }) => (
+                  <FormItem className="md:col-span-2">
+                    <FormLabel>Visit</FormLabel>
+                    <Select value={field.value || undefined} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger id="visitId">
+                          <SelectValue placeholder="Select visit" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {(visits.data?.data ?? []).map((visit) => (
+                          <SelectItem key={visit.id} value={visit.id}>
+                            {visit.id} - {visit.patient?.name ?? "Unknown"}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="itemName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Initial item (optional)</FormLabel>
+                    <FormControl>
+                      <Input id="itemName" {...field} value={field.value ?? ""} placeholder="Konsultasi" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="qty"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Qty</FormLabel>
+                    <FormControl>
+                      <Input id="qty" type="number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Price</FormLabel>
+                    <FormControl>
+                      <Input id="price" type="number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="md:col-span-4">
+                <Button type="submit" disabled={create.isPending}>{create.isPending ? "Saving..." : "Create invoice"}</Button>
+              </div>
+            </form>
+          </Form>
         </CardContent>
       </Card>
 
       <Card>
-        <CardContent className="space-y-3 p-4">
-          <div className="flex gap-2">
+        <CardContent className="space-y-4 pt-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <Input value={q} onChange={(event) => setQ(event.target.value)} placeholder="Search invoice number/patient..." />
             <Button variant="secondary" onClick={() => invoices.refetch()} disabled={invoices.isFetching}>Search</Button>
           </div>
@@ -119,13 +162,13 @@ export default function BillingPage() {
           {invoices.isError ? <ErrorBlock message="Failed to load invoices" onRetry={() => invoices.refetch()} /> : null}
 
           {invoices.data ? (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {invoices.data.data.map((invoice) => (
-                <div key={invoice.id} className="rounded-md border p-3">
+                <div key={invoice.id} className="rounded-md border p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <div className="font-semibold">{invoice.number}</div>
-                      <div className="text-xs text-[hsl(var(--muted-foreground))]">
+                      <div className="text-xs text-muted-foreground">
                         Visit: {invoice.visit?.id ?? invoice.visitId} · {invoice.visit?.patient?.name ?? "-"}
                       </div>
                     </div>
@@ -134,7 +177,7 @@ export default function BillingPage() {
                       <span className="font-semibold">Rp {invoice.total.toLocaleString("id-ID")}</span>
                     </div>
                   </div>
-                  <div className="mt-2 text-xs text-[hsl(var(--muted-foreground))]">
+                  <div className="mt-2 text-xs text-muted-foreground">
                     Items: {invoice.items.length}
                   </div>
                   <div className="mt-3">

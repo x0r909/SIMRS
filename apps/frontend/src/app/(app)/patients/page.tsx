@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { EmptyBlock, ErrorBlock, LoadingBlock } from "@/components/ui/state-block";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { deletePatient, getApiErrorMessage, listPatients } from "@/lib/simrs-api";
 
 export default function PatientsListPage() {
@@ -32,12 +33,12 @@ export default function PatientsListPage() {
   });
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="space-y-6 p-6">
       <PageHeader title="Patients" description="Manage patient master data" actionHref="/patients/new" actionLabel="New patient" />
 
       <Card>
-        <CardContent className="p-4 space-y-3">
-          <div className="flex items-center gap-2">
+        <CardContent className="space-y-4 pt-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <Input placeholder="Search by name or MRN..." value={q} onChange={(e) => setQ(e.target.value)} />
             <Button variant="secondary" onClick={() => patients.refetch()} disabled={patients.isFetching}>
               Search
@@ -48,25 +49,25 @@ export default function PatientsListPage() {
           {patients.isError ? <ErrorBlock message="Failed to load patients" onRetry={() => patients.refetch()} /> : null}
 
           {patients.data ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left border-b">
-                    <th className="py-2 pr-2">MRN</th>
-                    <th className="py-2 pr-2">Name</th>
-                    <th className="py-2 pr-2">Phone</th>
-                    <th className="py-2 pr-2">Updated</th>
-                    <th className="py-2 pr-2 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>MRN</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Phone</TableHead>
+                    <TableHead>Updated</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {patients.data.data.map((p) => (
-                    <tr key={p.id} className="border-b">
-                      <td className="py-2 pr-2 font-mono text-xs">{p.mrn}</td>
-                      <td className="py-2 pr-2">{p.name}</td>
-                      <td className="py-2 pr-2">{p.phone ?? "-"}</td>
-                      <td className="py-2 pr-2">{new Date(p.updatedAt).toLocaleString()}</td>
-                      <td className="py-2 pr-2">
+                    <TableRow key={p.id}>
+                      <TableCell className="font-mono text-xs">{p.mrn}</TableCell>
+                      <TableCell>{p.name}</TableCell>
+                      <TableCell>{p.phone ?? "-"}</TableCell>
+                      <TableCell>{new Date(p.updatedAt).toLocaleString()}</TableCell>
+                      <TableCell>
                         <div className="flex justify-end gap-2">
                           <Button asChild variant="outline" size="sm">
                             <Link href={`/patients/${p.id}/edit`}>Edit</Link>
@@ -80,18 +81,18 @@ export default function PatientsListPage() {
                             Delete
                           </Button>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
                   {patients.data.data.length === 0 ? (
-                    <tr>
-                      <td className="py-4" colSpan={5}>
+                    <TableRow>
+                      <TableCell className="py-4" colSpan={5}>
                         <EmptyBlock message="No patients found" />
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ) : null}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           ) : null}
         </CardContent>

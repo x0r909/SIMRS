@@ -25,6 +25,13 @@ export class BillingController {
   }
 
   @RequirePermissions("billing.read")
+  @Get("me")
+  async listMine(@CurrentUser("sub") userId: string, @Query() query: PaginationQueryDto) {
+    const result = await this.billing.listMine(userId, query);
+    return { success: true, data: result.data, meta: result.meta };
+  }
+
+  @RequirePermissions("billing.read")
   @Get(":id")
   get(@Param("id") id: string) {
     return this.billing.get(id);

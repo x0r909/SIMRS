@@ -7,11 +7,11 @@ const badgeVariants = cva("inline-flex items-center rounded-full border px-2.5 p
   variants: {
     variant: {
       default:
-        "border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))]",
+        "border-border bg-secondary text-secondary-foreground",
       success: "border-emerald-400/40 bg-emerald-500/10 text-emerald-700",
       warning: "border-amber-400/40 bg-amber-500/10 text-amber-700",
       danger: "border-red-400/40 bg-red-500/10 text-red-700",
-      outline: "border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))]"
+      outline: "border-border bg-transparent text-foreground"
     }
   },
   defaultVariants: {

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import bcrypt from "bcrypt";
@@ -7,6 +7,15 @@ import { PrismaService } from "../../shared/prisma/prisma.service";
 
 import type { JwtPayload } from "./types";
 
+type RegisterPatientInput = {
+  email: string;
+  password: string;
+  name: string;
+  phone?: string;
+  address?: string;
+  birthDate?: string;
+};
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -14,6 +23,14 @@ export class AuthService {
     private readonly jwt: JwtService,
     private readonly config: ConfigService
   ) {}
+
+  private generateMrn() {
+    const stamp = new Date().toISOString().slice(2, 10).replace(/-/g, "");
+    const suffix = Math.floor(Math.random() * 10000)
+      .toString()
+      .padStart(4, "0");
+    return `MRN${stamp}${suffix}`;
+  }
 
   private async buildUserAuthState(userId: string) {
     const user = await this.prisma.user.findUnique({
@@ -75,6 +92,91 @@ export class AuthService {
         status: authUser.status,
         roles,
         permissions
+      }
+    };
+  }
+
+  async registerPatient(input: RegisterPatientInput) {
+    const existingUser = await this.prisma.user.findUnique({ where: { email: input.email } });
+    if (existingUser) throw new BadRequestException("Email already registered");
+
+    const patientRole = await this.prisma.role.findUnique({
+      where: { key: "patient" },
+      select: { id: true }
+    });
+    if (!patientRole) throw new BadRequestException("Patient role is not configured");
+
+    const passwordHash = await bcrypt.hash(input.password, 12);
+
+    const result = await this.prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          email: input.email,
+          name: input.name,
+          passwordHash,
+          status: "ACTIVE"
+        }
+      });
+
+      await tx.userRole.create({
+        data: {
+          userId: user.id,
+          roleId: patientRole.id
+        }
+      });
+
+      let patientMrn = this.generateMrn();
+      let patient = null as Awaited<ReturnType<typeof tx.patient.create>> | null;
+
+      for (let attempt = 0; attempt < 5; attempt++) {
+        try {
+          patient = await tx.patient.create({
+            data: {
+              id: user.id,
+              mrn: patientMrn,
+              name: input.name,
+              phone: input.phone,
+              address: input.address,
+              birthDate: input.birthDate ? new Date(input.birthDate) : undefined
+            }
+          });
+          break;
+        } catch {
+          patientMrn = this.generateMrn();
+        }
+      }
+
+      if (!patient) throw new BadRequestException("Failed to generate patient MRN");
+
+      await tx.auditLog.create({
+        data: {
+          actorId: user.id,
+          action: "register",
+          entity: "Patient",
+          entityId: patient.id,
+          metadata: { email: user.email, mrn: patient.mrn }
+        }
+      });
+
+      return { user, patient };
+    });
+
+    return {
+      message: "Registrasi berhasil. Silakan login untuk melanjutkan.",
+      user: {
+        id: result.user.id,
+        email: result.user.email,
+        name: result.user.name,
+        status: result.user.status
+      },
+      patient: {
+        id: result.patient.id,
+        mrn: result.patient.mrn,
+        name: result.patient.name,
+        phone: result.patient.phone,
+        address: result.patient.address,
+        birthDate: result.patient.birthDate,
+        createdAt: result.patient.createdAt
       }
     };
   }

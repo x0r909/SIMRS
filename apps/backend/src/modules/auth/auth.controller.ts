@@ -7,6 +7,7 @@ import { JwtAuthGuard } from "../../common/auth/jwt-auth.guard";
 import { AuthService } from "./auth.service";
 import { LoginDto } from "./dto/login.dto";
 import { RefreshTokenDto } from "./dto/refresh-token.dto";
+import { RegisterPatientDto } from "./dto/register-patient.dto";
 
 @ApiTags("auth")
 @Controller("auth")
@@ -21,6 +22,11 @@ export class AuthController {
   @Post("refresh")
   refresh(@Body() dto: RefreshTokenDto) {
     return this.auth.refresh(dto.refreshToken);
+  }
+
+  @Post("register-patient")
+  registerPatient(@Body() dto: RegisterPatientDto) {
+    return this.auth.registerPatient(dto);
   }
 
   @ApiBearerAuth()

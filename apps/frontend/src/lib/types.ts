@@ -35,6 +35,25 @@ export type LoginResult = {
   user: AuthUser;
 };
 
+export type PatientRegistrationResult = {
+  message: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    status: "ACTIVE" | "DISABLED";
+  };
+  patient: {
+    id: string;
+    mrn: string;
+    name: string;
+    phone?: string | null;
+    address?: string | null;
+    birthDate?: string | null;
+    createdAt: string;
+  };
+};
+
 export type Patient = {
   id: string;
   mrn: string;
@@ -109,6 +128,8 @@ export type Visit = {
   appointmentId?: string | null;
   patient?: Pick<Patient, "id" | "mrn" | "name">;
   doctor?: Pick<Doctor, "id" | "code" | "name">;
+  appointment?: { id: string; status?: AppointmentStatus; scheduledAt?: string } | null;
+  invoice?: { id: string; number?: string; status?: "UNPAID" | "PAID"; total?: number } | null;
   createdAt: string;
   updatedAt: string;
 };

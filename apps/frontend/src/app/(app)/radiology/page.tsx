@@ -11,8 +11,10 @@ import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EmptyBlock, ErrorBlock, LoadingBlock } from "@/components/ui/state-block";
 import {
   addRadiologyResult,
@@ -127,7 +129,7 @@ export default function RadiologyPage() {
   });
 
   return (
-    <div className="space-y-4 p-6">
+    <div className="space-y-6 p-6">
       <PageHeader title="Radiology" description="Kelola order dan hasil radiologi" />
 
       <Card>
@@ -135,55 +137,93 @@ export default function RadiologyPage() {
           <CardTitle className="text-base">Buat order radiologi</CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="grid gap-3 md:grid-cols-2" onSubmit={createOrderForm.handleSubmit((values) => createOrder.mutate(values))}>
-            <div className="space-y-1.5">
-              <Label htmlFor="rad-visit">Visit</Label>
-              <select
-                id="rad-visit"
-                className="h-10 w-full rounded-md border border-[hsl(var(--border))] bg-transparent px-3 text-sm"
-                {...createOrderForm.register("visitId")}
-              >
-                <option value="">Pilih visit</option>
-                {(visits.data?.data ?? []).map((visit) => (
-                  <option key={visit.id} value={visit.id}>
-                    {visit.id.slice(0, 8)} - {visit.patient?.name ?? "Unknown patient"}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <Form {...createOrderForm}>
+            <form className="grid gap-4 md:grid-cols-2" onSubmit={createOrderForm.handleSubmit((values) => createOrder.mutate(values))}>
+              <FormField
+                control={createOrderForm.control}
+                name="visitId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Visit</FormLabel>
+                    <Select value={field.value || undefined} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger id="rad-visit">
+                          <SelectValue placeholder="Pilih visit" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {(visits.data?.data ?? []).map((visit) => (
+                          <SelectItem key={visit.id} value={visit.id}>
+                            {visit.id.slice(0, 8)} - {visit.patient?.name ?? "Unknown patient"}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="space-y-1.5">
-              <Label htmlFor="rad-doctor">Dokter</Label>
-              <select
-                id="rad-doctor"
-                className="h-10 w-full rounded-md border border-[hsl(var(--border))] bg-transparent px-3 text-sm"
-                {...createOrderForm.register("doctorId")}
-              >
-                <option value="">Pilih dokter</option>
-                {(doctors.data?.data ?? []).map((doctor) => (
-                  <option key={doctor.id} value={doctor.id}>
-                    {doctor.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+              <FormField
+                control={createOrderForm.control}
+                name="doctorId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Dokter</FormLabel>
+                    <Select value={field.value || undefined} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger id="rad-doctor">
+                          <SelectValue placeholder="Pilih dokter" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {(doctors.data?.data ?? []).map((doctor) => (
+                          <SelectItem key={doctor.id} value={doctor.id}>
+                            {doctor.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="space-y-1.5">
-              <Label htmlFor="rad-exam-type">Jenis pemeriksaan</Label>
-              <Input id="rad-exam-type" placeholder="Foto Thorax PA" {...createOrderForm.register("examType")} />
-            </div>
+              <FormField
+                control={createOrderForm.control}
+                name="examType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Jenis pemeriksaan</FormLabel>
+                    <FormControl>
+                      <Input id="rad-exam-type" placeholder="Foto Thorax PA" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="space-y-1.5">
-              <Label htmlFor="rad-notes">Catatan</Label>
-              <Input id="rad-notes" placeholder="Catatan klinis" {...createOrderForm.register("notes")} />
-            </div>
+              <FormField
+                control={createOrderForm.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Catatan</FormLabel>
+                    <FormControl>
+                      <Input id="rad-notes" placeholder="Catatan klinis" {...field} value={field.value ?? ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="md:col-span-2">
-              <Button type="submit" disabled={createOrder.isPending}>
-                {createOrder.isPending ? "Menyimpan..." : "Buat order"}
-              </Button>
-            </div>
-          </form>
+              <div className="md:col-span-2">
+                <Button type="submit" disabled={createOrder.isPending}>
+                  {createOrder.isPending ? "Menyimpan..." : "Buat order"}
+                </Button>
+              </div>
+            </form>
+          </Form>
         </CardContent>
       </Card>
 
@@ -191,8 +231,8 @@ export default function RadiologyPage() {
         <CardHeader>
           <CardTitle className="text-base">Ringkasan harian</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex flex-wrap items-end gap-3">
+        <CardContent className="space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="space-y-1.5">
               <Label htmlFor="rad-summary-date">Tanggal</Label>
               <Input id="rad-summary-date" type="date" value={date} onChange={(event) => setDate(event.target.value)} />
@@ -206,7 +246,7 @@ export default function RadiologyPage() {
           {summary.isError ? <ErrorBlock message="Gagal memuat ringkasan radiologi" onRetry={() => summary.refetch()} /> : null}
 
           {summary.data ? (
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
               <SummaryCard label="Menunggu" value={summary.data.counts.menunggu} />
               <SummaryCard label="Proses" value={summary.data.counts.proses} />
               <SummaryCard label="Selesai" value={summary.data.counts.selesai} />
@@ -221,44 +261,82 @@ export default function RadiologyPage() {
           <CardTitle className="text-base">Input hasil radiologi</CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="grid gap-3 md:grid-cols-2" onSubmit={addResultForm.handleSubmit((values) => addResult.mutate(values))}>
-            <div className="space-y-1.5 md:col-span-2">
-              <Label htmlFor="rad-order">Order</Label>
-              <select
-                id="rad-order"
-                className="h-10 w-full rounded-md border border-[hsl(var(--border))] bg-transparent px-3 text-sm"
-                {...addResultForm.register("orderId")}
-              >
-                <option value="">Pilih order</option>
-                {(orders.data?.data ?? []).map((order) => (
-                  <option key={order.id} value={order.id}>
-                    {order.examType} - {order.visit?.patient?.name ?? "Unknown"}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <Form {...addResultForm}>
+            <form className="grid gap-4 md:grid-cols-2" onSubmit={addResultForm.handleSubmit((values) => addResult.mutate(values))}>
+              <FormField
+                control={addResultForm.control}
+                name="orderId"
+                render={({ field }) => (
+                  <FormItem className="md:col-span-2">
+                    <FormLabel>Order</FormLabel>
+                    <Select value={field.value || undefined} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger id="rad-order">
+                          <SelectValue placeholder="Pilih order" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {(orders.data?.data ?? []).map((order) => (
+                          <SelectItem key={order.id} value={order.id}>
+                            {order.examType} - {order.visit?.patient?.name ?? "Unknown"}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="space-y-1.5 md:col-span-2">
-              <Label htmlFor="rad-description">Deskripsi</Label>
-              <Input id="rad-description" placeholder="Tampak infiltrat di paru kanan bawah" {...addResultForm.register("description")} />
-            </div>
+              <FormField
+                control={addResultForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem className="md:col-span-2">
+                    <FormLabel>Deskripsi</FormLabel>
+                    <FormControl>
+                      <Input id="rad-description" placeholder="Tampak infiltrat di paru kanan bawah" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="space-y-1.5">
-              <Label htmlFor="rad-impression">Kesan</Label>
-              <Input id="rad-impression" placeholder="Pneumonia lobus kanan bawah" {...addResultForm.register("impression")} />
-            </div>
+              <FormField
+                control={addResultForm.control}
+                name="impression"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kesan</FormLabel>
+                    <FormControl>
+                      <Input id="rad-impression" placeholder="Pneumonia lobus kanan bawah" {...field} value={field.value ?? ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="space-y-1.5">
-              <Label htmlFor="rad-file-path">Path file</Label>
-              <Input id="rad-file-path" placeholder="/storage/radiologi/hasil.jpg" {...addResultForm.register("filePath")} />
-            </div>
+              <FormField
+                control={addResultForm.control}
+                name="filePath"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Path file</FormLabel>
+                    <FormControl>
+                      <Input id="rad-file-path" placeholder="/storage/radiologi/hasil.jpg" {...field} value={field.value ?? ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="md:col-span-2">
-              <Button type="submit" disabled={addResult.isPending}>
-                {addResult.isPending ? "Menyimpan..." : "Tambah hasil"}
-              </Button>
-            </div>
-          </form>
+              <div className="md:col-span-2">
+                <Button type="submit" disabled={addResult.isPending}>
+                  {addResult.isPending ? "Menyimpan..." : "Tambah hasil"}
+                </Button>
+              </div>
+            </form>
+          </Form>
         </CardContent>
       </Card>
 
@@ -266,8 +344,8 @@ export default function RadiologyPage() {
         <CardHeader>
           <CardTitle className="text-base">Daftar order radiologi</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex gap-2">
+        <CardContent className="space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <Input
               value={q}
               onChange={(event) => setQ(event.target.value)}
@@ -282,21 +360,21 @@ export default function RadiologyPage() {
           {orders.isError ? <ErrorBlock message="Gagal memuat order radiologi" onRetry={() => orders.refetch()} /> : null}
 
           {orders.data ? (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {orders.data.data.map((order) => (
-                <div key={order.id} className="rounded-md border p-3">
+                <div key={order.id} className="rounded-md border p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <div className="font-semibold">{order.examType}</div>
-                      <div className="text-xs text-[hsl(var(--muted-foreground))]">
+                      <div className="text-xs text-muted-foreground">
                         {order.visit?.patient?.name ?? "Unknown patient"} · {order.doctor?.name ?? "Unknown doctor"}
                       </div>
-                      <div className="text-xs text-[hsl(var(--muted-foreground))]">Hasil: {order.results?.length ?? 0}</div>
+                      <div className="text-xs text-muted-foreground">Hasil: {order.results?.length ?? 0}</div>
                     </div>
                     <Badge variant={statusVariant(order.status)}>{order.status}</Badge>
                   </div>
 
-                  <div className="mt-2 flex flex-wrap gap-1">
+                  <div className="mt-3 flex flex-wrap gap-1">
                     {orderStatuses.map((status) => (
                       <Button
                         key={status}
@@ -322,8 +400,8 @@ export default function RadiologyPage() {
 
 function SummaryCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-md border p-3">
-      <div className="text-xs text-[hsl(var(--muted-foreground))]">{label}</div>
+    <div className="rounded-md border p-4">
+      <div className="text-xs text-muted-foreground">{label}</div>
       <div className="text-xl font-semibold">{value}</div>
     </div>
   );

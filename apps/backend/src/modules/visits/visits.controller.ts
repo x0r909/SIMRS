@@ -26,6 +26,13 @@ export class VisitsController {
   }
 
   @RequirePermissions("visits.read")
+  @Get("me")
+  async listMine(@CurrentUser("sub") userId: string, @Query() query: PaginationQueryDto) {
+    const result = await this.visits.listMine(userId, query);
+    return { success: true, data: result.data, meta: result.meta };
+  }
+
+  @RequirePermissions("visits.read")
   @Get(":id")
   get(@Param("id") id: string) {
     return this.visits.get(id);

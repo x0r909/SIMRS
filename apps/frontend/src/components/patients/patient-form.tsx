@@ -5,8 +5,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 export const patientFormSchema = z.object({
   mrn: z.string().min(3, "MRN minimal 3 karakter"),
@@ -37,42 +37,87 @@ export function PatientForm({
   });
 
   return (
-    <form className="grid gap-4 md:grid-cols-2" onSubmit={form.handleSubmit(onSubmit)}>
-      <div className="space-y-2">
-        <Label htmlFor="mrn">MRN</Label>
-        <Input id="mrn" {...form.register("mrn")} placeholder="MRN0002" />
-        {form.formState.errors.mrn ? (
-          <p className="text-sm text-red-600">{form.formState.errors.mrn.message}</p>
-        ) : null}
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="name">Name</Label>
-        <Input id="name" {...form.register("name")} placeholder="Nama pasien" />
-        {form.formState.errors.name ? (
-          <p className="text-sm text-red-600">{form.formState.errors.name.message}</p>
-        ) : null}
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="phone">Phone</Label>
-        <Input id="phone" {...form.register("phone")} placeholder="08xxxxxxxxxx" />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="birthDate">Birth date</Label>
-        <Input id="birthDate" {...form.register("birthDate")} type="date" />
-      </div>
-      <div className="space-y-2 md:col-span-2">
-        <Label htmlFor="address">Address</Label>
-        <Input id="address" {...form.register("address")} placeholder="Alamat" />
-      </div>
+    <Form {...form}>
+      <form className="grid gap-4 md:grid-cols-2" onSubmit={form.handleSubmit(onSubmit)}>
+        <FormField
+          control={form.control}
+          name="mrn"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>MRN</FormLabel>
+              <FormControl>
+                <Input id="mrn" {...field} placeholder="MRN0002" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      <div className="md:col-span-2 flex gap-2">
-        <Button type="submit" disabled={pending}>
-          {pending ? "Saving..." : submitLabel}
-        </Button>
-        <Button type="button" variant="secondary" onClick={onCancel}>
-          Cancel
-        </Button>
-      </div>
-    </form>
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input id="name" {...field} placeholder="Nama pasien" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone</FormLabel>
+              <FormControl>
+                <Input id="phone" {...field} value={field.value ?? ""} placeholder="08xxxxxxxxxx" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="birthDate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Birth date</FormLabel>
+              <FormControl>
+                <Input id="birthDate" {...field} value={field.value ?? ""} type="date" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="address"
+          render={({ field }) => (
+            <FormItem className="md:col-span-2">
+              <FormLabel>Address</FormLabel>
+              <FormControl>
+                <Input id="address" {...field} value={field.value ?? ""} placeholder="Alamat" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="md:col-span-2 flex gap-2">
+          <Button type="submit" disabled={pending}>
+            {pending ? "Saving..." : submitLabel}
+          </Button>
+          <Button type="button" variant="secondary" onClick={onCancel}>
+            Cancel
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }

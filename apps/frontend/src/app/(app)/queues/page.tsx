@@ -11,8 +11,10 @@ import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EmptyBlock, ErrorBlock, LoadingBlock } from "@/components/ui/state-block";
 import {
   createQueueEntry,
@@ -33,6 +35,7 @@ const queueSchema = z.object({
 type QueueFormValues = z.infer<typeof queueSchema>;
 
 const queueStatuses: QueueStatus[] = ["WAITING", "CALLED", "IN_SERVICE", "DONE", "CANCELLED"];
+const NONE_DOCTOR_VALUE = "__none__";
 
 function todayValue() {
   const now = new Date();
@@ -96,7 +99,7 @@ export default function QueuesPage() {
   }, [dashboard.data]);
 
   return (
-    <div className="space-y-4 p-6">
+    <div className="space-y-6 p-6">
       <PageHeader title="Queue Dashboard" description="Antrian pasien harian" />
 
       <Card>
@@ -104,39 +107,80 @@ export default function QueuesPage() {
           <CardTitle className="text-base">Tambah antrian</CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="grid gap-3 md:grid-cols-3" onSubmit={form.handleSubmit((values) => create.mutate(values))}>
-            <div className="space-y-1.5">
-              <Label htmlFor="queue-patient">Patient</Label>
-              <select id="queue-patient" className="h-10 w-full rounded-md border border-[hsl(var(--border))] bg-transparent px-3 text-sm" {...form.register("patientId")}>
-                <option value="">Select patient</option>
-                {(patients.data?.data ?? []).map((patient) => (
-                  <option key={patient.id} value={patient.id}>{patient.mrn} - {patient.name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="queue-doctor">Doctor</Label>
-              <select id="queue-doctor" className="h-10 w-full rounded-md border border-[hsl(var(--border))] bg-transparent px-3 text-sm" {...form.register("doctorId")}>
-                <option value="">Any doctor</option>
-                {(doctors.data?.data ?? []).map((doctor) => (
-                  <option key={doctor.id} value={doctor.id}>{doctor.name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="queue-date">Queue date</Label>
-              <Input id="queue-date" type="datetime-local" {...form.register("date")} />
-            </div>
-            <div className="md:col-span-3">
-              <Button type="submit" disabled={create.isPending}>{create.isPending ? "Saving..." : "Add queue"}</Button>
-            </div>
-          </form>
+          <Form {...form}>
+            <form className="grid gap-4 md:grid-cols-3" onSubmit={form.handleSubmit((values) => create.mutate(values))}>
+              <FormField
+                control={form.control}
+                name="patientId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Patient</FormLabel>
+                    <Select value={field.value || undefined} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger id="queue-patient">
+                          <SelectValue placeholder="Select patient" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {(patients.data?.data ?? []).map((patient) => (
+                          <SelectItem key={patient.id} value={patient.id}>{patient.mrn} - {patient.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="doctorId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Doctor</FormLabel>
+                    <Select
+                      value={field.value || NONE_DOCTOR_VALUE}
+                      onValueChange={(value) => field.onChange(value === NONE_DOCTOR_VALUE ? "" : value)}
+                    >
+                      <FormControl>
+                        <SelectTrigger id="queue-doctor">
+                          <SelectValue placeholder="Any doctor" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value={NONE_DOCTOR_VALUE}>Any doctor</SelectItem>
+                        {(doctors.data?.data ?? []).map((doctor) => (
+                          <SelectItem key={doctor.id} value={doctor.id}>{doctor.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Queue date</FormLabel>
+                    <FormControl>
+                      <Input id="queue-date" type="datetime-local" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="md:col-span-3">
+                <Button type="submit" disabled={create.isPending}>{create.isPending ? "Saving..." : "Add queue"}</Button>
+              </div>
+            </form>
+          </Form>
         </CardContent>
       </Card>
 
       <Card>
-        <CardContent className="space-y-4 p-4">
-          <div className="flex flex-wrap items-end gap-3">
+        <CardContent className="space-y-4 pt-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="space-y-1.5">
               <Label htmlFor="dashboard-date">Dashboard date</Label>
               <Input id="dashboard-date" type="date" value={date} onChange={(event) => setDate(event.target.value)} />
@@ -144,7 +188,7 @@ export default function QueuesPage() {
             <Button variant="secondary" onClick={() => dashboard.refetch()} disabled={dashboard.isFetching}>Refresh</Button>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <SummaryCard label="Total" value={queueSummary.total} />
             <SummaryCard label="Waiting" value={queueSummary.waiting} />
             <SummaryCard label="In service" value={queueSummary.inService} />
@@ -155,19 +199,19 @@ export default function QueuesPage() {
           {dashboard.isError ? <ErrorBlock message="Failed to load queue dashboard" onRetry={() => dashboard.refetch()} /> : null}
 
           {dashboard.data ? (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {dashboard.data.map((entry) => (
-                <div key={entry.id} className="rounded-md border p-3">
+                <div key={entry.id} className="rounded-md border p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <div className="font-semibold">#{entry.number} - {entry.patient?.name}</div>
-                      <div className="text-xs text-[hsl(var(--muted-foreground))]">
+                      <div className="text-xs text-muted-foreground">
                         {entry.patient?.mrn} · {entry.doctor?.name ?? "Any doctor"}
                       </div>
                     </div>
                     <Badge variant={entry.status === "DONE" ? "success" : entry.status === "CANCELLED" ? "danger" : "outline"}>{entry.status}</Badge>
                   </div>
-                  <div className="mt-2 flex flex-wrap gap-1">
+                  <div className="mt-3 flex flex-wrap gap-1">
                     {queueStatuses.map((status) => (
                       <Button
                         key={status}
@@ -193,8 +237,8 @@ export default function QueuesPage() {
 
 function SummaryCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-md border p-3">
-      <div className="text-xs text-[hsl(var(--muted-foreground))]">{label}</div>
+    <div className="rounded-md border p-4">
+      <div className="text-xs text-muted-foreground">{label}</div>
       <div className="text-xl font-semibold">{value}</div>
     </div>
   );

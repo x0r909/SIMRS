@@ -77,10 +77,10 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-4 p-6">
+    <div className="space-y-6 p-6">
       <div>
         <h1 className="text-2xl font-semibold">Dashboard</h1>
-        <p className="text-sm text-[hsl(var(--muted-foreground))]">
+        <p className="text-sm text-muted-foreground">
           Selamat datang, <span className="font-medium">{me.data.name}</span> ({me.data.email})
         </p>
       </div>
@@ -96,7 +96,7 @@ export default function DashboardPage() {
                 <CardTitle className="text-2xl">{value}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="inline-flex items-center gap-2 text-xs text-[hsl(var(--muted-foreground))]">
+                <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
                   <Icon className="size-4" />
                   Live from API
                 </div>
@@ -130,7 +130,7 @@ export default function DashboardPage() {
             {queue.isLoading ? <LoadingBlock label="Loading queue..." /> : null}
             {queue.isError ? <ErrorBlock message="Failed to load queue dashboard" /> : null}
             {!queue.isLoading && !queue.isError ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {(queue.data ?? []).slice(0, 6).map((entry) => (
                   <div
                     key={entry.id}
@@ -138,12 +138,12 @@ export default function DashboardPage() {
                   >
                     <div>
                       <div className="font-medium">#{entry.number} - {entry.patient?.name ?? "Unknown"}</div>
-                      <div className="text-xs text-[hsl(var(--muted-foreground))]">{entry.doctor?.name ?? "Any doctor"}</div>
+                      <div className="text-xs text-muted-foreground">{entry.doctor?.name ?? "Any doctor"}</div>
                     </div>
                     <Badge variant={entry.status === "DONE" ? "success" : "default"}>{entry.status}</Badge>
                   </div>
                 ))}
-                {(queue.data ?? []).length === 0 ? <div className="text-sm text-[hsl(var(--muted-foreground))]">No queue entries for today.</div> : null}
+                {(queue.data ?? []).length === 0 ? <div className="text-sm text-muted-foreground">No queue entries for today.</div> : null}
               </div>
             ) : null}
           </CardContent>

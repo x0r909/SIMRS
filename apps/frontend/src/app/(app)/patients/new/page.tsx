@@ -24,11 +24,11 @@ export default function NewPatientPage() {
   });
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="space-y-6 p-6">
       <PageHeader title="New patient" description="Create a new patient record" />
 
       <Card>
-        <CardContent className="p-4">
+        <CardContent className="pt-6">
           <PatientForm
             defaultValues={{ mrn: "", name: "", phone: "", address: "", birthDate: "" }}
             onSubmit={(values) => create.mutate(values)}

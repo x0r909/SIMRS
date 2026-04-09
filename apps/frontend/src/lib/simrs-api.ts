@@ -13,6 +13,7 @@ import type {
   LaboratoryOrder,
   LoginResult,
   Medicine,
+  PatientRegistrationResult,
   Paginated,
   Patient,
   Permission,
@@ -71,6 +72,18 @@ export function getApiErrorMessage(error: unknown) {
 export async function login(input: { email: string; password: string }) {
   const response = await api.post<ApiEnvelope<LoginResult>>("/auth/login", input);
   return unwrap<LoginResult>(response.data);
+}
+
+export async function registerPatient(input: {
+  email: string;
+  password: string;
+  name: string;
+  phone?: string;
+  address?: string;
+  birthDate?: string;
+}) {
+  const response = await api.post<ApiEnvelope<PatientRegistrationResult>>("/auth/register-patient", input);
+  return unwrap<PatientRegistrationResult>(response.data);
 }
 
 export async function fetchMe() {
@@ -134,6 +147,11 @@ export async function deleteDoctor(id: string) {
 
 export async function listAppointments(params?: { page?: number; limit?: number; q?: string }) {
   const response = await api.get<ApiEnvelope<Appointment[]>>("/appointments", { params });
+  return unwrapPaginated<Appointment>(response.data as ApiEnvelope<Appointment[]>);
+}
+
+export async function listMyAppointments(params?: { page?: number; limit?: number; q?: string }) {
+  const response = await api.get<ApiEnvelope<Appointment[]>>("/appointments/me", { params });
   return unwrapPaginated<Appointment>(response.data as ApiEnvelope<Appointment[]>);
 }
 
@@ -204,8 +222,18 @@ export async function listVisits(params?: { page?: number; limit?: number; q?: s
   return unwrapPaginated<Visit>(response.data as ApiEnvelope<Visit[]>);
 }
 
+export async function listMyVisits(params?: { page?: number; limit?: number; q?: string }) {
+  const response = await api.get<ApiEnvelope<Visit[]>>("/visits/me", { params });
+  return unwrapPaginated<Visit>(response.data as ApiEnvelope<Visit[]>);
+}
+
 export async function listBilling(params?: { page?: number; limit?: number; q?: string }) {
   const response = await api.get<ApiEnvelope<BillingInvoice[]>>("/billing", { params });
+  return unwrapPaginated<BillingInvoice>(response.data as ApiEnvelope<BillingInvoice[]>);
+}
+
+export async function listMyBilling(params?: { page?: number; limit?: number; q?: string }) {
+  const response = await api.get<ApiEnvelope<BillingInvoice[]>>("/billing/me", { params });
   return unwrapPaginated<BillingInvoice>(response.data as ApiEnvelope<BillingInvoice[]>);
 }
 

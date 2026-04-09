@@ -11,9 +11,10 @@ import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { EmptyBlock, ErrorBlock, LoadingBlock } from "@/components/ui/state-block";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { createMedicine, deleteMedicine, getApiErrorMessage, listMedicines } from "@/lib/simrs-api";
 
 const medicineSchema = z.object({
@@ -60,7 +61,7 @@ export default function MedicinesPage() {
   });
 
   return (
-    <div className="space-y-4 p-6">
+    <div className="space-y-6 p-6">
       <PageHeader title="Medicines / Pharmacy" description="Stok dan harga obat" />
 
       <Card>
@@ -68,37 +69,84 @@ export default function MedicinesPage() {
           <CardTitle className="text-base">Tambah obat</CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="grid gap-3 md:grid-cols-5" onSubmit={form.handleSubmit((values) => create.mutate(values))}>
-            <div className="space-y-1.5">
-              <Label htmlFor="sku">SKU</Label>
-              <Input id="sku" {...form.register("sku")} placeholder="MED003" />
-            </div>
-            <div className="space-y-1.5 md:col-span-2">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" {...form.register("name")} placeholder="Nama obat" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="unit">Unit</Label>
-              <Input id="unit" {...form.register("unit")} placeholder="tablet" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="stock">Stock</Label>
-              <Input id="stock" type="number" {...form.register("stock")} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="price">Price</Label>
-              <Input id="price" type="number" {...form.register("price")} />
-            </div>
-            <div className="md:col-span-5">
-              <Button type="submit" disabled={create.isPending}>{create.isPending ? "Saving..." : "Save medicine"}</Button>
-            </div>
-          </form>
+          <Form {...form}>
+            <form className="grid gap-4 md:grid-cols-5" onSubmit={form.handleSubmit((values) => create.mutate(values))}>
+              <FormField
+                control={form.control}
+                name="sku"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>SKU</FormLabel>
+                    <FormControl>
+                      <Input id="sku" {...field} placeholder="MED003" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="md:col-span-2">
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input id="name" {...field} placeholder="Nama obat" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="unit"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Unit</FormLabel>
+                    <FormControl>
+                      <Input id="unit" {...field} value={field.value ?? ""} placeholder="tablet" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="stock"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Stock</FormLabel>
+                    <FormControl>
+                      <Input id="stock" type="number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Price</FormLabel>
+                    <FormControl>
+                      <Input id="price" type="number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="md:col-span-5">
+                <Button type="submit" disabled={create.isPending}>{create.isPending ? "Saving..." : "Save medicine"}</Button>
+              </div>
+            </form>
+          </Form>
         </CardContent>
       </Card>
 
       <Card>
-        <CardContent className="space-y-3 p-4">
-          <div className="flex gap-2">
+        <CardContent className="space-y-4 pt-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <Input value={q} onChange={(event) => setQ(event.target.value)} placeholder="Search medicines..." />
             <Button variant="secondary" onClick={() => medicines.refetch()} disabled={medicines.isFetching}>Search</Button>
           </div>
@@ -107,33 +155,33 @@ export default function MedicinesPage() {
           {medicines.isError ? <ErrorBlock message="Failed to load medicines" onRetry={() => medicines.refetch()} /> : null}
 
           {medicines.data ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b text-left">
-                    <th className="py-2 pr-2">SKU</th>
-                    <th className="py-2 pr-2">Name</th>
-                    <th className="py-2 pr-2">Unit</th>
-                    <th className="py-2 pr-2">Stock</th>
-                    <th className="py-2 pr-2">Price</th>
-                    <th className="py-2 pr-2 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>SKU</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Unit</TableHead>
+                    <TableHead>Stock</TableHead>
+                    <TableHead>Price</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {medicines.data.data.map((medicine) => (
-                    <tr key={medicine.id} className="border-b">
-                      <td className="py-2 pr-2 font-mono text-xs">{medicine.sku}</td>
-                      <td className="py-2 pr-2 font-medium">{medicine.name}</td>
-                      <td className="py-2 pr-2">{medicine.unit}</td>
-                      <td className="py-2 pr-2"><Badge variant={medicine.stock > 0 ? "success" : "danger"}>{medicine.stock}</Badge></td>
-                      <td className="py-2 pr-2">Rp {medicine.price.toLocaleString("id-ID")}</td>
-                      <td className="py-2 pr-2 text-right">
+                    <TableRow key={medicine.id}>
+                      <TableCell className="font-mono text-xs">{medicine.sku}</TableCell>
+                      <TableCell className="font-medium">{medicine.name}</TableCell>
+                      <TableCell>{medicine.unit}</TableCell>
+                      <TableCell><Badge variant={medicine.stock > 0 ? "success" : "danger"}>{medicine.stock}</Badge></TableCell>
+                      <TableCell>Rp {medicine.price.toLocaleString("id-ID")}</TableCell>
+                      <TableCell className="text-right">
                         <Button size="sm" variant="destructive" disabled={remove.isPending} onClick={() => remove.mutate(medicine.id)}>Delete</Button>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
               {medicines.data.data.length === 0 ? <EmptyBlock message="No medicines found" /> : null}
             </div>
           ) : null}

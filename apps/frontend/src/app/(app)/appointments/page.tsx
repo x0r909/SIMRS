@@ -11,9 +11,11 @@ import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EmptyBlock, ErrorBlock, LoadingBlock } from "@/components/ui/state-block";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   createAppointment,
   getApiErrorMessage,
@@ -77,7 +79,7 @@ export default function AppointmentsPage() {
   });
 
   return (
-    <div className="space-y-4 p-6">
+    <div className="space-y-6 p-6">
       <PageHeader title="Appointments" description="Jadwal konsultasi pasien" />
 
       <Card>
@@ -85,43 +87,89 @@ export default function AppointmentsPage() {
           <CardTitle className="text-base">Buat appointment</CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="grid gap-3 md:grid-cols-2" onSubmit={form.handleSubmit((values) => create.mutate(values))}>
-            <div className="space-y-1.5">
-              <Label htmlFor="patient">Patient</Label>
-              <select id="patient" className="h-10 w-full rounded-md border border-[hsl(var(--border))] bg-transparent px-3 text-sm" {...form.register("patientId")}>
-                <option value="">Select patient</option>
-                {(patients.data?.data ?? []).map((patient) => (
-                  <option key={patient.id} value={patient.id}>{patient.mrn} - {patient.name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="doctor">Doctor</Label>
-              <select id="doctor" className="h-10 w-full rounded-md border border-[hsl(var(--border))] bg-transparent px-3 text-sm" {...form.register("doctorId")}>
-                <option value="">Select doctor</option>
-                {(doctors.data?.data ?? []).map((doctor) => (
-                  <option key={doctor.id} value={doctor.id}>{doctor.code} - {doctor.name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="scheduledAt">Schedule</Label>
-              <Input id="scheduledAt" type="datetime-local" {...form.register("scheduledAt")} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="notes">Notes</Label>
-              <Input id="notes" {...form.register("notes")} placeholder="Optional notes" />
-            </div>
-            <div className="md:col-span-2">
-              <Button type="submit" disabled={create.isPending}>{create.isPending ? "Saving..." : "Save appointment"}</Button>
-            </div>
-          </form>
+          <Form {...form}>
+            <form className="grid gap-4 md:grid-cols-2" onSubmit={form.handleSubmit((values) => create.mutate(values))}>
+              <FormField
+                control={form.control}
+                name="patientId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Patient</FormLabel>
+                    <Select value={field.value || undefined} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger id="patient">
+                          <SelectValue placeholder="Select patient" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {(patients.data?.data ?? []).map((patient) => (
+                          <SelectItem key={patient.id} value={patient.id}>{patient.mrn} - {patient.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="doctorId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Doctor</FormLabel>
+                    <Select value={field.value || undefined} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger id="doctor">
+                          <SelectValue placeholder="Select doctor" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {(doctors.data?.data ?? []).map((doctor) => (
+                          <SelectItem key={doctor.id} value={doctor.id}>{doctor.code} - {doctor.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="scheduledAt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Schedule</FormLabel>
+                    <FormControl>
+                      <Input id="scheduledAt" type="datetime-local" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Notes</FormLabel>
+                    <FormControl>
+                      <Input id="notes" {...field} value={field.value ?? ""} placeholder="Optional notes" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="md:col-span-2">
+                <Button type="submit" disabled={create.isPending}>{create.isPending ? "Saving..." : "Save appointment"}</Button>
+              </div>
+            </form>
+          </Form>
         </CardContent>
       </Card>
 
       <Card>
-        <CardContent className="space-y-3 p-4">
-          <div className="flex gap-2">
+        <CardContent className="space-y-4 pt-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <Input value={q} onChange={(event) => setQ(event.target.value)} placeholder="Search patient or doctor..." />
             <Button variant="secondary" onClick={() => appointments.refetch()} disabled={appointments.isFetching}>Search</Button>
           </div>
@@ -130,25 +178,25 @@ export default function AppointmentsPage() {
           {appointments.isError ? <ErrorBlock message="Failed to load appointments" onRetry={() => appointments.refetch()} /> : null}
 
           {appointments.data ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b text-left">
-                    <th className="py-2 pr-2">Schedule</th>
-                    <th className="py-2 pr-2">Patient</th>
-                    <th className="py-2 pr-2">Doctor</th>
-                    <th className="py-2 pr-2">Status</th>
-                    <th className="py-2 pr-2">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Schedule</TableHead>
+                    <TableHead>Patient</TableHead>
+                    <TableHead>Doctor</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {appointments.data.data.map((appointment) => (
-                    <tr key={appointment.id} className="border-b align-top">
-                      <td className="py-2 pr-2">{new Date(appointment.scheduledAt).toLocaleString()}</td>
-                      <td className="py-2 pr-2">{appointment.patient?.name ?? "-"}</td>
-                      <td className="py-2 pr-2">{appointment.doctor?.name ?? "-"}</td>
-                      <td className="py-2 pr-2"><Badge variant="outline">{appointment.status}</Badge></td>
-                      <td className="py-2 pr-2">
+                    <TableRow key={appointment.id} className="align-top">
+                      <TableCell>{new Date(appointment.scheduledAt).toLocaleString()}</TableCell>
+                      <TableCell>{appointment.patient?.name ?? "-"}</TableCell>
+                      <TableCell>{appointment.doctor?.name ?? "-"}</TableCell>
+                      <TableCell><Badge variant="outline">{appointment.status}</Badge></TableCell>
+                      <TableCell>
                         <div className="flex flex-wrap gap-1">
                           {statuses.map((status) => (
                             <Button
@@ -162,11 +210,11 @@ export default function AppointmentsPage() {
                             </Button>
                           ))}
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
               {appointments.data.data.length === 0 ? <EmptyBlock message="No appointments found" /> : null}
             </div>
           ) : null}

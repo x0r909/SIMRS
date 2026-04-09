@@ -282,6 +282,25 @@ async function main() {
     create: { mrn: "MRN0004", name: "Lina Susanti", phone: "08844445555", address: "Bandung" }
   });
 
+  let patientPortalProfile = await prisma.patient.findUnique({ where: { id: patientPortalUser.id } });
+  if (!patientPortalProfile) {
+    const portalMrn = `MRNPT${patientPortalUser.id.slice(-6).toUpperCase()}`;
+    patientPortalProfile = await prisma.patient.create({
+      data: {
+        id: patientPortalUser.id,
+        mrn: portalMrn,
+        name: patientPortalUser.name,
+        phone: "08999990000",
+        address: "Bandung"
+      }
+    });
+  } else {
+    patientPortalProfile = await prisma.patient.update({
+      where: { id: patientPortalProfile.id },
+      data: { name: patientPortalUser.name }
+    });
+  }
+
   await prisma.medicine.upsert({
     where: { sku: "MED001" },
     update: { name: "Paracetamol 500mg", stock: 500, price: 1500 },
@@ -337,6 +356,22 @@ async function main() {
         doctorId: doctor2.id,
         scheduledAt: dayAfterTomorrow,
         notes: "[seed] initial appointment - demam anak"
+      }
+    });
+  }
+
+  const patientPortalSchedule = new Date(dayAfterTomorrow);
+  patientPortalSchedule.setDate(patientPortalSchedule.getDate() + 1);
+  let patientPortalAppointment = await prisma.appointment.findFirst({
+    where: { notes: "[seed] patient portal appointment" }
+  });
+  if (!patientPortalAppointment) {
+    patientPortalAppointment = await prisma.appointment.create({
+      data: {
+        patientId: patientPortalProfile.id,
+        doctorId: doctor2.id,
+        scheduledAt: patientPortalSchedule,
+        notes: "[seed] patient portal appointment"
       }
     });
   }
@@ -422,6 +457,22 @@ async function main() {
         appointmentId: seedAppointment2.id,
         complaint: "[seed] demam anak",
         diagnosis: "[seed] faringitis akut"
+      }
+    });
+  }
+
+  let patientPortalVisit = await prisma.visit.findFirst({
+    where: { complaint: "[seed] kontrol pasien portal" }
+  });
+  if (!patientPortalVisit) {
+    patientPortalVisit = await prisma.visit.create({
+      data: {
+        patientId: patientPortalProfile.id,
+        doctorId: doctor2.id,
+        appointmentId: patientPortalAppointment.id,
+        complaint: "[seed] kontrol pasien portal",
+        diagnosis: "[seed] observasi pasca terapi",
+        endedAt: new Date()
       }
     });
   }
@@ -540,6 +591,24 @@ async function main() {
             { name: "Paracetamol 500mg", qty: 15, price: 1500, subtotal: 22500 },
             { name: "Amoxicillin 500mg", qty: 15, price: 3500, subtotal: 52500 },
             { name: "Pemeriksaan Darah Lengkap", qty: 1, price: 127500, subtotal: 127500 }
+          ]
+        }
+      }
+    });
+  }
+
+  const existingPortalInvoice = await prisma.billingInvoice.findFirst({ where: { visitId: patientPortalVisit.id } });
+  if (!existingPortalInvoice) {
+    await prisma.billingInvoice.create({
+      data: {
+        number: "INV-SEED-PORTAL-0001",
+        visitId: patientPortalVisit.id,
+        status: "UNPAID",
+        total: 70000,
+        items: {
+          create: [
+            { name: "Konsultasi Kontrol", qty: 1, price: 50000, subtotal: 50000 },
+            { name: "Obat Lanjutan", qty: 1, price: 20000, subtotal: 20000 }
           ]
         }
       }

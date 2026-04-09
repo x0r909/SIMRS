@@ -24,6 +24,11 @@ export class AppointmentsService {
     if (!doctor) throw new NotFoundException("Doctor not found");
   }
 
+  private async ensurePatientProfile(userId: string) {
+    const patient = await this.prisma.patient.findUnique({ where: { id: userId }, select: { id: true } });
+    if (!patient) throw new NotFoundException("Patient profile not found");
+  }
+
   async list(query: PaginationQueryDto) {
     const { skip, take, page, limit } = toSkipTake(query.page, query.limit);
     const where: Prisma.AppointmentWhereInput = query.q
@@ -34,6 +39,36 @@ export class AppointmentsService {
           ]
         }
       : {};
+    const [total, data] = await Promise.all([
+      this.prisma.appointment.count({ where }),
+      this.prisma.appointment.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { scheduledAt: "desc" },
+        include: {
+          patient: { select: { id: true, mrn: true, name: true } },
+          doctor: { select: { id: true, code: true, name: true, specialty: true } },
+          visit: { select: { id: true } }
+        }
+      })
+    ]);
+    return { data, meta: { page, limit, total } };
+  }
+
+  async listMine(userId: string, query: PaginationQueryDto) {
+    await this.ensurePatientProfile(userId);
+    const { skip, take, page, limit } = toSkipTake(query.page, query.limit);
+    const where: Prisma.AppointmentWhereInput = query.q
+      ? {
+          patientId: userId,
+          OR: [
+            { doctor: { name: { contains: query.q, mode: "insensitive" as const } } },
+            { notes: { contains: query.q, mode: "insensitive" as const } }
+          ]
+        }
+      : { patientId: userId };
+
     const [total, data] = await Promise.all([
       this.prisma.appointment.count({ where }),
       this.prisma.appointment.findMany({

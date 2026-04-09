@@ -39,11 +39,11 @@ export default function EditPatientPage() {
   });
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="space-y-6 p-6">
       <PageHeader title="Edit patient" description="Update patient record" />
 
       <Card>
-        <CardContent className="p-4">
+        <CardContent className="pt-6">
           {patient.isLoading ? <LoadingBlock label="Loading patient..." /> : null}
           {patient.isError ? <ErrorBlock message="Failed to load patient" onRetry={() => patient.refetch()} /> : null}
 

@@ -10,8 +10,9 @@ import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ErrorBlock, LoadingBlock } from "@/components/ui/state-block";
 import {
   createRole,
@@ -111,7 +112,7 @@ export default function AdminPage() {
   });
 
   return (
-    <div className="space-y-4 p-6">
+    <div className="space-y-6 p-6">
       <PageHeader title="Users and Roles" description="Manajemen akun, role, dan permission" />
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -120,13 +121,63 @@ export default function AdminPage() {
             <CardTitle className="text-base">Create user</CardTitle>
           </CardHeader>
           <CardContent>
-            <form className="space-y-3" onSubmit={userForm.handleSubmit((values) => createUserMutation.mutate(values))}>
-              <Field label="Email"><Input {...userForm.register("email")} /></Field>
-              <Field label="Name"><Input {...userForm.register("name")} /></Field>
-              <Field label="Password"><Input type="password" {...userForm.register("password")} /></Field>
-              <Field label="Role keys (comma separated)"><Input {...userForm.register("roleKeys")} /></Field>
-              <Button type="submit" disabled={createUserMutation.isPending}>{createUserMutation.isPending ? "Saving..." : "Create user"}</Button>
-            </form>
+            <Form {...userForm}>
+              <form className="space-y-4" onSubmit={userForm.handleSubmit((values) => createUserMutation.mutate(values))}>
+                <FormField
+                  control={userForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={userForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={userForm.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input type="password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={userForm.control}
+                  name="roleKeys"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Role keys (comma separated)</FormLabel>
+                      <FormControl>
+                        <Input {...field} value={field.value ?? ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" disabled={createUserMutation.isPending}>{createUserMutation.isPending ? "Saving..." : "Create user"}</Button>
+              </form>
+            </Form>
           </CardContent>
         </Card>
 
@@ -135,12 +186,50 @@ export default function AdminPage() {
             <CardTitle className="text-base">Create role</CardTitle>
           </CardHeader>
           <CardContent>
-            <form className="space-y-3" onSubmit={roleForm.handleSubmit((values) => createRoleMutation.mutate(values))}>
-              <Field label="Key"><Input {...roleForm.register("key")} placeholder="nurse" /></Field>
-              <Field label="Name"><Input {...roleForm.register("name")} placeholder="Nurse" /></Field>
-              <Field label="Description"><Input {...roleForm.register("description")} /></Field>
-              <Button type="submit" disabled={createRoleMutation.isPending}>{createRoleMutation.isPending ? "Saving..." : "Create role"}</Button>
-            </form>
+            <Form {...roleForm}>
+              <form className="space-y-4" onSubmit={roleForm.handleSubmit((values) => createRoleMutation.mutate(values))}>
+                <FormField
+                  control={roleForm.control}
+                  name="key"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Key</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="nurse" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={roleForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Nurse" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={roleForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Input {...field} value={field.value ?? ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" disabled={createRoleMutation.isPending}>{createRoleMutation.isPending ? "Saving..." : "Create role"}</Button>
+              </form>
+            </Form>
           </CardContent>
         </Card>
       </div>
@@ -150,24 +239,48 @@ export default function AdminPage() {
           <CardTitle className="text-base">Set role permissions</CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="grid gap-3 md:grid-cols-[220px_1fr_auto]" onSubmit={rolePermForm.handleSubmit((values) => setRolePermMutation.mutate(values))}>
-            <div className="space-y-1.5">
-              <Label htmlFor="roleId">Role</Label>
-              <select id="roleId" className="h-10 w-full rounded-md border border-[hsl(var(--border))] bg-transparent px-3 text-sm" {...rolePermForm.register("roleId")}>
-                <option value="">Select role</option>
-                {(roles.data ?? []).map((role) => (
-                  <option key={role.id} value={role.id}>{role.key}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="permissionKeys">Permission keys (comma separated)</Label>
-              <Input id="permissionKeys" {...rolePermForm.register("permissionKeys")} />
-            </div>
-            <div className="flex items-end">
-              <Button type="submit" disabled={setRolePermMutation.isPending}>{setRolePermMutation.isPending ? "Saving..." : "Apply"}</Button>
-            </div>
-          </form>
+          <Form {...rolePermForm}>
+            <form className="grid gap-4 md:grid-cols-[220px_1fr_auto]" onSubmit={rolePermForm.handleSubmit((values) => setRolePermMutation.mutate(values))}>
+              <FormField
+                control={rolePermForm.control}
+                name="roleId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <Select value={field.value || undefined} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger id="roleId">
+                          <SelectValue placeholder="Select role" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {(roles.data ?? []).map((role) => (
+                          <SelectItem key={role.id} value={role.id}>{role.key}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={rolePermForm.control}
+                name="permissionKeys"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Permission keys (comma separated)</FormLabel>
+                    <FormControl>
+                      <Input id="permissionKeys" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex items-end">
+                <Button type="submit" disabled={setRolePermMutation.isPending}>{setRolePermMutation.isPending ? "Saving..." : "Apply"}</Button>
+              </div>
+            </form>
+          </Form>
         </CardContent>
       </Card>
 
@@ -180,7 +293,7 @@ export default function AdminPage() {
             <CardHeader>
               <CardTitle className="text-base">Users</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="space-y-3">
               {users.data.map((user) => (
                 <div key={user.id} className="rounded-md border p-3">
                   <div className="font-medium">{user.name} · {user.email}</div>
@@ -198,11 +311,11 @@ export default function AdminPage() {
             <CardHeader>
               <CardTitle className="text-base">Roles</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="space-y-3">
               {roles.data.map((role) => (
                 <div key={role.id} className="rounded-md border p-3">
                   <div className="font-medium">{role.name} ({role.key})</div>
-                  <div className="mt-1 text-xs text-[hsl(var(--muted-foreground))]">
+                  <div className="mt-1 text-xs text-muted-foreground">
                     {(role.permissions ?? []).length} permission(s)
                   </div>
                 </div>
@@ -224,15 +337,6 @@ export default function AdminPage() {
           </Card>
         </div>
       ) : null}
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <Label>{label}</Label>
-      {children}
     </div>
   );
 }

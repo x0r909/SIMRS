@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { EmptyBlock, ErrorBlock, LoadingBlock } from "@/components/ui/state-block";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { downloadFile, getApiErrorMessage, listFiles, uploadFile } from "@/lib/simrs-api";
 
 export default function FilesPage() {
@@ -51,14 +52,14 @@ export default function FilesPage() {
   };
 
   return (
-    <div className="space-y-4 p-6">
+    <div className="space-y-6 p-6">
       <PageHeader title="File Upload" description="Upload dan manajemen dokumen medis" />
 
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Upload file</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-4">
           <Input
             ref={fileInputRef}
             type="file"
@@ -81,8 +82,8 @@ export default function FilesPage() {
       </Card>
 
       <Card>
-        <CardContent className="space-y-3 p-4">
-          <div className="flex gap-2">
+        <CardContent className="space-y-4 pt-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <Input value={q} onChange={(event) => setQ(event.target.value)} placeholder="Search files..." />
             <Button variant="secondary" onClick={() => files.refetch()} disabled={files.isFetching}>Search</Button>
           </div>
@@ -91,34 +92,34 @@ export default function FilesPage() {
           {files.isError ? <ErrorBlock message="Failed to load files" onRetry={() => files.refetch()} /> : null}
 
           {files.data ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b text-left">
-                    <th className="py-2 pr-2">Filename</th>
-                    <th className="py-2 pr-2">Type</th>
-                    <th className="py-2 pr-2">Size</th>
-                    <th className="py-2 pr-2">Created</th>
-                    <th className="py-2 pr-2 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Filename</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Size</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {files.data.data.map((file) => (
-                    <tr key={file.id} className="border-b">
-                      <td className="py-2 pr-2">{file.filename}</td>
-                      <td className="py-2 pr-2">{file.mimeType}</td>
-                      <td className="py-2 pr-2">{Math.ceil(file.size / 1024)} KB</td>
-                      <td className="py-2 pr-2">{new Date(file.createdAt).toLocaleString()}</td>
-                      <td className="py-2 pr-2 text-right">
+                    <TableRow key={file.id}>
+                      <TableCell>{file.filename}</TableCell>
+                      <TableCell>{file.mimeType}</TableCell>
+                      <TableCell>{Math.ceil(file.size / 1024)} KB</TableCell>
+                      <TableCell>{new Date(file.createdAt).toLocaleString()}</TableCell>
+                      <TableCell className="text-right">
                         <Button size="sm" variant="outline" onClick={() => handleDownload(file.id, file.filename)}>
                           <Download className="size-4" />
                           Download
                         </Button>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
               {files.data.data.length === 0 ? <EmptyBlock message="No files found" /> : null}
             </div>
           ) : null}

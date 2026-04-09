@@ -21,7 +21,7 @@ export function PageHeader({
       <div>
         <h1 className="text-2xl font-semibold">{title}</h1>
         {description ? (
-          <p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">{description}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
         ) : null}
       </div>
       {action ?? null}

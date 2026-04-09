@@ -11,8 +11,10 @@ import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EmptyBlock, ErrorBlock, LoadingBlock } from "@/components/ui/state-block";
 import {
   addLaboratoryResult,
@@ -131,7 +133,7 @@ export default function LaboratoryPage() {
   });
 
   return (
-    <div className="space-y-4 p-6">
+    <div className="space-y-6 p-6">
       <PageHeader title="Laboratory" description="Kelola order dan hasil laboratorium" />
 
       <Card>
@@ -139,55 +141,93 @@ export default function LaboratoryPage() {
           <CardTitle className="text-base">Buat order laboratorium</CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="grid gap-3 md:grid-cols-2" onSubmit={createOrderForm.handleSubmit((values) => createOrder.mutate(values))}>
-            <div className="space-y-1.5">
-              <Label htmlFor="lab-visit">Visit</Label>
-              <select
-                id="lab-visit"
-                className="h-10 w-full rounded-md border border-[hsl(var(--border))] bg-transparent px-3 text-sm"
-                {...createOrderForm.register("visitId")}
-              >
-                <option value="">Pilih visit</option>
-                {(visits.data?.data ?? []).map((visit) => (
-                  <option key={visit.id} value={visit.id}>
-                    {visit.id.slice(0, 8)} - {visit.patient?.name ?? "Unknown patient"}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <Form {...createOrderForm}>
+            <form className="grid gap-4 md:grid-cols-2" onSubmit={createOrderForm.handleSubmit((values) => createOrder.mutate(values))}>
+              <FormField
+                control={createOrderForm.control}
+                name="visitId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Visit</FormLabel>
+                    <Select value={field.value || undefined} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger id="lab-visit">
+                          <SelectValue placeholder="Pilih visit" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {(visits.data?.data ?? []).map((visit) => (
+                          <SelectItem key={visit.id} value={visit.id}>
+                            {visit.id.slice(0, 8)} - {visit.patient?.name ?? "Unknown patient"}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="space-y-1.5">
-              <Label htmlFor="lab-doctor">Dokter</Label>
-              <select
-                id="lab-doctor"
-                className="h-10 w-full rounded-md border border-[hsl(var(--border))] bg-transparent px-3 text-sm"
-                {...createOrderForm.register("doctorId")}
-              >
-                <option value="">Pilih dokter</option>
-                {(doctors.data?.data ?? []).map((doctor) => (
-                  <option key={doctor.id} value={doctor.id}>
-                    {doctor.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+              <FormField
+                control={createOrderForm.control}
+                name="doctorId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Dokter</FormLabel>
+                    <Select value={field.value || undefined} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger id="lab-doctor">
+                          <SelectValue placeholder="Pilih dokter" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {(doctors.data?.data ?? []).map((doctor) => (
+                          <SelectItem key={doctor.id} value={doctor.id}>
+                            {doctor.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="space-y-1.5">
-              <Label htmlFor="lab-test-type">Jenis pemeriksaan</Label>
-              <Input id="lab-test-type" placeholder="Darah Lengkap, CRP" {...createOrderForm.register("testType")} />
-            </div>
+              <FormField
+                control={createOrderForm.control}
+                name="testType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Jenis pemeriksaan</FormLabel>
+                    <FormControl>
+                      <Input id="lab-test-type" placeholder="Darah Lengkap, CRP" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="space-y-1.5">
-              <Label htmlFor="lab-notes">Catatan</Label>
-              <Input id="lab-notes" placeholder="Catatan klinis" {...createOrderForm.register("notes")} />
-            </div>
+              <FormField
+                control={createOrderForm.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Catatan</FormLabel>
+                    <FormControl>
+                      <Input id="lab-notes" placeholder="Catatan klinis" {...field} value={field.value ?? ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="md:col-span-2">
-              <Button type="submit" disabled={createOrder.isPending}>
-                {createOrder.isPending ? "Menyimpan..." : "Buat order"}
-              </Button>
-            </div>
-          </form>
+              <div className="md:col-span-2">
+                <Button type="submit" disabled={createOrder.isPending}>
+                  {createOrder.isPending ? "Menyimpan..." : "Buat order"}
+                </Button>
+              </div>
+            </form>
+          </Form>
         </CardContent>
       </Card>
 
@@ -195,8 +235,8 @@ export default function LaboratoryPage() {
         <CardHeader>
           <CardTitle className="text-base">Ringkasan harian</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex flex-wrap items-end gap-3">
+        <CardContent className="space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="space-y-1.5">
               <Label htmlFor="lab-summary-date">Tanggal</Label>
               <Input id="lab-summary-date" type="date" value={date} onChange={(event) => setDate(event.target.value)} />
@@ -210,7 +250,7 @@ export default function LaboratoryPage() {
           {summary.isError ? <ErrorBlock message="Gagal memuat ringkasan laboratorium" onRetry={() => summary.refetch()} /> : null}
 
           {summary.data ? (
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
               <SummaryCard label="Menunggu" value={summary.data.counts.menunggu} />
               <SummaryCard label="Proses" value={summary.data.counts.proses} />
               <SummaryCard label="Selesai" value={summary.data.counts.selesai} />
@@ -225,50 +265,106 @@ export default function LaboratoryPage() {
           <CardTitle className="text-base">Input hasil laboratorium</CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="grid gap-3 md:grid-cols-3" onSubmit={addResultForm.handleSubmit((values) => addResult.mutate(values))}>
-            <div className="space-y-1.5 md:col-span-3">
-              <Label htmlFor="lab-order">Order</Label>
-              <select
-                id="lab-order"
-                className="h-10 w-full rounded-md border border-[hsl(var(--border))] bg-transparent px-3 text-sm"
-                {...addResultForm.register("orderId")}
-              >
-                <option value="">Pilih order</option>
-                {(orders.data?.data ?? []).map((order) => (
-                  <option key={order.id} value={order.id}>
-                    {order.testType} - {order.visit?.patient?.name ?? "Unknown"}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <Form {...addResultForm}>
+            <form className="grid gap-4 md:grid-cols-3" onSubmit={addResultForm.handleSubmit((values) => addResult.mutate(values))}>
+              <FormField
+                control={addResultForm.control}
+                name="orderId"
+                render={({ field }) => (
+                  <FormItem className="md:col-span-3">
+                    <FormLabel>Order</FormLabel>
+                    <Select value={field.value || undefined} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger id="lab-order">
+                          <SelectValue placeholder="Pilih order" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {(orders.data?.data ?? []).map((order) => (
+                          <SelectItem key={order.id} value={order.id}>
+                            {order.testType} - {order.visit?.patient?.name ?? "Unknown"}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="space-y-1.5">
-              <Label htmlFor="lab-parameter">Parameter</Label>
-              <Input id="lab-parameter" placeholder="Hemoglobin" {...addResultForm.register("parameter")} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="lab-value">Nilai</Label>
-              <Input id="lab-value" placeholder="12.5" {...addResultForm.register("value")} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="lab-unit">Satuan</Label>
-              <Input id="lab-unit" placeholder="g/dL" {...addResultForm.register("unit")} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="lab-range">Nilai normal</Label>
-              <Input id="lab-range" placeholder="12-16" {...addResultForm.register("normalRange")} />
-            </div>
-            <div className="space-y-1.5 md:col-span-2">
-              <Label htmlFor="lab-result-notes">Keterangan</Label>
-              <Input id="lab-result-notes" placeholder="Normal / tinggi" {...addResultForm.register("notes")} />
-            </div>
+              <FormField
+                control={addResultForm.control}
+                name="parameter"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Parameter</FormLabel>
+                    <FormControl>
+                      <Input id="lab-parameter" placeholder="Hemoglobin" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={addResultForm.control}
+                name="value"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nilai</FormLabel>
+                    <FormControl>
+                      <Input id="lab-value" placeholder="12.5" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={addResultForm.control}
+                name="unit"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Satuan</FormLabel>
+                    <FormControl>
+                      <Input id="lab-unit" placeholder="g/dL" {...field} value={field.value ?? ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={addResultForm.control}
+                name="normalRange"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nilai normal</FormLabel>
+                    <FormControl>
+                      <Input id="lab-range" placeholder="12-16" {...field} value={field.value ?? ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={addResultForm.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem className="md:col-span-2">
+                    <FormLabel>Keterangan</FormLabel>
+                    <FormControl>
+                      <Input id="lab-result-notes" placeholder="Normal / tinggi" {...field} value={field.value ?? ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="md:col-span-3">
-              <Button type="submit" disabled={addResult.isPending}>
-                {addResult.isPending ? "Menyimpan..." : "Tambah hasil"}
-              </Button>
-            </div>
-          </form>
+              <div className="md:col-span-3">
+                <Button type="submit" disabled={addResult.isPending}>
+                  {addResult.isPending ? "Menyimpan..." : "Tambah hasil"}
+                </Button>
+              </div>
+            </form>
+          </Form>
         </CardContent>
       </Card>
 
@@ -276,8 +372,8 @@ export default function LaboratoryPage() {
         <CardHeader>
           <CardTitle className="text-base">Daftar order laboratorium</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex gap-2">
+        <CardContent className="space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <Input
               value={q}
               onChange={(event) => setQ(event.target.value)}
@@ -292,21 +388,21 @@ export default function LaboratoryPage() {
           {orders.isError ? <ErrorBlock message="Gagal memuat order laboratorium" onRetry={() => orders.refetch()} /> : null}
 
           {orders.data ? (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {orders.data.data.map((order) => (
-                <div key={order.id} className="rounded-md border p-3">
+                <div key={order.id} className="rounded-md border p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <div className="font-semibold">{order.testType}</div>
-                      <div className="text-xs text-[hsl(var(--muted-foreground))]">
+                      <div className="text-xs text-muted-foreground">
                         {order.visit?.patient?.name ?? "Unknown patient"} · {order.doctor?.name ?? "Unknown doctor"}
                       </div>
-                      <div className="text-xs text-[hsl(var(--muted-foreground))]">Hasil: {order.results?.length ?? 0}</div>
+                      <div className="text-xs text-muted-foreground">Hasil: {order.results?.length ?? 0}</div>
                     </div>
                     <Badge variant={statusVariant(order.status)}>{order.status}</Badge>
                   </div>
 
-                  <div className="mt-2 flex flex-wrap gap-1">
+                  <div className="mt-3 flex flex-wrap gap-1">
                     {orderStatuses.map((status) => (
                       <Button
                         key={status}
@@ -332,8 +428,8 @@ export default function LaboratoryPage() {
 
 function SummaryCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-md border p-3">
-      <div className="text-xs text-[hsl(var(--muted-foreground))]">{label}</div>
+    <div className="rounded-md border p-4">
+      <div className="text-xs text-muted-foreground">{label}</div>
       <div className="text-xl font-semibold">{value}</div>
     </div>
   );
