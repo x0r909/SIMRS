@@ -4,8 +4,26 @@ import axios from "axios";
 
 import { authStore } from "./auth-store";
 
+function resolveApiBaseUrl() {
+  const configured = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (configured) {
+    const normalized = configured.replace(/\/+$/, "");
+    return normalized.endsWith("/v1") ? normalized : `${normalized}/v1`;
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    return "http://localhost:4000/v1";
+  }
+
+  if (typeof window !== "undefined") {
+    return `${window.location.origin}/v1`;
+  }
+
+  return "http://localhost:4000/v1";
+}
+
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/v1` : "http://localhost:4000/v1",
+  baseURL: resolveApiBaseUrl(),
   timeout: 30_000
 });
 
