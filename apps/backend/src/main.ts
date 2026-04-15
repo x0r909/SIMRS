@@ -19,10 +19,11 @@ async function bootstrap() {
   app.enableShutdownHooks();
 
   const corsOrigin = config.get<string[] | "*">("CORS_ORIGIN", "*");
+  const corsCredentials = corsOrigin === "*" ? false : true;
 
   app.enableCors({
     origin: corsOrigin,
-    credentials: true
+    credentials: corsCredentials
   });
 
   app.use(helmet());

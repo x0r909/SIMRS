@@ -59,6 +59,11 @@ function unwrapPaginated<T>(payload: ApiEnvelope<T[]> | { data: T[]; meta?: Pagi
 
 export function getApiErrorMessage(error: unknown) {
   if (axios.isAxiosError(error)) {
+    if (!error.response) {
+      const baseUrl = api.defaults.baseURL ?? process.env.NEXT_PUBLIC_API_URL ?? "API URL tidak diketahui";
+      return `Tidak bisa terhubung ke server API (${baseUrl}). Pastikan backend aktif dan NEXT_PUBLIC_API_URL benar.`;
+    }
+
     const message =
       (error.response?.data as { error?: { message?: string } })?.error?.message ??
       error.response?.statusText ??
