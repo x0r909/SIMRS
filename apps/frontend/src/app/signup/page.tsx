@@ -16,15 +16,23 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { getApiErrorMessage, registerPatient } from "@/lib/simrs-api";
 
+const passwordSchema = z
+  .string()
+  .min(12, "Password minimal 12 karakter")
+  .regex(/[a-z]/, "Password harus mengandung huruf kecil")
+  .regex(/[A-Z]/, "Password harus mengandung huruf besar")
+  .regex(/\d/, "Password harus mengandung angka")
+  .regex(/[^A-Za-z0-9]/, "Password harus mengandung simbol");
+
 const schema = z
   .object({
-    name: z.string().min(2, "Nama minimal 2 karakter"),
-    email: z.string().email("Format email tidak valid"),
+    name: z.string().trim().min(2, "Nama minimal 2 karakter"),
+    email: z.string().trim().email("Format email tidak valid"),
     phone: z.string().min(8, "Nomor telepon minimal 8 digit").optional().or(z.literal("")),
     address: z.string().max(255, "Alamat terlalu panjang").optional().or(z.literal("")),
     birthDate: z.string().optional().or(z.literal("")),
-    password: z.string().min(6, "Password minimal 6 karakter"),
-    confirmPassword: z.string().min(6, "Konfirmasi password minimal 6 karakter")
+    password: passwordSchema,
+    confirmPassword: z.string().min(1, "Konfirmasi password wajib diisi")
   })
   .refine((values) => values.password === values.confirmPassword, {
     message: "Konfirmasi password tidak cocok",
@@ -38,6 +46,8 @@ export default function SignupPage() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
+    mode: "onChange",
+    reValidateMode: "onChange",
     defaultValues: {
       name: "",
       email: "",
@@ -52,8 +62,8 @@ export default function SignupPage() {
   const signupMutation = useMutation({
     mutationFn: async (values: FormValues) =>
       registerPatient({
-        name: values.name,
-        email: values.email,
+        name: values.name.trim(),
+        email: values.email.trim().toLowerCase(),
         password: values.password,
         phone: values.phone || undefined,
         address: values.address || undefined,
@@ -183,6 +193,9 @@ export default function SignupPage() {
                     <FormControl>
                       <Input type="password" {...field} />
                     </FormControl>
+                    <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                      Minimal 12 karakter, wajib ada huruf besar, huruf kecil, angka, dan simbol.
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}

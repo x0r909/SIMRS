@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Activity } from "lucide-react";
+import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -14,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { NativeCaptcha } from "@/components/native-captcha";
 import { authStore } from "@/lib/auth-store";
 import { getApiErrorMessage, login as loginRequest } from "@/lib/simrs-api";
 import { cn } from "@/lib/utils";
@@ -27,6 +29,8 @@ type FormValues = z.infer<typeof schema>;
 
 export function PatientLoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const router = useRouter();
+  const [captchaSolved, setCaptchaSolved] = React.useState(false);
+  const captchaSolvedRef = React.useRef(false);
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { email: "pasien.andi@simrs.local", password: "Admin123!" }
@@ -50,13 +54,28 @@ export function PatientLoginForm({ className, ...props }: React.ComponentProps<"
     }
   });
 
+  const handleCaptchaChange = React.useCallback((state: { solved: boolean }) => {
+    captchaSolvedRef.current = state.solved;
+    setCaptchaSolved(state.solved);
+  }, []);
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden border-border/70 shadow-sm">
-        <CardContent className="grid p-0 md:grid-cols-2">
+        <CardContent className="grid items-stretch p-0 md:grid-cols-2">
           <Form {...form}>
-            <form className="p-6 md:p-8" onSubmit={form.handleSubmit((values) => loginMutation.mutate(values))}>
-              <div className="flex flex-col gap-6">
+            <form
+              className="px-5 py-6 md:px-6 md:py-7"
+              onSubmit={form.handleSubmit((values) => {
+                if (!captchaSolvedRef.current) {
+                  toast.error("Selesaikan captcha terlebih dahulu");
+                  return;
+                }
+
+                loginMutation.mutate(values);
+              })}
+            >
+              <div className="flex flex-col gap-3">
                 <div className="flex flex-col items-center text-center">
                   <h1 className="text-2xl font-bold">Login Pasien</h1>
                   <p className="text-balance text-muted-foreground">
@@ -68,7 +87,7 @@ export function PatientLoginForm({ className, ...props }: React.ComponentProps<"
                   control={form.control}
                   name="email"
                   render={({ field }) => (
-                    <FormItem className="grid gap-2 text-left">
+                    <FormItem className="grid min-h-[4.75rem] gap-1 text-left">
                       <FormLabel htmlFor="patient-email">Email</FormLabel>
                       <FormControl>
                         <Input id="patient-email" type="email" placeholder="pasien.andi@simrs.local" {...field} />
@@ -82,7 +101,7 @@ export function PatientLoginForm({ className, ...props }: React.ComponentProps<"
                   control={form.control}
                   name="password"
                   render={({ field }) => (
-                    <FormItem className="grid gap-2 text-left">
+                    <FormItem className="grid min-h-[4.75rem] gap-1 text-left">
                       <FormLabel htmlFor="patient-password">Password</FormLabel>
                       <FormControl>
                         <Input id="patient-password" type="password" {...field} />
@@ -92,7 +111,9 @@ export function PatientLoginForm({ className, ...props }: React.ComponentProps<"
                   )}
                 />
 
-                <Button type="submit" className="w-full" disabled={loginMutation.isPending}>
+                <NativeCaptcha onChange={handleCaptchaChange} />
+
+                <Button type="submit" className="w-full" disabled={loginMutation.isPending || !captchaSolved}>
                   {loginMutation.isPending ? (
                     <span className="inline-flex items-center gap-2">
                       <Activity className="size-4 animate-spin" />
