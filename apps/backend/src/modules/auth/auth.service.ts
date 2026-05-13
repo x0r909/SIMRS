@@ -97,7 +97,12 @@ export class AuthService {
   }
 
   async registerPatient(input: RegisterPatientInput) {
-    const existingUser = await this.prisma.user.findUnique({ where: { email: input.email } });
+    const email = input.email.trim().toLowerCase();
+    const name = input.name.trim();
+    const phone = input.phone?.trim() || undefined;
+    const address = input.address?.trim() || undefined;
+
+    const existingUser = await this.prisma.user.findUnique({ where: { email } });
     if (existingUser) throw new BadRequestException("Email already registered");
 
     const patientRole = await this.prisma.role.findUnique({
@@ -111,8 +116,8 @@ export class AuthService {
     const result = await this.prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
-          email: input.email,
-          name: input.name,
+          email,
+          name,
           passwordHash,
           status: "ACTIVE"
         }
@@ -134,9 +139,9 @@ export class AuthService {
             data: {
               id: user.id,
               mrn: patientMrn,
-              name: input.name,
-              phone: input.phone,
-              address: input.address,
+              name,
+              phone,
+              address,
               birthDate: input.birthDate ? new Date(input.birthDate) : undefined
             }
           });
