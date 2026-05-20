@@ -1,11 +1,15 @@
-import { IsDateString, IsEmail, IsOptional, IsString, MinLength } from "class-validator";
-import { IsStrongPassword } from "../../../common/validators/strong-password.validator";
+import { Transform } from "class-transformer";
+import { IsDateString, IsEmail, IsOptional, IsString, Matches, MinLength } from "class-validator";
 
 export class RegisterPatientDto {
-  @IsEmail({}, { message: "Email harus valid" })
+  @Transform(({ value }) => (typeof value === "string" ? value.trim().toLowerCase() : value))
+  @IsEmail()
   email!: string;
 
-  @IsStrongPassword()
+  @IsString()
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$/, {
+    message: "Password minimal 12 karakter dan harus mengandung huruf besar, huruf kecil, angka, dan simbol"
+  })
   password!: string;
 
   @IsString({ message: "Nama harus berupa teks" })
