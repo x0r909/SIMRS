@@ -7,6 +7,7 @@ import { validateEnv } from "./config/env.schema";
 import { AppointmentsModule } from "./modules/appointments/appointments.module";
 import { AuditLogsModule } from "./modules/audit-logs/audit-logs.module";
 import { AuthModule } from "./modules/auth/auth.module";
+import { BackupModule } from "./modules/backup/backup.module";
 import { BillingModule } from "./modules/billing/billing.module";
 import { CaptchaModule } from "./modules/captcha/captcha.module";
 import { DoctorsModule } from "./modules/doctors/doctors.module";
@@ -40,6 +41,7 @@ import { AuditLoggingInterceptor } from "./modules/audit-logs/audit-logging.inte
     RolesModule,
     PermissionsModule,
     AuditLogsModule,
+    BackupModule,
     PatientsModule,
     DoctorsModule,
     AppointmentsModule,
