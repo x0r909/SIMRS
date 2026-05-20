@@ -20,6 +20,73 @@ enum AppointmentStatus {
   CANCELLED
 }
 
+enum AuditAction {
+  // Authentication
+  LOGIN
+  LOGOUT
+  LOGIN_FAILED
+  RESET_PASSWORD
+  CHANGE_PASSWORD
+  
+  // User Management
+  USER_CREATE
+  USER_UPDATE
+  USER_DELETE
+  ROLE_CHANGE
+  
+  // Patient
+  PATIENT_REGISTER
+  PATIENT_CREATE
+  PATIENT_UPDATE
+  PATIENT_DELETE
+  
+  // Medical Records
+  DIAGNOSIS_ADD
+  MEDICAL_RECORD_UPDATE
+  PRESCRIPTION_ADD
+  LAB_RESULT_UPLOAD
+  
+  // Appointment
+  APPOINTMENT_BOOK
+  APPOINTMENT_RESCHEDULE
+  APPOINTMENT_CANCEL
+  
+  // Pharmacy
+  MEDICINE_STOCK_ADD
+  MEDICINE_STOCK_UPDATE
+  MEDICINE_OUT
+  
+  // System
+  DATABASE_BACKUP
+  DATABASE_RESTORE
+  SYSTEM_ERROR
+  SETTING_UPDATE
+  
+  OTHER
+}
+
+enum AuditModule {
+  AUTH
+  USER_MANAGEMENT
+  PATIENT
+  APPOINTMENT
+  MEDICAL_RECORD
+  PHARMACY
+  BILLING
+  RADIOLOGY
+  LABORATORY
+  QUEUE
+  SYSTEM
+  OTHER
+}
+
+enum AuditStatus {
+  SUCCESS
+  FAILED
+  ERROR
+  WARNING
+}
+
 model User {
   id           String     @id @default(cuid())
   email        String     @unique
@@ -80,17 +147,25 @@ model RolePermission {
 }
 
 model AuditLog {
-  id        String   @id @default(cuid())
-  action    String
+  id        String        @id @default(cuid())
+  action    AuditAction
+  module    AuditModule
+  status    AuditStatus   @default(SUCCESS)
   entity    String
   entityId  String?
+  description String?
   metadata  Json?
   ip        String?
   userAgent String?
-  createdAt DateTime @default(now())
+  createdAt DateTime      @default(now())
 
   actorId String?
   actor   User? @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([actorId])
+  @@index([action])
+  @@index([module])
 }
 
 model Patient {

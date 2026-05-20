@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Prisma } from "@prisma/client";
+import { Prisma, AuditAction, AuditModule, AuditStatus } from "@prisma/client";
 
 import { PaginationQueryDto, toSkipTake } from "../../common/pagination/pagination";
 import { PrismaService } from "../../shared/prisma/prisma.service";
@@ -23,22 +23,28 @@ export class AuditLogsService {
   }
 
   create(input: {
-    action: string;
+    action: string | AuditAction;
+    module?: AuditModule;
     entity: string;
     entityId?: string;
-    actorId?: string;
+    actorId?: string | null;
     ip?: string;
     userAgent?: string;
+    description?: string;
     metadata?: unknown;
+    status?: AuditStatus;
   }) {
     return this.prisma.auditLog.create({
       data: {
-        action: input.action,
+        action: input.action as AuditAction,
+        module: input.module || AuditModule.OTHER,
         entity: input.entity,
         entityId: input.entityId,
-        actorId: input.actorId,
+        actorId: input.actorId || null,
         ip: input.ip,
         userAgent: input.userAgent,
+        description: input.description,
+        status: input.status || AuditStatus.SUCCESS,
         metadata: input.metadata as Prisma.InputJsonValue | undefined
       }
     });

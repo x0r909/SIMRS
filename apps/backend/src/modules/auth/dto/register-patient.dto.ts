@@ -1,16 +1,22 @@
 import { IsDateString, IsEmail, IsOptional, IsString, MinLength } from "class-validator";
+import { IsStrongPassword } from "../../../common/validators/strong-password.validator";
 
 export class RegisterPatientDto {
-  @IsEmail()
+  @IsEmail({}, { message: "Email harus valid" })
   email!: string;
 
-  @IsString()
-  @MinLength(6)
+  @IsStrongPassword()
   password!: string;
 
-  @IsString()
-  @MinLength(2)
+  @IsString({ message: "Nama harus berupa teks" })
+  @MinLength(2, { message: "Nama minimal 2 karakter" })
   name!: string;
+
+  @IsString({ message: "Captcha ID harus berupa teks" })
+  captchaId!: string;
+
+  @IsString({ message: "Jawaban captcha harus berupa teks" })
+  captchaAnswer!: string;
 
   @IsOptional()
   @IsString()

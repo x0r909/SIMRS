@@ -5,6 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Activity, ArrowLeft, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -14,7 +15,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { CaptchaField } from "@/components/captcha-field";
+import { PasswordStrengthIndicator } from "@/components/password-strength-indicator";
 import { getApiErrorMessage, registerPatient } from "@/lib/simrs-api";
+import { validatePasswordStrength } from "@/lib/password-validator";
 
 const schema = z
   .object({
@@ -23,8 +27,18 @@ const schema = z
     phone: z.string().min(8, "Nomor telepon minimal 8 digit").optional().or(z.literal("")),
     address: z.string().max(255, "Alamat terlalu panjang").optional().or(z.literal("")),
     birthDate: z.string().optional().or(z.literal("")),
-    password: z.string().min(6, "Password minimal 6 karakter"),
-    confirmPassword: z.string().min(6, "Konfirmasi password minimal 6 karakter")
+    password: z
+      .string()
+      .min(1, "Password wajib diisi")
+      .refine(
+        (password) => validatePasswordStrength(password).isValid,
+        (val) => ({
+          message: validatePasswordStrength(val).errors.join(", ")
+        })
+      ),
+    confirmPassword: z.string().min(1, "Konfirmasi password wajib diisi"),
+    captchaId: z.string().min(1, "Captcha ID wajib diisi"),
+    captchaAnswer: z.string().min(1, "Jawaban captcha wajib diisi")
   })
   .refine((values) => values.password === values.confirmPassword, {
     message: "Konfirmasi password tidak cocok",
@@ -35,6 +49,7 @@ type FormValues = z.infer<typeof schema>;
 
 export default function SignupPage() {
   const router = useRouter();
+  const [captchaError, setCaptchaError] = useState<string>();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -45,7 +60,9 @@ export default function SignupPage() {
       address: "",
       birthDate: "",
       password: "",
-      confirmPassword: ""
+      confirmPassword: "",
+      captchaId: "",
+      captchaAnswer: ""
     }
   });
 
@@ -55,6 +72,8 @@ export default function SignupPage() {
         name: values.name,
         email: values.email,
         password: values.password,
+        captchaId: values.captchaId,
+        captchaAnswer: values.captchaAnswer,
         phone: values.phone || undefined,
         address: values.address || undefined,
         birthDate: values.birthDate || undefined
@@ -64,9 +83,15 @@ export default function SignupPage() {
       router.push("/patient-login");
     },
     onError: (error) => {
-      toast.error(getApiErrorMessage(error));
+      const errorMessage = getApiErrorMessage(error);
+      toast.error(errorMessage);
+      // If captcha error, trigger refresh
+      if (errorMessage.toLowerCase().includes("captcha")) {
+        setCaptchaError(errorMessage);
+      }
     }
   });
+
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-10">
@@ -178,12 +203,13 @@ export default function SignupPage() {
                 control={form.control}
                 name="password"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="md:col-span-2">
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" {...field} />
+                      <Input type="password" placeholder="Buat password yang kuat" {...field} />
                     </FormControl>
                     <FormMessage />
+                    <PasswordStrengthIndicator control={form.control} passwordFieldName="password" />
                   </FormItem>
                 )}
               />
@@ -192,14 +218,41 @@ export default function SignupPage() {
                 control={form.control}
                 name="confirmPassword"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="md:col-span-2">
                     <FormLabel>Konfirmasi Password</FormLabel>
                     <FormControl>
-                      <Input type="password" {...field} />
+                      <Input type="password" placeholder="Ulangi password" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
+              />
+
+              <FormField
+                control={form.control}
+                name="captchaId"
+                render={({ field }) => (
+                  <input type="hidden" {...field} />
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="captchaAnswer"
+                render={({ field }) => (
+                  <input type="hidden" {...field} />
+                )}
+              />
+
+              <CaptchaField
+                watch={form.watch}
+                setValue={form.setValue}
+                onCaptchaChange={(captchaId, captchaAnswer) => {
+                  form.setValue("captchaId", captchaId);
+                  form.setValue("captchaAnswer", captchaAnswer);
+                  setCaptchaError(undefined);
+                }}
+                error={captchaError || form.formState.errors.captchaAnswer?.message}
               />
 
               <div className="mt-1 flex flex-col gap-3 md:col-span-2 md:flex-row md:items-center md:justify-between">
