@@ -1,5 +1,6 @@
-import { Module } from "@nestjs/common";
+import { Module, NestModule, MiddlewareConsumer } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
+import { APP_INTERCEPTOR } from "@nestjs/core";
 
 import { AppController } from "./app.controller";
 import { validateEnv } from "./config/env.schema";
@@ -7,6 +8,7 @@ import { AppointmentsModule } from "./modules/appointments/appointments.module";
 import { AuditLogsModule } from "./modules/audit-logs/audit-logs.module";
 import { AuthModule } from "./modules/auth/auth.module";
 import { BillingModule } from "./modules/billing/billing.module";
+import { CaptchaModule } from "./modules/captcha/captcha.module";
 import { DoctorsModule } from "./modules/doctors/doctors.module";
 import { FilesModule } from "./modules/files/files.module";
 import { LaboratoryModule } from "./modules/laboratory/laboratory.module";
@@ -20,6 +22,7 @@ import { UsersModule } from "./modules/users/users.module";
 import { VisitsModule } from "./modules/visits/visits.module";
 import { PrismaModule } from "./shared/prisma/prisma.module";
 import { StorageModule } from "./shared/storage/storage.module";
+import { AuditLoggingInterceptor } from "./modules/audit-logs/audit-logging.interceptor";
 
 @Module({
   controllers: [AppController],
@@ -32,6 +35,7 @@ import { StorageModule } from "./shared/storage/storage.module";
     PrismaModule,
     StorageModule,
     AuthModule,
+    CaptchaModule,
     UsersModule,
     RolesModule,
     PermissionsModule,
@@ -46,7 +50,13 @@ import { StorageModule } from "./shared/storage/storage.module";
     RadiologyModule,
     BillingModule,
     FilesModule
-  ]
+  ],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditLoggingInterceptor,
+    },
+  ],
 })
 export class AppModule {}
 

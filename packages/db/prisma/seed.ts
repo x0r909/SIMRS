@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
+import { seedAuditLogs, seedAuditLogsForSeededData } from "./seeders/audit-logs.seeder";
 
 const prisma = new PrismaClient();
 
@@ -28,6 +29,7 @@ const ALL_PERMISSION_KEYS = [
   "files.read",
   "files.write",
   "audit.read",
+  "audit.export",
   // extension keys to mirror reference SQL modules
   "pharmacy.read",
   "pharmacy.write",
@@ -614,6 +616,14 @@ async function main() {
       }
     });
   }
+
+  // Seed audit logs
+  await seedAuditLogs(prisma);
+  
+  // Seed audit logs for the seeded data
+  await seedAuditLogsForSeededData(prisma);
+
+  console.log("✅ Database seeding completed successfully!");
 }
 
 main()

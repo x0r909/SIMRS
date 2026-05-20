@@ -4,6 +4,8 @@ import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
 
 import { UsersModule } from "../users/users.module";
+import { CaptchaModule } from "../captcha/captcha.module";
+import { AuditLogsModule } from "../audit-logs/audit-logs.module";
 
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
@@ -12,6 +14,8 @@ import { JwtStrategy } from "./jwt.strategy";
 @Module({
   imports: [
     UsersModule,
+    CaptchaModule,
+    AuditLogsModule,
     PassportModule,
     JwtModule.registerAsync({
       inject: [ConfigService],

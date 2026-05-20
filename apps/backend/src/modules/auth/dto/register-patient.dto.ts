@@ -1,16 +1,26 @@
-import { IsDateString, IsEmail, IsOptional, IsString, MinLength } from "class-validator";
+import { Transform } from "class-transformer";
+import { IsDateString, IsEmail, IsOptional, IsString, Matches, MinLength } from "class-validator";
 
 export class RegisterPatientDto {
+  @Transform(({ value }) => (typeof value === "string" ? value.trim().toLowerCase() : value))
   @IsEmail()
   email!: string;
 
   @IsString()
-  @MinLength(6)
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$/, {
+    message: "Password minimal 12 karakter dan harus mengandung huruf besar, huruf kecil, angka, dan simbol"
+  })
   password!: string;
 
-  @IsString()
-  @MinLength(2)
+  @IsString({ message: "Nama harus berupa teks" })
+  @MinLength(2, { message: "Nama minimal 2 karakter" })
   name!: string;
+
+  @IsString({ message: "Captcha ID harus berupa teks" })
+  captchaId!: string;
+
+  @IsString({ message: "Jawaban captcha harus berupa teks" })
+  captchaAnswer!: string;
 
   @IsOptional()
   @IsString()

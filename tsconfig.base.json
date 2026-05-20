@@ -17,7 +17,9 @@
     "baseUrl": ".",
     "paths": {
       "@simrs/db": ["packages/db/src/index.ts"],
-      "@simrs/db/*": ["packages/db/src/*"]
+      "@simrs/db/*": ["packages/db/src/*"],
+      "@common/*": ["apps/backend/src/common/*"],
+      "@shared/*": ["apps/backend/src/shared/*"]
     }
   }
 }

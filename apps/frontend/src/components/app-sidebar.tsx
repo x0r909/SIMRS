@@ -1,6 +1,7 @@
 "use client"
 
 import {
+  ActivitySquare,
   ClipboardList,
   FlaskConical,
   LayoutDashboard,
@@ -54,7 +55,10 @@ const navMain = [
   {
     title: "Administrasi",
     icon: Shield,
-    items: [{ title: "Users & Roles", url: "/admin" }],
+    items: [
+      { title: "Users & Roles", url: "/admin" },
+      { title: "Activity Log", url: "/admin/activity-log" },
+    ],
   },
 ]
 

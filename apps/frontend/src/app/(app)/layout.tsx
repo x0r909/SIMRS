@@ -22,7 +22,8 @@ const titleMap: Record<string, string> = {
   radiology: "Radiology",
   billing: "Billing",
   admin: "Users & Roles",
-  files: "Files"
+  files: "Files",
+  "activity-log": "Activity Log"
 };
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -31,7 +32,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [isHydrated, setIsHydrated] = useState(false);
   const [hasToken, setHasToken] = useState(false);
   const pageTitle = useMemo(() => {
-    const [firstSegment] = pathname.split("/").filter(Boolean);
+    const segments = pathname.split("/").filter(Boolean);
+    const [firstSegment, secondSegment] = segments;
+    
+    // Handle nested paths like /admin/activity-log
+    if (firstSegment === "admin" && secondSegment) {
+      return titleMap[secondSegment] ?? titleMap[firstSegment] ?? "SIMRS";
+    }
+    
     if (!firstSegment) return "Dashboard";
     return titleMap[firstSegment] ?? "SIMRS";
   }, [pathname]);

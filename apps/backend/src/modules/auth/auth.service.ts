@@ -1,9 +1,12 @@
 import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
+import { AuditAction, AuditModule, AuditStatus } from "@prisma/client";
 import bcrypt from "bcrypt";
 
 import { PrismaService } from "../../shared/prisma/prisma.service";
+import { CaptchaService } from "../captcha/captcha.service";
+import { AuditLogsService } from "../audit-logs/audit-logs.service";
 
 import type { JwtPayload } from "./types";
 
@@ -11,6 +14,8 @@ type RegisterPatientInput = {
   email: string;
   password: string;
   name: string;
+  captchaId: string;
+  captchaAnswer: string;
   phone?: string;
   address?: string;
   birthDate?: string;
@@ -21,7 +26,9 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
-    private readonly config: ConfigService
+    private readonly config: ConfigService,
+    private readonly captcha: CaptchaService,
+    private readonly auditLogs: AuditLogsService
   ) {}
 
   private generateMrn() {
@@ -63,11 +70,44 @@ export class AuthService {
 
   async login(email: string, password: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
-    if (!user) throw new UnauthorizedException("Invalid credentials");
-    if (user.status !== "ACTIVE") throw new UnauthorizedException("User disabled");
+    if (!user) {
+      // Log failed login attempt
+      await this.auditLogs.create({
+        action: AuditAction.LOGIN_FAILED,
+        module: AuditModule.AUTH,
+        entity: 'User',
+        status: AuditStatus.FAILED,
+        description: `Failed login attempt for email: ${email}`,
+        metadata: { email, reason: 'User not found' }
+      });
+      throw new UnauthorizedException("Invalid credentials");
+    }
+    if (user.status !== "ACTIVE") {
+      await this.auditLogs.create({
+        action: AuditAction.LOGIN_FAILED,
+        module: AuditModule.AUTH,
+        entity: 'User',
+        status: AuditStatus.FAILED,
+        description: `Login attempt for disabled user: ${email}`,
+        actorId: user.id,
+        metadata: { email, reason: 'User disabled' }
+      });
+      throw new UnauthorizedException("User disabled");
+    }
 
     const ok = await bcrypt.compare(password, user.passwordHash);
-    if (!ok) throw new UnauthorizedException("Invalid credentials");
+    if (!ok) {
+      await this.auditLogs.create({
+        action: AuditAction.LOGIN_FAILED,
+        module: AuditModule.AUTH,
+        entity: 'User',
+        status: AuditStatus.FAILED,
+        description: `Failed login for user: ${email}`,
+        actorId: user.id,
+        metadata: { email, reason: 'Invalid password' }
+      });
+      throw new UnauthorizedException("Invalid credentials");
+    }
 
     const { payload, roles, permissions, user: authUser } = await this.buildUserAuthState(user.id);
     const accessTtl = Number(this.config.get("JWT_ACCESS_TTL_SECONDS", 900));
@@ -80,6 +120,17 @@ export class AuthService {
     const refreshToken = await this.jwt.signAsync(payload, {
       secret: this.config.getOrThrow<string>("JWT_REFRESH_SECRET"),
       expiresIn: refreshTtl
+    });
+
+    // Log successful login
+    await this.auditLogs.create({
+      action: AuditAction.LOGIN,
+      module: AuditModule.AUTH,
+      entity: 'User',
+      status: AuditStatus.SUCCESS,
+      description: `User logged in: ${email}`,
+      actorId: user.id,
+      metadata: { email, name: authUser.name, roles }
     });
 
     return {
@@ -97,8 +148,19 @@ export class AuthService {
   }
 
   async registerPatient(input: RegisterPatientInput) {
-    const existingUser = await this.prisma.user.findUnique({ where: { email: input.email } });
-    if (existingUser) throw new BadRequestException("Email already registered");
+    // Verify captcha
+    const isCaptchaValid = this.captcha.verifyCaptcha(input.captchaId, input.captchaAnswer);
+    if (!isCaptchaValid) {
+      throw new BadRequestException("Captcha tidak valid atau sudah kadaluarsa");
+    }
+
+    const email = input.email.trim().toLowerCase();
+    const name = input.name.trim();
+    const phone = input.phone?.trim() || undefined;
+    const address = input.address?.trim() || undefined;
+
+    const existingUser = await this.prisma.user.findUnique({ where: { email } });
+    if (existingUser) throw new BadRequestException("Email sudah terdaftar");
 
     const patientRole = await this.prisma.role.findUnique({
       where: { key: "patient" },
@@ -111,8 +173,8 @@ export class AuthService {
     const result = await this.prisma.$transaction(async (tx: any) => {
       const user = await tx.user.create({
         data: {
-          email: input.email,
-          name: input.name,
+          email,
+          name,
           passwordHash,
           status: "ACTIVE"
         }
@@ -134,9 +196,9 @@ export class AuthService {
             data: {
               id: user.id,
               mrn: patientMrn,
-              name: input.name,
-              phone: input.phone,
-              address: input.address,
+              name,
+              phone,
+              address,
               birthDate: input.birthDate ? new Date(input.birthDate) : undefined
             }
           });
@@ -148,12 +210,16 @@ export class AuthService {
 
       if (!patient) throw new BadRequestException("Failed to generate patient MRN");
 
+      const { AuditAction, AuditModule, AuditStatus } = await import('@prisma/client');
+      
       await tx.auditLog.create({
         data: {
           actorId: user.id,
-          action: "register",
+          action: AuditAction.PATIENT_REGISTER,
+          module: AuditModule.PATIENT,
           entity: "Patient",
           entityId: patient.id,
+          status: AuditStatus.SUCCESS,
           metadata: { email: user.email, mrn: patient.mrn }
         }
       });
