@@ -4,6 +4,7 @@ import {
   ActivitySquare,
   ClipboardList,
   FlaskConical,
+  HardDrive,
   LayoutDashboard,
   Shield,
   Users,
@@ -58,6 +59,7 @@ const navMain = [
     items: [
       { title: "Users & Roles", url: "/admin" },
       { title: "Activity Log", url: "/admin/activity-log" },
+      { title: "Backup & Restore", url: "/admin/backup" },
     ],
   },
 ]

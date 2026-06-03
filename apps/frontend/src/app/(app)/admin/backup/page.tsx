@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
@@ -19,25 +19,9 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogTitle
-} from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog';
-import { Spinner } from 'lucide-react';
+import { Loader2, Download, Trash2, RotateCcw } from 'lucide-react';
 import {
   createBackup,
   listBackups,
@@ -54,8 +38,6 @@ export default function BackupPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [description, setDescription] = useState('');
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [restoreId, setRestoreId] = useState<string | null>(null);
 
   // Fetch backups
   const backups = useQuery({
@@ -81,7 +63,6 @@ export default function BackupPage() {
     mutationFn: (id: string) => restoreBackup(id),
     onSuccess: () => {
       toast.success('Database berhasil di-restore dari backup');
-      setRestoreId(null);
       queryClient.invalidateQueries({ queryKey: ['backups'] });
     },
     onError: (error: any) => {
@@ -94,7 +75,6 @@ export default function BackupPage() {
     mutationFn: (id: string) => deleteBackup(id),
     onSuccess: () => {
       toast.success('Backup berhasil dihapus');
-      setDeleteId(null);
       queryClient.invalidateQueries({ queryKey: ['backups'] });
     },
     onError: (error: any) => {
@@ -119,6 +99,22 @@ export default function BackupPage() {
     }
   });
 
+  const handleRestore = (id: string) => {
+    if (
+      window.confirm(
+        'Perhatian: Data database saat ini akan diganti dengan backup ini. Tindakan ini tidak dapat dibatalkan. Lanjutkan?'
+      )
+    ) {
+      restoreMutation.mutate(id);
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    if (window.confirm('Backup akan dihapus secara permanen. Lanjutkan?')) {
+      deleteMutation.mutate(id);
+    }
+  };
+
   const formatSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -128,7 +124,7 @@ export default function BackupPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
@@ -161,7 +157,7 @@ export default function BackupPage() {
               disabled={createMutation.isPending}
               className="w-full sm:w-auto"
             >
-              {createMutation.isPending && <Spinner className="mr-2 h-4 w-4 animate-spin" />}
+              {createMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {createMutation.isPending ? 'Membuat Backup...' : 'Buat Backup Sekarang'}
             </Button>
           </div>
@@ -173,13 +169,13 @@ export default function BackupPage() {
         <CardHeader>
           <CardTitle>Daftar Backup</CardTitle>
           <CardDescription>
-            Total: {backups.data?.meta.total} backup
+            Total: {backups.data?.meta.total || 0} backup
           </CardDescription>
         </CardHeader>
         <CardContent>
           {backups.isLoading ? (
             <div className="flex justify-center py-8">
-              <Spinner className="h-6 w-6 animate-spin" />
+              <Loader2 className="h-6 w-6 animate-spin" />
             </div>
           ) : backups.isError ? (
             <div className="rounded-lg bg-red-50 p-4 text-red-800">
@@ -244,65 +240,34 @@ export default function BackupPage() {
                           <Button
                             size="sm"
                             variant="ghost"
+                            title="Download backup"
                             onClick={() => downloadMutation.mutate(backup.id)}
                             disabled={downloadMutation.isPending}
                           >
-                            Download
+                            <Download className="h-4 w-4" />
                           </Button>
 
-                          <AlertDialog>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              asChild
-                            >
-                              <AlertDialogTrigger>Restore</AlertDialogTrigger>
-                            </Button>
-                            <AlertDialogContent>
-                              <AlertDialogTitle>Restore Database</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Data database saat ini akan diganti dengan backup ini.
-                                Tindakan ini tidak dapat dibatalkan. Lanjutkan?
-                              </AlertDialogDescription>
-                              <div className="flex gap-3">
-                                <AlertDialogCancel>Batal</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => restoreMutation.mutate(backup.id)}
-                                  disabled={restoreMutation.isPending}
-                                  className="bg-red-600 hover:bg-red-700"
-                                >
-                                  {restoreMutation.isPending ? 'Restoring...' : 'Ya, Restore'}
-                                </AlertDialogAction>
-                              </div>
-                            </AlertDialogContent>
-                          </AlertDialog>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            title="Restore dari backup"
+                            onClick={() => handleRestore(backup.id)}
+                            disabled={restoreMutation.isPending}
+                          >
+                            <RotateCcw className="h-4 w-4 mr-1" />
+                            Restore
+                          </Button>
 
-                          <AlertDialog>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="text-red-600 hover:text-red-700"
-                              asChild
-                            >
-                              <AlertDialogTrigger>Hapus</AlertDialogTrigger>
-                            </Button>
-                            <AlertDialogContent>
-                              <AlertDialogTitle>Hapus Backup</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Backup akan dihapus secara permanen. Lanjutkan?
-                              </AlertDialogDescription>
-                              <div className="flex gap-3">
-                                <AlertDialogCancel>Batal</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => deleteMutation.mutate(backup.id)}
-                                  disabled={deleteMutation.isPending}
-                                  className="bg-red-600 hover:bg-red-700"
-                                >
-                                  {deleteMutation.isPending ? 'Menghapus...' : 'Ya, Hapus'}
-                                </AlertDialogAction>
-                              </div>
-                            </AlertDialogContent>
-                          </AlertDialog>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-red-600 hover:text-red-700"
+                            title="Hapus backup"
+                            onClick={() => handleDelete(backup.id)}
+                            disabled={deleteMutation.isPending}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>

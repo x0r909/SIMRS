@@ -42,7 +42,8 @@ export class BackupService {
           encoding: 'utf-8'
         });
       } catch (error) {
-        this.logger.error(`pg_dump failed: ${error.message}`);
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        this.logger.error(`pg_dump failed: ${errorMsg}`);
         // Fallback: create backup using Prisma query
         await this.createPrismaBackup(backupPath);
       }
@@ -52,7 +53,7 @@ export class BackupService {
       const size = stats.size;
 
       // Save backup info to database
-      const backup = await this.prisma.databaseBackup.create({
+      const backup = await (this.prisma as any).databaseBackup.create({
         data: {
           filename,
           description,
@@ -80,7 +81,8 @@ export class BackupService {
       this.logger.log(`Backup created successfully: ${filename} (${this.formatSize(size)})`);
       return backup;
     } catch (error) {
-      this.logger.error(`Backup failed: ${error.message}`);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Backup failed: ${errorMsg}`);
 
       await this.audit.create({
         actorId,
@@ -88,8 +90,8 @@ export class BackupService {
         module: AuditModule.SYSTEM,
         entity: 'DatabaseBackup',
         status: AuditStatus.FAILED,
-        description: `Database backup failed: ${error.message}`,
-        metadata: { error: error.message }
+        description: `Database backup failed: ${errorMsg}`,
+        metadata: { error: errorMsg }
       });
 
       throw new InternalServerErrorException('Failed to create backup');
@@ -98,7 +100,7 @@ export class BackupService {
 
   async restoreBackup(actorId: string | undefined, backupId: string) {
     try {
-      const backup = await this.prisma.databaseBackup.findUnique({
+      const backup = await (this.prisma as any).databaseBackup.findUnique({
         where: { id: backupId }
       });
 
@@ -124,7 +126,8 @@ export class BackupService {
           encoding: 'utf-8'
         });
       } catch (error) {
-        this.logger.error(`psql restore failed: ${error.message}`);
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        this.logger.error(`psql restore failed: ${errorMsg}`);
         throw error;
       }
 
@@ -143,7 +146,8 @@ export class BackupService {
       this.logger.log(`Backup restored successfully: ${backup.filename}`);
       return { message: 'Backup restored successfully', backupId };
     } catch (error) {
-      this.logger.error(`Restore failed: ${error.message}`);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Restore failed: ${errorMsg}`);
 
       await this.audit.create({
         actorId,
@@ -151,8 +155,8 @@ export class BackupService {
         module: AuditModule.SYSTEM,
         entity: 'DatabaseBackup',
         status: AuditStatus.FAILED,
-        description: `Database restore failed: ${error.message}`,
-        metadata: { backupId, error: error.message }
+        description: `Database restore failed: ${errorMsg}`,
+        metadata: { backupId, error: errorMsg }
       });
 
       throw new InternalServerErrorException('Failed to restore backup');
@@ -162,8 +166,8 @@ export class BackupService {
   async listBackups(page = 1, limit = 20) {
     const skip = (page - 1) * limit;
     const [total, data] = await Promise.all([
-      this.prisma.databaseBackup.count(),
-      this.prisma.databaseBackup.findMany({
+      (this.prisma as any).databaseBackup.count(),
+      (this.prisma as any).databaseBackup.findMany({
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
@@ -183,7 +187,7 @@ export class BackupService {
   }
 
   async getBackup(id: string) {
-    const backup = await this.prisma.databaseBackup.findUnique({
+    const backup = await (this.prisma as any).databaseBackup.findUnique({
       where: { id },
       include: { createdBy: { select: { id: true, email: true, name: true } } }
     });
@@ -204,7 +208,7 @@ export class BackupService {
     }
 
     // Delete record
-    await this.prisma.databaseBackup.delete({ where: { id } });
+    await (this.prisma as any).databaseBackup.delete({ where: { id } });
 
     await this.audit.create({
       actorId,

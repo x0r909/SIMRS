@@ -96,9 +96,10 @@ model User {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
-  roles     UserRole[]
-  auditLogs AuditLog[] @relation("AuditActor")
-  files     FileObject[] @relation("FileUploader")
+  roles          UserRole[]
+  auditLogs      AuditLog[] @relation("AuditActor")
+  files          FileObject[] @relation("FileUploader")
+  databaseBackups DatabaseBackup[]
 }
 
 model Role {
