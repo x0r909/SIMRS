@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { Prisma, AppointmentStatus } from "@prisma/client";
+import { Prisma, AppointmentStatus, AuditAction } from "@prisma/client";
 
 import { PaginationQueryDto, toSkipTake } from "../../common/pagination/pagination";
 import { PrismaService } from "../../shared/prisma/prisma.service";
@@ -130,7 +130,7 @@ export class VisitsService {
       });
     }
 
-    await this.audit.create({ actorId, action: "create", entity: "Visit", entityId: visit.id });
+    await this.audit.create({ actorId, action: AuditAction.MEDICAL_RECORD_UPDATE, entity: "Visit", entityId: visit.id });
     return this.get(visit.id);
   }
 
@@ -161,7 +161,7 @@ export class VisitsService {
         endedAt: input.endedAt ? new Date(input.endedAt) : undefined
       }
     });
-    await this.audit.create({ actorId, action: "update", entity: "Visit", entityId: id });
+    await this.audit.create({ actorId, action: AuditAction.MEDICAL_RECORD_UPDATE, entity: "Visit", entityId: id });
     return this.get(id);
   }
 

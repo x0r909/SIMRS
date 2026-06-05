@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { Prisma } from "@prisma/client";
+import { Prisma, AuditAction } from "@prisma/client";
 
 import { PaginationQueryDto, toSkipTake } from "../../common/pagination/pagination";
 import { PrismaService } from "../../shared/prisma/prisma.service";
@@ -140,7 +140,7 @@ export class LaboratoryService {
 
     await this.audit.create({
       actorId,
-      action: "create",
+      action: AuditAction.OTHER,
       entity: "LaboratoryOrder",
       entityId: order.id,
       metadata: { testType: order.testType }
@@ -184,7 +184,7 @@ export class LaboratoryService {
 
     await this.audit.create({
       actorId,
-      action: "create",
+      action: AuditAction.LAB_RESULT_UPLOAD,
       entity: "LaboratoryResult",
       entityId: result.id,
       metadata: { orderId, parameter: result.parameter }

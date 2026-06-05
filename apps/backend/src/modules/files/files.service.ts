@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import { extname } from "path";
 
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { Prisma } from "@prisma/client";
+import { Prisma, AuditAction } from "@prisma/client";
 
 import { PaginationQueryDto, toSkipTake } from "../../common/pagination/pagination";
 import { PrismaService } from "../../shared/prisma/prisma.service";
@@ -59,6 +59,13 @@ export class FilesService {
   async upload(actorId: string | undefined, file: Express.Multer.File) {
     if (!file) throw new BadRequestException("File is required");
     if (file.size <= 0) throw new BadRequestException("File is empty");
+    
+    const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      throw new BadRequestException(
+        `File type not allowed. Only JPG, PNG, and JPEG are accepted. Received: ${file.mimetype}`
+      );
+    }
 
     await this.minio.ensureBucket();
     const suffix = extname(file.originalname);
@@ -79,7 +86,7 @@ export class FilesService {
     });
     await this.audit.create({
       actorId,
-      action: "upload",
+      action: AuditAction.FILE_UPLOAD,
       entity: "FileObject",
       entityId: created.id,
       metadata: { filename: created.filename, objectKey }

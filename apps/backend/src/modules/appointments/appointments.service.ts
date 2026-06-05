@@ -1,6 +1,6 @@
 // Fixed AppointmentStatus import for Vercel build
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { Prisma, AppointmentStatus } from "@prisma/client";
+import { Prisma, AppointmentStatus, AuditAction } from "@prisma/client";
 
 import { PaginationQueryDto, toSkipTake } from "../../common/pagination/pagination";
 import { PrismaService } from "../../shared/prisma/prisma.service";
@@ -113,7 +113,7 @@ export class AppointmentsService {
         notes: input.notes
       }
     });
-    await this.audit.create({ actorId, action: "create", entity: "Appointment", entityId: appt.id });
+    await this.audit.create({ actorId, action: AuditAction.APPOINTMENT_BOOK, entity: "Appointment", entityId: appt.id });
     return this.get(appt.id);
   }
 
@@ -148,7 +148,7 @@ export class AppointmentsService {
         notes: input.notes
       }
     });
-    await this.audit.create({ actorId, action: "update", entity: "Appointment", entityId: id });
+    await this.audit.create({ actorId, action: AuditAction.APPOINTMENT_RESCHEDULE, entity: "Appointment", entityId: id });
     return this.get(id);
   }
 
@@ -168,7 +168,7 @@ export class AppointmentsService {
   async remove(actorId: string | undefined, id: string) {
     await this.get(id);
     await this.prisma.appointment.delete({ where: { id } });
-    await this.audit.create({ actorId, action: "delete", entity: "Appointment", entityId: id });
+    await this.audit.create({ actorId, action: AuditAction.APPOINTMENT_CANCEL, entity: "Appointment", entityId: id });
     return { id };
   }
 }

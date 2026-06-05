@@ -377,6 +377,8 @@ export class AuditService {
       [AuditAction.MEDICAL_RECORD_UPDATE]: 'Update Rekam Medis',
       [AuditAction.PRESCRIPTION_ADD]: 'Tambah Resep',
       [AuditAction.LAB_RESULT_UPLOAD]: 'Upload Hasil Lab',
+      [AuditAction.FILE_UPLOAD]: 'Upload File',
+      [AuditAction.FILE_DOWNLOAD]: 'Download File',
       [AuditAction.APPOINTMENT_BOOK]: 'Booking Jadwal',
       [AuditAction.APPOINTMENT_RESCHEDULE]: 'Ubah Jadwal',
       [AuditAction.APPOINTMENT_CANCEL]: 'Batal Jadwal',

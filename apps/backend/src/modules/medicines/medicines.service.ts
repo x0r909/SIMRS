@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { Prisma } from "@prisma/client";
+import { Prisma, AuditAction } from "@prisma/client";
 
 import { PaginationQueryDto, toSkipTake } from "../../common/pagination/pagination";
 import { PrismaService } from "../../shared/prisma/prisma.service";
@@ -48,7 +48,7 @@ export class MedicinesService {
         price: Number(input.price ?? 0)
       }
     });
-    await this.audit.create({ actorId, action: "create", entity: "Medicine", entityId: med.id });
+    await this.audit.create({ actorId, action: AuditAction.MEDICINE_STOCK_ADD, entity: "Medicine", entityId: med.id });
     return med;
   }
 
@@ -64,14 +64,14 @@ export class MedicinesService {
         price: input.price !== undefined ? Number(input.price) : undefined
       }
     });
-    await this.audit.create({ actorId, action: "update", entity: "Medicine", entityId: id });
+    await this.audit.create({ actorId, action: AuditAction.MEDICINE_STOCK_UPDATE, entity: "Medicine", entityId: id });
     return med;
   }
 
   async remove(actorId: string | undefined, id: string) {
     await this.get(id);
     await this.prisma.medicine.delete({ where: { id } });
-    await this.audit.create({ actorId, action: "delete", entity: "Medicine", entityId: id });
+    await this.audit.create({ actorId, action: AuditAction.OTHER, entity: "Medicine", entityId: id });
     return { id };
   }
 }

@@ -51,6 +51,21 @@ export default function FilesPage() {
     }
   };
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Hanya file JPG, PNG, dan JPEG yang diperbolehkan");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      setSelectedFile(null);
+      return;
+    }
+
+    setSelectedFile(file);
+  };
+
   return (
     <div className="space-y-6 p-6">
       <PageHeader title="File Upload" description="Upload dan manajemen dokumen medis" />
@@ -60,11 +75,15 @@ export default function FilesPage() {
           <CardTitle className="text-base">Upload file</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Input
-            ref={fileInputRef}
-            type="file"
-            onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
-          />
+          <div className="space-y-2">
+            <Input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/jpg"
+              onChange={handleFileSelect}
+            />
+            <p className="text-sm text-muted-foreground">Format yang diterima: JPG, PNG, JPEG</p>
+          </div>
           <Button
             onClick={() => {
               if (!selectedFile) {

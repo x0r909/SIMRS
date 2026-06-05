@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import bcrypt from "bcrypt";
+import { AuditAction } from "@prisma/client";
 
 import { PrismaService } from "../../shared/prisma/prisma.service";
 import { AuditLogsService } from "../audit-logs/audit-logs.service";
@@ -84,7 +85,7 @@ export class UsersService {
 
     await this.audit.create({
       actorId,
-      action: "create",
+      action: AuditAction.USER_CREATE,
       entity: "User",
       entityId: user.id,
       metadata: { email: user.email }
@@ -118,7 +119,7 @@ export class UsersService {
       }
     }
 
-    await this.audit.create({ actorId, action: "update", entity: "User", entityId: id });
+    await this.audit.create({ actorId, action: AuditAction.USER_UPDATE, entity: "User", entityId: id });
     return this.get(id);
   }
 
@@ -128,7 +129,7 @@ export class UsersService {
     await this.prisma.user.delete({ where: { id } });
     await this.audit.create({
       actorId,
-      action: "delete",
+      action: AuditAction.USER_DELETE,
       entity: "User",
       entityId: id,
       metadata: { email: existing.email }

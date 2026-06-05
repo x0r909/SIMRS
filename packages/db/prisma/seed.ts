@@ -69,7 +69,9 @@ const ROLE_SEEDS: RoleSeed[] = [
       "laboratory.read",
       "laboratory.write",
       "radiology.read",
-      "radiology.write"
+      "radiology.write",
+      "files.read",
+      "files.write"
     ]
   },
   {
@@ -85,7 +87,9 @@ const ROLE_SEEDS: RoleSeed[] = [
       "queues.read",
       "queues.write",
       "visits.read",
-      "billing.read"
+      "billing.read",
+      "files.read",
+      "files.write"
     ]
   },
   {
@@ -98,32 +102,34 @@ const ROLE_SEEDS: RoleSeed[] = [
       "medicines.read",
       "medicines.write",
       "pharmacy.read",
-      "pharmacy.write"
+      "pharmacy.write",
+      "files.read",
+      "files.write"
     ]
   },
   {
     key: "radiology",
     name: "Radiology",
     description: "Order dan hasil radiologi",
-    permissionKeys: ["patients.read", "visits.read", "radiology.read", "radiology.write"]
+    permissionKeys: ["patients.read", "visits.read", "radiology.read", "radiology.write", "files.read", "files.write"]
   },
   {
     key: "lab",
     name: "Lab",
     description: "Order dan hasil laboratorium",
-    permissionKeys: ["patients.read", "visits.read", "laboratory.read", "laboratory.write"]
+    permissionKeys: ["patients.read", "visits.read", "laboratory.read", "laboratory.write", "files.read", "files.write"]
   },
   {
     key: "cashier",
     name: "Cashier",
     description: "Billing dan pembayaran",
-    permissionKeys: ["patients.read", "visits.read", "billing.read", "billing.write"]
+    permissionKeys: ["patients.read", "visits.read", "billing.read", "billing.write", "files.read", "files.write"]
   },
   {
     key: "patient",
     name: "Patient",
     description: "Portal pasien",
-    permissionKeys: ["patients.read", "doctors.read", "appointments.read", "appointments.write", "visits.read", "billing.read"]
+    permissionKeys: ["patients.read", "appointments.read", "visits.read", "billing.read", "files.read"]
   }
 ];
 

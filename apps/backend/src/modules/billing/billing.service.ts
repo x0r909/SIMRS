@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { Prisma } from "@prisma/client";
+import { Prisma, AuditAction } from "@prisma/client";
 
 import { PaginationQueryDto, toSkipTake } from "../../common/pagination/pagination";
 import { PrismaService } from "../../shared/prisma/prisma.service";
@@ -147,7 +147,7 @@ export class BillingService {
 
     await this.audit.create({
       actorId,
-      action: "create",
+      action: AuditAction.OTHER,
       entity: "BillingInvoice",
       entityId: invoice.id,
       metadata: { number: invoice.number, total: invoice.total }
