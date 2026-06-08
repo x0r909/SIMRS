@@ -25,3 +25,31 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.env.local
+.env.*.local
+
+# Backups
+backups/
+*.bak
+*.backup
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# IDE
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+*.code-workspace
+
+# Temporary files
+tmp/
+temp/
+*.tmp
