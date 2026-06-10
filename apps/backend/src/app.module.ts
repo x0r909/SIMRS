@@ -1,6 +1,8 @@
 import { Module, NestModule, MiddlewareConsumer } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import { APP_INTERCEPTOR } from "@nestjs/core";
+import { APP_INTERCEPTOR, APP_GUARD } from "@nestjs/core";
+import { ScheduleModule } from "@nestjs/schedule";
+import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 
 import { AppController } from "./app.controller";
 import { validateEnv } from "./config/env.schema";
@@ -33,6 +35,24 @@ import { AuditLoggingInterceptor } from "./modules/audit-logs/audit-logging.inte
       expandVariables: true,
       validate: validateEnv
     }),
+    ScheduleModule.forRoot(),
+    ThrottlerModule.forRoot([
+      {
+        name: "short",
+        ttl: 1000,
+        limit: 10,
+      },
+      {
+        name: "long",
+        ttl: 60000,
+        limit: 100,
+      },
+      {
+        name: "login",
+        ttl: 60000,
+        limit: 5,
+      },
+    ]),
     PrismaModule,
     StorageModule,
     AuthModule,
@@ -54,6 +74,10 @@ import { AuditLoggingInterceptor } from "./modules/audit-logs/audit-logging.inte
     FilesModule
   ],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     {
       provide: APP_INTERCEPTOR,
       useClass: AuditLoggingInterceptor,

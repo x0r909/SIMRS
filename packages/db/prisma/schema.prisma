@@ -102,6 +102,8 @@ model User {
   auditLogs      AuditLog[] @relation("AuditActor")
   files          FileObject[] @relation("FileUploader")
   databaseBackups DatabaseBackup[]
+  refreshTokens RefreshToken[]
+  sessions      UserSession[]
 }
 
 model Role {
@@ -398,5 +400,35 @@ model DatabaseBackup {
 
   @@index([createdAt])
   @@index([status])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  hash      String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  metadata  Json?
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([revokedAt])
+}
+
+model UserSession {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ip           String?
+  userAgent    String?
+  lastActivity DateTime @default(now())
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([lastActivity])
 }
 

@@ -16,7 +16,7 @@ import { JwtAuthGuard } from '../../common/auth/jwt-auth.guard';
 import { BackupService } from './backup.service';
 import { CreateBackupDto, RestoreBackupDto } from './dto';
 
-@Controller('v1/backup')
+@Controller('backup')
 @UseGuards(JwtAuthGuard)
 export class BackupController {
   constructor(private readonly backup: BackupService) {}
@@ -35,7 +35,8 @@ export class BackupController {
 
   @Get()
   async listBackups(@Query('page') page = 1, @Query('limit') limit = 20) {
-    return this.backup.listBackups(parseInt(page as any), parseInt(limit as any));
+    const result = await this.backup.listBackups(parseInt(page as any), parseInt(limit as any));
+    return { success: true, data: result.data, meta: result.meta };
   }
 
   @Get(':id')
