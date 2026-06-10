@@ -2,12 +2,13 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import { Prisma, AuditAction } from "@prisma/client";
 
 import { PaginationQueryDto, toSkipTake } from "../../common/pagination/pagination";
+import { HospitalContextService } from "../../shared/context/hospital-context.service";
 import { PrismaService } from "../../shared/prisma/prisma.service";
 import { AuditLogsService } from "../audit-logs/audit-logs.service";
 
 import { CreateQueueEntryDto } from "./dto/create-queue-entry.dto";
 
-type QueueStatus = "WAITING" | "CALLED" | "IN_SERVICE" | "DONE" | "CANCELLED";
+import type { QueueStatus } from "@prisma/client";
 
 function startOfDay(d: Date) {
   const x = new Date(d);
@@ -24,7 +25,8 @@ function endOfDay(d: Date) {
 export class QueuesService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly audit: AuditLogsService
+    private readonly audit: AuditLogsService,
+    private readonly hospitalContext: HospitalContextService
   ) {}
 
   async list(query: PaginationQueryDto) {
@@ -102,13 +104,16 @@ export class QueuesService {
     });
     const nextNumber = (agg._max.number ?? 0) + 1;
 
+    const hospitalId = await this.hospitalContext.getDefaultHospitalId();
     const entry = await this.prisma.queueEntry.create({
       data: {
         patientId: input.patientId,
         doctorId: input.doctorId,
         date,
         number: nextNumber,
-        status: "WAITING"
+        status: "WAITING",
+        hospitalId,
+        departmentId: this.hospitalContext.getDefaultDepartmentId()
       }
     });
     await this.audit.create({

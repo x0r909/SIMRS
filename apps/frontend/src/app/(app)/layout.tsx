@@ -9,6 +9,8 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { ErrorBlock, LoadingBlock } from "@/components/ui/state-block";
 import { authStore } from "@/lib/auth-store";
+import { hasPatientRole } from "@/lib/role-utils";
+import { resolveDashboardPath } from "@/lib/dashboard-routes";
 import { fetchMe } from "@/lib/simrs-api";
 
 const titleMap: Record<string, string> = {
@@ -73,8 +75,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!me.data) return;
-    if (me.data.roles.includes("patient")) {
-      router.replace("/portal");
+    if (hasPatientRole(me.data.roles)) {
+      router.replace(resolveDashboardPath(me.data.roles));
     }
   }, [me.data, router]);
 
@@ -100,7 +102,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return null;
   }
 
-  if (me.data.roles.includes("patient")) {
+  if (hasPatientRole(me.data.roles)) {
     return null;
   }
 

@@ -3,6 +3,7 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import { Prisma, AppointmentStatus, AuditAction } from "@prisma/client";
 
 import { PaginationQueryDto, toSkipTake } from "../../common/pagination/pagination";
+import { HospitalContextService } from "../../shared/context/hospital-context.service";
 import { PrismaService } from "../../shared/prisma/prisma.service";
 import { AuditLogsService } from "../audit-logs/audit-logs.service";
 
@@ -13,7 +14,8 @@ import { UpdateAppointmentDto } from "./dto/update-appointment.dto";
 export class AppointmentsService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly audit: AuditLogsService
+    private readonly audit: AuditLogsService,
+    private readonly hospitalContext: HospitalContextService
   ) {}
 
   private async ensurePatientAndDoctor(patientId: string, doctorId: string) {
@@ -26,8 +28,9 @@ export class AppointmentsService {
   }
 
   private async ensurePatientProfile(userId: string) {
-    const patient = await this.prisma.patient.findUnique({ where: { id: userId }, select: { id: true } });
+    const patient = await this.prisma.patient.findFirst({ where: { userId }, select: { id: true } });
     if (!patient) throw new NotFoundException("Patient profile not found");
+    return patient.id;
   }
 
   async list(query: PaginationQueryDto) {
@@ -58,17 +61,17 @@ export class AppointmentsService {
   }
 
   async listMine(userId: string, query: PaginationQueryDto) {
-    await this.ensurePatientProfile(userId);
+    const patientId = await this.ensurePatientProfile(userId);
     const { skip, take, page, limit } = toSkipTake(query.page, query.limit);
     const where: any = query.q
       ? {
-          patientId: userId,
+          patientId,
           OR: [
             { doctor: { name: { contains: query.q, mode: "insensitive" as const } } },
             { notes: { contains: query.q, mode: "insensitive" as const } }
           ]
         }
-      : { patientId: userId };
+      : { patientId };
 
     const [total, data] = await Promise.all([
       this.prisma.appointment.count({ where }),
@@ -105,12 +108,20 @@ export class AppointmentsService {
     const scheduledAt = new Date(input.scheduledAt);
     if (Number.isNaN(scheduledAt.getTime())) throw new BadRequestException("Invalid scheduledAt");
 
+    const hospitalId = await this.hospitalContext.getDefaultHospitalId();
+    const doctor = await this.prisma.doctor.findUnique({
+      where: { id: input.doctorId },
+      select: { departmentId: true }
+    });
     const appt = await this.prisma.appointment.create({
       data: {
         patientId: input.patientId,
         doctorId: input.doctorId,
         scheduledAt,
-        notes: input.notes
+        scheduledDate: scheduledAt,
+        notes: input.notes,
+        hospitalId,
+        departmentId: doctor?.departmentId ?? this.hospitalContext.getDefaultDepartmentId()
       }
     });
     await this.audit.create({ actorId, action: AuditAction.APPOINTMENT_BOOK, entity: "Appointment", entityId: appt.id });

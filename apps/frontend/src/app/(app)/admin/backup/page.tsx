@@ -31,6 +31,7 @@ import {
   downloadBackupFile,
   DatabaseBackup
 } from '@/lib/backup-api';
+import { getApiErrorMessage } from '@/lib/simrs-api';
 import { formatDistanceToNow } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
 
@@ -77,8 +78,8 @@ export default function BackupPage() {
       toast.success('Backup berhasil dihapus');
       queryClient.invalidateQueries({ queryKey: ['backups'] });
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Gagal menghapus backup');
+    onError: (error: unknown) => {
+      toast.error(getApiErrorMessage(error));
     }
   });
 
@@ -94,8 +95,8 @@ export default function BackupPage() {
     onSuccess: () => {
       toast.success('Backup berhasil diunduh');
     },
-    onError: (error: any) => {
-      toast.error('Gagal mengunduh backup');
+    onError: (error: unknown) => {
+      toast.error(getApiErrorMessage(error));
     }
   });
 
@@ -169,7 +170,7 @@ export default function BackupPage() {
         <CardHeader>
           <CardTitle>Daftar Backup</CardTitle>
           <CardDescription>
-            Total: {backups.data?.meta.total || 0} backup
+            Total: {backups.data?.meta?.total ?? 0} backup
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -181,7 +182,7 @@ export default function BackupPage() {
             <div className="rounded-lg bg-red-50 p-4 text-red-800">
               Gagal memuat backup. Silakan coba lagi.
             </div>
-          ) : backups.data?.data.length === 0 ? (
+          ) : (backups.data?.data?.length ?? 0) === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               Tidak ada backup. Buat backup pertama Anda sekarang.
             </div>
@@ -278,10 +279,10 @@ export default function BackupPage() {
           )}
 
           {/* Pagination */}
-          {backups.data && backups.data.meta.totalPages > 1 && (
+          {(backups.data?.meta?.totalPages ?? 0) > 1 && (
             <div className="mt-6 flex items-center justify-between">
               <div className="text-sm text-muted-foreground">
-                Halaman {page} dari {backups.data.meta.totalPages}
+                Halaman {page} dari {backups.data?.meta?.totalPages ?? 1}
               </div>
               <div className="flex gap-2">
                 <Button
@@ -300,7 +301,7 @@ export default function BackupPage() {
                       Math.min(backups.data?.meta.totalPages || 1, p + 1)
                     )
                   }
-                  disabled={page === backups.data?.meta.totalPages}
+                  disabled={page === (backups.data?.meta?.totalPages ?? 1)}
                 >
                   Berikutnya
                 </Button>

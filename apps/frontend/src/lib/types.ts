@@ -27,6 +27,12 @@ export type AuthUser = {
   status: "ACTIVE" | "DISABLED";
   roles: string[];
   permissions: string[];
+  hospitalId?: string | null;
+  departmentId?: string | null;
+  hospital?: { id: string; code: string; name: string } | null;
+  department?: { id: string; code: string; name: string } | null;
+  mfaEnabled?: boolean;
+  lastLoginAt?: string | null;
 };
 
 export type LoginResult = {

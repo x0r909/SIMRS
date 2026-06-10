@@ -6,6 +6,8 @@ import { JwtAuthGuard } from "../../common/auth/jwt-auth.guard";
 import { RequirePermissions } from "../../common/auth/permissions.decorator";
 import { PermissionsGuard } from "../../common/auth/permissions.guard";
 
+import type { JwtPayload } from "../auth/types";
+
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { UsersService } from "./users.service";
@@ -19,8 +21,14 @@ export class UsersController {
 
   @RequirePermissions("users.read")
   @Get()
-  list() {
-    return this.users.list();
+  list(@CurrentUser() actor: JwtPayload) {
+    return this.users.list(actor);
+  }
+
+  @RequirePermissions("users.read")
+  @Get("assignable-roles")
+  assignableRoles() {
+    return this.users.listAssignableRoles();
   }
 
   @RequirePermissions("users.read")
@@ -31,20 +39,20 @@ export class UsersController {
 
   @RequirePermissions("users.write")
   @Post()
-  create(@CurrentUser("sub") actorId: string, @Body() dto: CreateUserDto) {
-    return this.users.create(actorId, dto);
+  create(@CurrentUser() actor: JwtPayload, @Body() dto: CreateUserDto) {
+    return this.users.create(actor.sub, dto, actor);
   }
 
   @RequirePermissions("users.write")
   @Put(":id")
-  update(@CurrentUser("sub") actorId: string, @Param("id") id: string, @Body() dto: UpdateUserDto) {
-    return this.users.update(actorId, id, dto);
+  update(@CurrentUser() actor: JwtPayload, @Param("id") id: string, @Body() dto: UpdateUserDto) {
+    return this.users.update(actor.sub, id, dto, actor);
   }
 
   @RequirePermissions("users.write")
   @Delete(":id")
-  remove(@CurrentUser("sub") actorId: string, @Param("id") id: string) {
-    return this.users.remove(actorId, id);
+  remove(@CurrentUser() actor: JwtPayload, @Param("id") id: string) {
+    return this.users.remove(actor.sub, id, actor);
   }
 }
 

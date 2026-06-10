@@ -22,4 +22,8 @@ export class UpdateUserDto {
   @IsArray()
   @IsString({ each: true })
   roleKeys?: string[];
+
+  @IsOptional()
+  @IsString()
+  departmentId?: string | null;
 }

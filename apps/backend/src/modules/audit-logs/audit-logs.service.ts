@@ -28,6 +28,7 @@ export class AuditLogsService {
     entity: string;
     entityId?: string;
     actorId?: string | null;
+    hospitalId?: string | null;
     ip?: string;
     userAgent?: string;
     description?: string;
@@ -41,6 +42,7 @@ export class AuditLogsService {
         entity: input.entity,
         entityId: input.entityId,
         actorId: input.actorId || null,
+        hospitalId: input.hospitalId || null,
         ip: input.ip,
         userAgent: input.userAgent,
         description: input.description,

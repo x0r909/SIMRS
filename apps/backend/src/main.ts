@@ -1,5 +1,7 @@
 import "reflect-metadata";
 
+import { randomUUID } from "node:crypto";
+import { networkInterfaces } from "node:os";
 
 import { ClassSerializerInterceptor, Logger, ValidationPipe, VersioningType } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
@@ -11,6 +13,7 @@ import helmet from "helmet";
 import { AppModule } from "./app.module";
 import { GlobalExceptionFilter } from "./common/http/global-exception.filter";
 import { ResponseInterceptor } from "./common/http/response.interceptor";
+import { SystemLogsService } from "./modules/system-logs/system-logs.service";
 
 export async function createNestApp() {
   const app = await NestFactory.create(AppModule, { cors: false });
@@ -60,15 +63,51 @@ export async function createNestApp() {
   return app;
 }
 
+function getLanAddresses(): string[] {
+  const addresses: string[] = [];
+  for (const interfaces of Object.values(networkInterfaces())) {
+    for (const net of interfaces ?? []) {
+      if (net.family === "IPv4" && !net.internal) {
+        addresses.push(net.address);
+      }
+    }
+  }
+  return addresses;
+}
+
 export async function bootstrap() {
   const logger = new Logger("Bootstrap");
   const app = await createNestApp();
   const config = app.get(ConfigService);
   const port = config.get<number>("PORT", 4000);
-  await app.listen(port);
+  await app.listen(port, "0.0.0.0");
 
-  logger.log(`API listening on http://localhost:${port}/v1`);
+  const systemLogs = app.get(SystemLogsService);
+  await systemLogs
+    .create({
+      level: "INFO",
+      service: "backend",
+      context: "bootstrap",
+      message: `SIMRS API started on port ${port}`,
+      requestId: randomUUID(),
+      metadata: {
+        event: "startup",
+        port,
+        env: config.get<string>("NODE_ENV", "development"),
+        host: "0.0.0.0",
+        nodeVersion: process.version,
+        pid: process.pid
+      }
+    })
+    .catch(() => undefined);
+
+  logger.log(`API listening on http://0.0.0.0:${port}/v1`);
   logger.log(`Swagger on http://localhost:${port}/${config.get<string>("SWAGGER_PATH", "docs")}`);
+
+  const lanAddresses = getLanAddresses();
+  if (lanAddresses.length > 0) {
+    logger.log(`Akses LAN: ${lanAddresses.map((ip) => `http://${ip}:${port}/v1`).join(", ")}`);
+  }
 }
 
 if (require.main === module) {

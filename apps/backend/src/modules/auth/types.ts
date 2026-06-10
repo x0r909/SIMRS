@@ -3,5 +3,7 @@ export type JwtPayload = {
   email: string;
   roles: string[];
   permissions: string[];
+  hospitalId?: string | null;
+  departmentId?: string | null;
+  jti?: string;
 };
-

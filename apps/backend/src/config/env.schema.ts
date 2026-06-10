@@ -30,7 +30,18 @@ export const envSchema = z.object({
     .transform((value: string | boolean) => String(value).toLowerCase() === "true"),
   MINIO_ACCESS_KEY: z.string().trim().min(1),
   MINIO_SECRET_KEY: z.string().trim().min(1),
-  MINIO_BUCKET: z.string().trim().min(1)
+  MINIO_BUCKET: z.string().trim().min(1),
+
+  ENCRYPTION_KEY: z.string().optional(),
+  ENCRYPTION_SEARCH_KEY: z.string().optional(),
+  BACKUP_ENCRYPTION_KEY: z.string().optional(),
+
+  MAX_CONCURRENT_SESSIONS: z.coerce.number().int().positive().default(3),
+  PROMETHEUS_METRICS_ENABLED: z
+    .union([z.boolean(), z.string()])
+    .transform((v) => String(v).toLowerCase() === "true")
+    .default(true),
+  LOG_LEVEL: z.enum(["error", "warn", "info", "debug", "verbose"]).default("info")
 });
 
 export type AppEnv = z.infer<typeof envSchema>;

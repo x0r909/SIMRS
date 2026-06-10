@@ -1,0 +1,18 @@
+{
+  "name": "SIMRS",
+  "short_name": "SIMRS",
+  "description": "Sistem Informasi Manajemen Rumah Sakit",
+  "start_url": "/login",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f766e",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

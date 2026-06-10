@@ -1,6 +1,11 @@
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from "class-validator";
 
 export class RestoreBackupDto {
+  @IsOptional()
   @IsString()
-  backupId!: string;
+  mfaCode?: string;
+
+  @IsOptional()
+  @IsString()
+  confirmText?: string;
 }

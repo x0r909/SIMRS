@@ -1,0 +1,27 @@
+# Migrasi & seeding via Docker (profile: setup)
+#
+# Prasyarat: infrastruktur utama sudah berjalan
+#   docker compose up -d
+#
+# Jalankan setup database:
+#   docker compose -f docker-compose.yml -f docker-compose.setup.yml --profile setup run --rm db-setup
+#
+# Atau dari package.json:
+#   pnpm docker:db-setup
+
+services:
+  db-setup:
+    profiles: [setup]
+    image: node:20-bookworm-slim
+    container_name: simrs-db-setup
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-simrs}:${POSTGRES_PASSWORD:-simrs}@postgres:5432/${POSTGRES_DB:-simrs}?schema=public
+      POSTGRES_USER: ${POSTGRES_USER:-simrs}
+      POSTGRES_DB: ${POSTGRES_DB:-simrs}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint: ["/bin/bash", "/workspace/scripts/docker-db-setup.sh"]

@@ -1,38 +1,65 @@
 import {
-  Controller,
-  Post,
-  Get,
-  Delete,
-  Param,
   Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
   Query,
-  UseGuards,
   Res,
-  Request
-} from '@nestjs/common';
-import { Response } from 'express';
-import * as fs from 'fs';
-import { JwtAuthGuard } from '../../common/auth/jwt-auth.guard';
-import { BackupService } from './backup.service';
-import { CreateBackupDto, RestoreBackupDto } from './dto';
+  UseGuards
+} from "@nestjs/common";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { createReadStream } from "fs";
+import type { Response } from "express";
 
+<<<<<<< HEAD
 @Controller('backup')
 @UseGuards(JwtAuthGuard)
+=======
+import { CurrentUser } from "../../common/auth/current-user.decorator";
+import { JwtAuthGuard } from "../../common/auth/jwt-auth.guard";
+import { RequirePermissions } from "../../common/auth/permissions.decorator";
+import { PermissionsGuard } from "../../common/auth/permissions.guard";
+import { PaginationQueryDto } from "../../common/pagination/pagination";
+
+import { BackupService } from "./backup.service";
+import { CreateBackupDto } from "./dto/create-backup.dto";
+import { RestoreBackupDto } from "./dto/restore-backup.dto";
+
+@ApiTags("backup")
+@Controller("backup")
+@UseGuards(JwtAuthGuard, PermissionsGuard)
+@ApiBearerAuth()
+>>>>>>> 0e7136b (Update besar besaran fitur pada frontend dan backend serta database)
 export class BackupController {
   constructor(private readonly backup: BackupService) {}
 
-  @Post('create')
-  async createBackup(@Body() dto: CreateBackupDto, @Request() req: any) {
-    const actorId = req.user?.sub || req.user?.id;
+  @Get()
+  @RequirePermissions("backup.create")
+  list(@Query() query: PaginationQueryDto) {
+    return this.backup.listBackups(query.page, query.limit);
+  }
+
+  @Post("create")
+  @RequirePermissions("backup.create")
+  create(@CurrentUser("sub") actorId: string, @Body() dto: CreateBackupDto) {
     return this.backup.createBackup(actorId, dto.description);
   }
 
-  @Post('restore')
-  async restoreBackup(@Body() dto: RestoreBackupDto, @Request() req: any) {
-    const actorId = req.user?.sub || req.user?.id;
-    return this.backup.restoreBackup(actorId, dto.backupId);
+  @Get(":id/download")
+  @RequirePermissions("backup.download")
+  async download(@Param("id") id: string, @Res() res: Response) {
+    const file = await this.backup.downloadBackup(id);
+    res.setHeader("Content-Type", "application/octet-stream");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${encodeURIComponent(file.filename)}"`
+    );
+    createReadStream(file.path).pipe(res);
   }
 
+<<<<<<< HEAD
   @Get()
   async listBackups(@Query('page') page = 1, @Query('limit') limit = 20) {
     const result = await this.backup.listBackups(parseInt(page as any), parseInt(limit as any));
@@ -41,23 +68,27 @@ export class BackupController {
 
   @Get(':id')
   async getBackup(@Param('id') id: string) {
+=======
+  @Get(":id")
+  @RequirePermissions("backup.create")
+  get(@Param("id") id: string) {
+>>>>>>> 0e7136b (Update besar besaran fitur pada frontend dan backend serta database)
     return this.backup.getBackup(id);
   }
 
-  @Get(':id/download')
-  async downloadBackup(@Param('id') id: string, @Res() res: Response) {
-    const backup = await this.backup.downloadBackup(id);
-
-    res.setHeader('Content-Disposition', `attachment; filename="${backup.filename}"`);
-    res.setHeader('Content-Type', 'application/sql');
-
-    const stream = fs.createReadStream(backup.path);
-    stream.pipe(res);
+  @Delete(":id")
+  @RequirePermissions("backup.delete")
+  delete(@CurrentUser("sub") actorId: string, @Param("id") id: string) {
+    return this.backup.deleteBackup(actorId, id);
   }
 
-  @Delete(':id')
-  async deleteBackup(@Param('id') id: string, @Request() req: any) {
-    const actorId = req.user?.sub || req.user?.id;
-    return this.backup.deleteBackup(actorId, id);
+  @Post(":id/restore")
+  @RequirePermissions("backup.restore")
+  restore(
+    @CurrentUser("sub") actorId: string,
+    @Param("id") id: string,
+    @Body() dto: RestoreBackupDto
+  ) {
+    return this.backup.restoreBackup(actorId, id, dto);
   }
 }

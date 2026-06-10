@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma, AuditAction } from "@prisma/client";
 
 import { PaginationQueryDto, toSkipTake } from "../../common/pagination/pagination";
+import { HospitalContextService } from "../../shared/context/hospital-context.service";
 import { PrismaService } from "../../shared/prisma/prisma.service";
 import { AuditLogsService } from "../audit-logs/audit-logs.service";
 
@@ -12,7 +13,8 @@ import { UpdatePatientDto } from "./dto/update-patient.dto";
 export class PatientsService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly audit: AuditLogsService
+    private readonly audit: AuditLogsService,
+    private readonly hospitalContext: HospitalContextService
   ) {}
 
   async list(query: PaginationQueryDto) {
@@ -40,13 +42,16 @@ export class PatientsService {
   }
 
   async create(actorId: string | undefined, input: CreatePatientDto) {
+    const hospitalId = await this.hospitalContext.getDefaultHospitalId();
     const patient = await this.prisma.patient.create({
       data: {
         mrn: input.mrn,
         name: input.name,
         phone: input.phone,
         address: input.address,
-        birthDate: input.birthDate ? new Date(input.birthDate) : undefined
+        birthDate: input.birthDate ? new Date(input.birthDate) : undefined,
+        hospitalId,
+        departmentId: this.hospitalContext.getDefaultDepartmentId()
       }
     });
     await this.audit.create({

@@ -1,6 +1,7 @@
 import { IsIn } from "class-validator";
+import type { LabOrderStatus } from "@prisma/client";
 
 export class SetLaboratoryOrderStatusDto {
-  @IsIn(["MENUNGGU", "PROSES", "SELESAI", "BATAL"])
-  status!: "MENUNGGU" | "PROSES" | "SELESAI" | "BATAL";
+  @IsIn(["PENDING", "IN_PROGRESS", "COMPLETED", "CANCELLED"])
+  status!: LabOrderStatus;
 }

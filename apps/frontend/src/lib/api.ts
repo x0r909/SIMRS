@@ -4,8 +4,38 @@ import axios from "axios";
 
 import { authStore } from "./auth-store";
 
+const LOCALHOST_HOSTS = new Set(["localhost", "127.0.0.1"]);
+
+function parseApiPort(configured?: string): string {
+  if (!configured) return "4000";
+  try {
+    return new URL(configured).port || "4000";
+  } catch {
+    return "4000";
+  }
+}
+
 function resolveApiBaseUrl() {
   const configured = process.env.NEXT_PUBLIC_API_URL?.trim();
+  const apiPort = parseApiPort(configured);
+
+  if (typeof window !== "undefined") {
+    const pageHost = window.location.hostname;
+    let apiHost = "localhost";
+    if (configured) {
+      try {
+        apiHost = new URL(configured).hostname;
+      } catch {
+        apiHost = "127.0.0.1";
+      }
+    }
+
+    if (!LOCALHOST_HOSTS.has(pageHost) && LOCALHOST_HOSTS.has(apiHost)) {
+      const protocol = window.location.protocol === "https:" ? "https" : "http";
+      return `${protocol}://${pageHost}:${apiPort}/v1`;
+    }
+  }
+
   if (configured) {
     const normalized = configured.replace(/\/+$/, "");
     return normalized.endsWith("/v1") ? normalized : `${normalized}/v1`;
@@ -75,6 +105,22 @@ api.interceptors.response.use(
         return api.request(original);
       }
     }
+
+    if (status === 503 && typeof window !== "undefined") {
+      const requestUrl = String(original?.url ?? "");
+      const isSettingsRequest = requestUrl.includes("/system/settings");
+      const code = (err?.response?.data as { error?: { code?: string } })?.error?.code;
+      if (
+        code === "MAINTENANCE_MODE" &&
+        !isSettingsRequest &&
+        !window.location.pathname.startsWith("/maintenance") &&
+        !window.location.pathname.startsWith("/system-admin/settings")
+      ) {
+        window.location.href = "/maintenance";
+        return new Promise(() => {});
+      }
+    }
+
     throw err;
   }
 );

@@ -20,8 +20,14 @@
     "db:migrate": "pnpm --filter @simrs/db db:migrate",
     "db:migrate:dev": "pnpm --filter @simrs/db db:migrate:dev",
     "db:seed": "pnpm --filter @simrs/db db:seed",
+    "db:setup": "bash scripts/db-setup.sh",
+    "db:reset": "bash scripts/db-reset.sh",
+    "setup": "bash scripts/setup-local.sh",
     "docker:up": "docker compose up -d",
-    "docker:down": "docker compose down"
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f postgres redis minio",
+    "docker:db-setup": "docker compose -f docker-compose.yml -f docker-compose.setup.yml --profile setup run --rm db-setup",
+    "test:policy": "pnpm --filter @simrs/db exec tsx ../../apps/backend/test/policy.engine.test.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.23.0",

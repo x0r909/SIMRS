@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { Prisma, AuditAction } from "@prisma/client";
+import { Prisma, AuditAction, LabOrderStatus } from "@prisma/client";
 
 import { PaginationQueryDto, toSkipTake } from "../../common/pagination/pagination";
 import { PrismaService } from "../../shared/prisma/prisma.service";
@@ -7,8 +7,6 @@ import { AuditLogsService } from "../audit-logs/audit-logs.service";
 
 import { CreateLaboratoryOrderDto } from "./dto/create-laboratory-order.dto";
 import { CreateLaboratoryResultDto } from "./dto/create-laboratory-result.dto";
-
-type LaboratoryOrderStatus = "MENUNGGU" | "PROSES" | "SELESAI" | "BATAL";
 
 function startOfDay(d: Date) {
   const x = new Date(d);
@@ -84,13 +82,13 @@ export class LaboratoryService {
 
     const [menunggu, proses, selesai] = await Promise.all([
       this.prisma.laboratoryOrder.count({
-        where: { orderedAt: { gte: from, lte: to }, status: "MENUNGGU" }
+        where: { orderedAt: { gte: from, lte: to }, status: "PENDING" }
       }),
       this.prisma.laboratoryOrder.count({
-        where: { orderedAt: { gte: from, lte: to }, status: "PROSES" }
+        where: { orderedAt: { gte: from, lte: to }, status: "IN_PROGRESS" }
       }),
       this.prisma.laboratoryOrder.count({
-        where: { orderedAt: { gte: from, lte: to }, status: "SELESAI" }
+        where: { orderedAt: { gte: from, lte: to }, status: "COMPLETED" }
       })
     ]);
 
@@ -134,7 +132,7 @@ export class LaboratoryService {
         doctorId: input.doctorId,
         testType: input.testType,
         notes: input.notes,
-        status: "MENUNGGU"
+        status: "PENDING"
       }
     });
 
@@ -149,7 +147,7 @@ export class LaboratoryService {
     return this.get(order.id);
   }
 
-  async setStatus(actorId: string | undefined, id: string, status: LaboratoryOrderStatus) {
+  async setStatus(actorId: string | undefined, id: string, status: LabOrderStatus) {
     await this.get(id);
 
     await this.prisma.laboratoryOrder.update({ where: { id }, data: { status } });
@@ -178,8 +176,8 @@ export class LaboratoryService {
       }
     });
 
-    if (order.status === "MENUNGGU") {
-      await this.prisma.laboratoryOrder.update({ where: { id: orderId }, data: { status: "PROSES" } });
+    if (order.status === "PENDING") {
+      await this.prisma.laboratoryOrder.update({ where: { id: orderId }, data: { status: "IN_PROGRESS" } });
     }
 
     await this.audit.create({

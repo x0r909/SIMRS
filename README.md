@@ -1,167 +1,283 @@
-# SIMRS Monorepo
+# SIMRS v2
 
-Monorepo SIMRS (Sistem Informasi Manajemen Rumah Sakit) berbasis:
+Sistem Informasi Manajemen Rumah Sakit (SIMRS) — monorepo untuk operasional rumah sakit, portal pasien, dan administrasi sistem.
 
-- Next.js App Router (frontend)
-- NestJS (backend API)
-- Prisma + PostgreSQL
-- Redis
-- MinIO (object storage)
-- pnpm workspace + Turborepo
+## Stack
 
-## Struktur Singkat
+| Lapisan | Teknologi |
+|--------|-----------|
+| Frontend | Next.js 15 (App Router), React 19, Tailwind CSS, shadcn/ui |
+| Backend | NestJS 11, JWT, RBAC/ABAC |
+| Database | PostgreSQL 16, Prisma 6 |
+| Cache & sesi | Redis 7 |
+| Object storage | MinIO |
+| Monorepo | pnpm workspace + Turborepo |
+
+## Fitur utama
+
+- **Multi-role dashboard** — Admin Sistem, Admin Rumah Sakit (user dengan role), Dokter, Staff, Pasien
+- **Login terpisah** — portal staff (`/login`) dan portal pasien (`/patient-login`)
+- **Registrasi pasien** — self-service di `/signup`
+- **Mode maintenance** — cakupan registrasi / portal pasien / penuh (Admin Sistem)
+- **Modul klinis** — pasien, janji temu, antrian, kunjungan, rekam medis, resep, farmasi, lab, radiologi, billing
+- **Keamanan** — MFA TOTP, session Redis, brute-force lockout, enkripsi field sensitif, audit log & system log
+- **Operasional** — health check, backup database, laporan harian RS, monitoring (Prometheus/Grafana/Loki)
+
+## Struktur repositori
 
 ```text
 apps/
-  backend/        NestJS API (auth, RBAC, pasien, dokter, antrian, billing, file)
-  frontend/       Next.js web app (dashboard + modul operasional)
+  backend/              NestJS API (@simrs/backend)
+  frontend/             Next.js web app (@simrs/frontend)
 packages/
-  db/             Prisma schema, migration, seed, db package (@simrs/db)
-  eslint-config/  Shared lint config
-  tsconfig/       Shared tsconfig preset
-docker-compose.yml
+  db/                   Prisma schema, migrasi, seed (@simrs/db)
+  shared/               Konstanta & tipe bersama (@simrs/shared)
+scripts/                Setup lokal, migrasi & seed
+docker-compose.yml      PostgreSQL, Redis, MinIO
+docker-compose.setup.yml  Migrasi & seed via container (opsional)
+docs/                   Panduan deployment & operasional
 ```
 
 ## Prasyarat
 
-- Node.js 20 atau lebih baru
-- pnpm 9 atau lebih baru
-- Docker Desktop (dengan Docker Compose)
+- **Node.js** 20+
+- **pnpm** 9+ (`corepack enable && corepack prepare pnpm@9.15.6 --activate`)
+- **Docker** & Docker Compose (untuk PostgreSQL, Redis, MinIO)
+- **Bash** (untuk script setup di macOS/Linux; di Windows gunakan Git Bash atau WSL)
 
-## Setup Lokal (Pertama Kali)
+## Quick start (setup otomatis)
 
-1. Install dependency workspace.
+```bash
+git clone <url-repo> simrs
+cd simrs
+pnpm setup
+```
+
+Perintah `pnpm setup` akan:
+
+1. Menyalin file `.env` dari contoh (jika belum ada)
+2. Menjalankan `pnpm install`
+3. Menjalankan `docker compose up -d`
+4. Menunggu PostgreSQL siap → `prisma generate` → `migrate deploy` → `db seed`
+
+Lalu jalankan aplikasi:
+
+```bash
+pnpm dev
+```
+
+## Setup manual (langkah demi langkah)
+
+### 1. Install dependensi
 
 ```bash
 pnpm install
 ```
 
-2. Siapkan file environment.
-
-Windows PowerShell:
-
-```powershell
-Copy-Item .env.example .env
-Copy-Item apps/backend/.env.example apps/backend/.env
-Copy-Item apps/frontend/.env.example apps/frontend/.env.local
-Copy-Item packages/db/.env.example packages/db/.env
-```
-
-Linux/macOS:
+### 2. Environment
 
 ```bash
 cp .env.example .env
-cp apps/backend/.env.example apps/backend/.env
-cp apps/frontend/.env.example apps/frontend/.env.local
 cp packages/db/.env.example packages/db/.env
+cp apps/backend/.env.example apps/backend/.env
+cp apps/frontend/.env.example apps/frontend/.env
 ```
 
-3. Jalankan service infrastruktur.
+`DATABASE_URL` harus konsisten di `packages/db/.env` dan `apps/backend/.env`:
+
+```text
+postgresql://simrs:simrs@localhost:5432/simrs?schema=public
+```
+
+Variabel root `.env` mengatur kredensial Docker (lihat `.env.example`).
+
+Generate secret produksi (JWT & enkripsi):
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+```
+
+### 3. Infrastruktur Docker
 
 ```bash
 pnpm docker:up
 ```
 
-4. Inisialisasi database.
+Layanan yang dijalankan:
+
+| Container | Image | Port default |
+|-----------|-------|----------------|
+| `simrs-postgres` | postgres:16-alpine | 5432 |
+| `simrs-redis` | redis:7-alpine | 6379 |
+| `simrs-minio` | minio | 9000 (API), 9001 (console) |
+
+Cek status:
 
 ```bash
-pnpm db:generate
-pnpm db:migrate
-pnpm db:seed
+docker compose ps
+pnpm docker:logs
 ```
 
-5. Jalankan backend dan frontend.
+### 4. Migrasi & seeding database
+
+**Cara A — di host (disarankan untuk development):**
+
+```bash
+pnpm db:setup
+```
+
+Setara dengan:
+
+```bash
+bash scripts/db-setup.sh
+# → wait postgres → pnpm db:generate → pnpm db:migrate → pnpm db:seed
+```
+
+**Cara B — di dalam container Docker:**
+
+```bash
+pnpm docker:up
+pnpm docker:db-setup
+```
+
+**Perintah terpisah:**
+
+```bash
+pnpm db:generate      # prisma generate
+pnpm db:migrate       # prisma migrate deploy (production / CI)
+pnpm db:migrate:dev   # prisma migrate dev (buat migrasi baru)
+pnpm db:seed          # seed data awal
+```
+
+**Reset database development (hapus semua data):**
+
+```bash
+pnpm db:reset
+```
+
+### 5. Jalankan development
 
 ```bash
 pnpm dev
 ```
 
-## Endpoint Default
-
-- Frontend: http://localhost:3000
-- Backend API root: http://localhost:4000/v1
-- Swagger: http://localhost:4000/docs
-- MinIO API: http://localhost:9000
-- MinIO Console: http://localhost:9001
-
-## Endpoint Klinis Baru (Backend)
-
-Modul baru untuk menyesuaikan alur pada referensi database:
-
-- Laboratorium
-  - `GET /v1/laboratory/orders/dashboard/summary?date=YYYY-MM-DD`
-  - `GET /v1/laboratory/orders`
-  - `GET /v1/laboratory/orders/:id`
-  - `POST /v1/laboratory/orders`
-  - `PUT /v1/laboratory/orders/:id/status`
-  - `POST /v1/laboratory/orders/:id/results`
-- Radiologi
-  - `GET /v1/radiology/orders/dashboard/summary?date=YYYY-MM-DD`
-  - `GET /v1/radiology/orders`
-  - `GET /v1/radiology/orders/:id`
-  - `POST /v1/radiology/orders`
-  - `PUT /v1/radiology/orders/:id/status`
-  - `POST /v1/radiology/orders/:id/results`
-
-Permission yang dipakai endpoint baru:
-
-- Laboratorium: `laboratory.read`, `laboratory.write`
-- Radiologi: `radiology.read`, `radiology.write`
-
-## Kredensial Seed (Login API)
-
-Semua user seed menggunakan password yang sama:
-
-- Password: `Admin123!`
-
-Daftar akun:
-
-- Admin: `admin@simrs.local`
-- Dokter: `doctor@simrs.local`
-- Kasir: `cashier@simrs.local`
-- Staff: `staff.rina@simrs.local`
-- Apoteker: `apoteker.maya@simrs.local`
-- Radiologi: `radiologi.eko@simrs.local`
-- Laboratorium: `lab.tuti@simrs.local`
-- Pasien Portal: `pasien.andi@simrs.local`
-
-Contoh login ke API:
-
-```http
-POST /v1/auth/login
-Content-Type: application/json
-
-{
-  "email": "admin@simrs.local",
-  "password": "Admin123!"
-}
-```
-
-## Perintah Harian
+Atau terpisah:
 
 ```bash
-# Development
+pnpm dev:backend   # API :4000
+pnpm dev:frontend  # Web :3050
+```
+
+## URL development
+
+| Layanan | URL |
+|---------|-----|
+| Frontend | http://localhost:3050 |
+| Login staff | http://localhost:3050/login |
+| Login pasien | http://localhost:3050/patient-login |
+| Daftar pasien | http://localhost:3050/signup |
+| Admin Sistem | http://localhost:3050/system-admin |
+| Admin Rumah Sakit | http://localhost:3050/hospital-admin |
+| Backend API | http://localhost:4000/v1 |
+| Swagger | http://localhost:4000/docs |
+| Health check | http://localhost:4000/v1/health |
+| MinIO API | http://localhost:9000 |
+| MinIO Console | http://localhost:9001 |
+
+### Akses dari jaringan lokal (LAN)
+
+Frontend dev server listen di `0.0.0.0`. Dari perangkat lain di WiFi yang sama:
+
+```text
+http://<IP-komputer-host>:3050
+```
+
+`NEXT_PUBLIC_API_URL` boleh tetap `http://127.0.0.1:4000` — browser di perangkat lain otomatis memanggil API ke IP host yang sama.
+
+## Login & akun seed
+
+Password default semua akun seed: **`Admin123!`**
+
+| Role | Email | Portal login | Dashboard |
+|------|-------|--------------|-----------|
+| Admin Sistem | `admin@simrs.local` | `/login` | `/system-admin` |
+| Admin Rumah Sakit | `hospital-admin@simrs.local` | `/login` | `/hospital-admin` |
+| Dokter | `doctor@simrs.local` | `/login` | `/doctor` |
+| Staff / Kasir / dll. | lihat `packages/db/prisma/seed.ts` | `/login` | `/staff` |
+| Pasien | `pasien.andi@simrs.local` | `/patient-login` | `/patient` |
+
+**Catatan peran:**
+
+- **Admin Sistem** — mengelola platform (pengaturan sistem, backup, log, maintenance).
+- **Admin Rumah Sakit** — user biasa dengan role `HOSPITAL_ADMIN`; mengelola operasional RS (staff, departemen, laporan). Profil pribadi di **Profil Saya**, bukan pengaturan institusi.
+
+**Penting:** akun pasien hanya bisa login lewat `/patient-login`. Akun staff hanya lewat `/login`.
+
+Contoh API:
+
+```http
+POST /v1/auth/login/staff
+Content-Type: application/json
+
+{ "email": "admin@simrs.local", "password": "Admin123!" }
+```
+
+```http
+PATCH /v1/auth/profile
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{ "name": "Nama Baru", "email": "user@simrs.local" }
+```
+
+## Perintah npm
+
+```bash
+# Setup & development
+pnpm setup              # setup lengkap pertama kali
 pnpm dev
 pnpm dev:backend
 pnpm dev:frontend
 
-# Quality checks
+# Kualitas kode
 pnpm lint
 pnpm typecheck
+pnpm format
 pnpm build
 
 # Database
 pnpm db:generate
-pnpm db:migrate
-pnpm db:migrate:dev
+pnpm db:migrate         # deploy migrasi
+pnpm db:migrate:dev     # migrasi interaktif (dev)
 pnpm db:seed
+pnpm db:setup           # generate + migrate + seed
+pnpm db:reset           # hapus volume DB + setup ulang
 
-# Docker infra
+# Docker
 pnpm docker:up
 pnpm docker:down
+pnpm docker:logs
+pnpm docker:db-setup    # migrasi + seed di container
+
+# Tes
+pnpm test:policy
 ```
 
-## Jalankan Mode Production Lokal
+## Docker Compose
+
+| File | Fungsi |
+|------|--------|
+| `docker-compose.yml` | PostgreSQL, Redis, MinIO |
+| `docker-compose.setup.yml` | Job one-shot migrasi & seed (`--profile setup`) |
+| `docker-compose.monitoring.yml` | Prometheus, Grafana, Loki (opsional) |
+
+Monitoring (opsional):
+
+```bash
+docker compose -f docker-compose.monitoring.yml up -d
+```
+
+## Production lokal
 
 ```bash
 pnpm build
@@ -169,42 +285,74 @@ pnpm --filter @simrs/backend start
 pnpm --filter @simrs/frontend start
 ```
 
-## Catatan Troubleshooting
+Panduan lengkap: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
 
-### 1) Prisma error lock file di Windows (EPERM rename query engine)
+## CI
 
-Biasanya terjadi jika ada proses Node/Nest/Next lama yang masih aktif dan mengunci file Prisma engine.
+GitHub Actions (`.github/workflows/ci.yml`) menjalankan `lint`, `typecheck`, `test:policy`, dan `build` pada push/PR ke `main` / `develop`.
 
-Solusi:
+## Troubleshooting
 
-1. Hentikan proses backend/frontend yang masih berjalan.
-2. Jalankan ulang:
+### Prisma `EPERM` / engine lock (Windows)
+
+Hentikan proses Node yang masih berjalan, lalu:
 
 ```bash
 pnpm db:generate
 ```
 
-### 2) Migrasi gagal karena state DB lokal tidak sinkron
-
-Jika skema lokal sudah terisi manual, gunakan salah satu pendekatan:
+### Migrasi gagal / DB tidak sinkron
 
 ```bash
-# Aman untuk development baru
 pnpm db:migrate:dev
-
-# Atau reset total volume database
-pnpm docker:down
-docker volume rm simrs_postgres_data
-pnpm docker:up
-pnpm db:migrate
-pnpm db:seed
 ```
 
-### 3) Status MinIO unhealthy
+Atau reset penuh:
 
-Project ini sudah memakai healthcheck `mc ready local` di Docker Compose. Jika masih belum sehat, cek log:
+```bash
+pnpm db:reset
+```
+
+### PostgreSQL belum siap saat migrate
+
+Script `db:setup` menunggu Postgres otomatis. Manual:
+
+```bash
+bash scripts/wait-for-postgres.sh
+pnpm db:migrate
+```
+
+### Frontend tidak bisa hubungi API
+
+- Pastikan backend berjalan (`pnpm dev:backend`)
+- Cek `apps/backend/.env` → `DATABASE_URL`, `REDIS_URL`
+- Cek `apps/frontend/.env` → `NEXT_PUBLIC_API_URL=http://127.0.0.1:4000`
+
+### Backup gagal di macOS (`pg_dump` tidak ditemukan)
+
+Set di `apps/backend/.env`:
+
+```text
+POSTGRES_CONTAINER_NAME=simrs-postgres
+```
+
+Backend akan memakai `docker exec` sebagai fallback.
+
+### MinIO unhealthy
 
 ```bash
 docker logs simrs-minio
+pnpm docker:up
 ```
 
+### Permission Admin Rumah Sakit tidak lengkap setelah update
+
+Jalankan ulang seed (idempotent untuk role/permission):
+
+```bash
+pnpm db:seed
+```
+
+## Lisensi
+
+Private — hak cipta pemilik repositori.

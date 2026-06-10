@@ -389,6 +389,14 @@ export class AuditService {
       [AuditAction.DATABASE_RESTORE]: 'Restore Database',
       [AuditAction.SYSTEM_ERROR]: 'Error Sistem',
       [AuditAction.SETTING_UPDATE]: 'Update Setting',
+      [AuditAction.MEDICAL_RECORD_FINALIZE]: 'Finalisasi Rekam Medis',
+      [AuditAction.PRESCRIPTION_DISPENSE]: 'Serah Terima Resep',
+      [AuditAction.LAB_RESULT_VERIFY]: 'Verifikasi Hasil Lab',
+      [AuditAction.RADIOLOGY_RESULT_UPLOAD]: 'Upload Hasil Radiologi',
+      [AuditAction.MFA_ENABLE]: 'Aktifkan MFA',
+      [AuditAction.MFA_DISABLE]: 'Nonaktifkan MFA',
+      [AuditAction.SESSION_REVOKE]: 'Cabut Sesi',
+      [AuditAction.FORCE_LOGOUT]: 'Logout Paksa',
       [AuditAction.OTHER]: 'Lainnya',
     };
 

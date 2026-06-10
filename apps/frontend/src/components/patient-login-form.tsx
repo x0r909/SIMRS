@@ -17,7 +17,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { NativeCaptcha } from "@/components/native-captcha";
 import { authStore } from "@/lib/auth-store";
-import { getApiErrorMessage, login as loginRequest } from "@/lib/simrs-api";
+import { hasPatientRole } from "@/lib/role-utils";
+import { roleStore } from "@/lib/role-store";
+import { getApiErrorMessage, loginPatient } from "@/lib/simrs-api";
 import { cn } from "@/lib/utils";
 
 const schema = z.object({
@@ -37,17 +39,19 @@ export function PatientLoginForm({ className, ...props }: React.ComponentProps<"
   });
 
   const loginMutation = useMutation({
-    mutationFn: (values: FormValues) => loginRequest(values),
+    mutationFn: (values: FormValues) => loginPatient(values),
     onSuccess: (data) => {
-      if (!data.user.roles.includes("patient")) {
+      if (!hasPatientRole(data.user.roles)) {
         authStore.clear();
+        roleStore.clear();
         toast.error("Akun ini bukan akun pasien. Silakan gunakan login staff.");
         return;
       }
 
       authStore.setTokens(data.accessToken, data.refreshToken);
+      roleStore.setRoles(data.user.roles);
       toast.success("Login pasien berhasil");
-      router.replace("/portal");
+      router.replace("/patient");
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error));

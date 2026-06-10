@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import type { ComponentProps } from "react"
 
+import { NavFlat } from "@/components/nav-flat"
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
 import {
@@ -67,6 +68,7 @@ const navMain = [
 export function AppSidebar({
   user,
   onLogout,
+  navItems,
   ...props
 }: ComponentProps<typeof Sidebar> & {
   user: {
@@ -75,6 +77,7 @@ export function AppSidebar({
     avatar?: string
   }
   onLogout: () => void
+  navItems?: { title: string; url: string; icon?: import("lucide-react").LucideIcon }[]
 }) {
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -94,7 +97,7 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={navMain} />
+        {navItems ? <NavFlat items={navItems} /> : <NavMain items={navMain} />}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} onLogout={onLogout} />

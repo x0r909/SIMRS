@@ -26,8 +26,9 @@ export class BillingService {
   ) {}
 
   private async ensurePatientProfile(userId: string) {
-    const patient = await this.prisma.patient.findUnique({ where: { id: userId }, select: { id: true } });
+    const patient = await this.prisma.patient.findFirst({ where: { userId }, select: { id: true } });
     if (!patient) throw new NotFoundException("Patient profile not found");
+    return patient.id;
   }
 
   async list(query: PaginationQueryDto) {
@@ -67,17 +68,17 @@ export class BillingService {
   }
 
   async listMine(userId: string, query: PaginationQueryDto) {
-    await this.ensurePatientProfile(userId);
+    const patientId = await this.ensurePatientProfile(userId);
     const { skip, take, page, limit } = toSkipTake(query.page, query.limit);
     const where: any = query.q
       ? {
-          visit: { patientId: userId },
+          visit: { patientId },
           OR: [
             { number: { contains: query.q, mode: "insensitive" as const } },
             { visit: { doctor: { name: { contains: query.q, mode: "insensitive" as const } } } }
           ]
         }
-      : { visit: { patientId: userId } };
+      : { visit: { patientId } };
 
     const [total, data] = await Promise.all([
       this.prisma.billingInvoice.count({ where }),

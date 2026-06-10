@@ -9,6 +9,8 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ErrorBlock, LoadingBlock } from "@/components/ui/state-block";
 import { authStore } from "@/lib/auth-store";
+import { hasPatientRole } from "@/lib/role-utils";
+import { roleStore } from "@/lib/role-store";
 import { fetchMe } from "@/lib/simrs-api";
 import { cn } from "@/lib/utils";
 
@@ -27,15 +29,17 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
 
   const handleLogout = () => {
     authStore.clear();
+    roleStore.clear();
     setHasToken(false);
-    router.replace("/login");
+    router.replace("/patient-login");
   };
 
   useEffect(() => {
     const token = authStore.getAccessToken();
     setHasToken(Boolean(token));
     setIsHydrated(true);
-    if (!token) router.replace("/login");
+    if (!token) router.replace("/patient-login");
+    else router.replace("/patient");
   }, [router]);
 
   const me = useQuery({
@@ -48,14 +52,16 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   useEffect(() => {
     if (!me.isError) return;
     authStore.clear();
+    roleStore.clear();
     setHasToken(false);
-    router.replace("/login");
+    router.replace("/patient-login");
   }, [me.isError, router]);
 
   useEffect(() => {
     if (!me.data) return;
-    if (!me.data.roles.includes("patient")) {
-      router.replace("/dashboard");
+    roleStore.setRoles(me.data.roles);
+    if (!hasPatientRole(me.data.roles)) {
+      router.replace("/login");
     }
   }, [me.data, router]);
 
@@ -77,17 +83,19 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
     );
   }
 
-  if (!me.data?.roles.includes("patient")) {
+  if (!me.data || !hasPatientRole(me.data.roles)) {
     return null;
   }
+
+  const user = me.data;
 
   return (
     <div className="grid min-h-screen md:grid-cols-[280px_1fr]">
       <aside className="hidden border-r border-[hsl(var(--border))] bg-[hsl(var(--secondary))]/40 p-4 md:flex md:flex-col md:gap-4">
         <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-3">
           <div className="text-xs uppercase tracking-wide text-[hsl(var(--muted-foreground))]">Portal akun</div>
-          <div className="mt-1 font-semibold leading-tight">{me.data.name}</div>
-          <div className="text-xs text-[hsl(var(--muted-foreground))]">{me.data.email}</div>
+          <div className="mt-1 font-semibold leading-tight">{user.name}</div>
+          <div className="text-xs text-[hsl(var(--muted-foreground))]">{user.email}</div>
         </div>
 
         <div className="flex items-center justify-between px-1">
@@ -129,7 +137,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
           <div className="flex items-center justify-between gap-3">
             <div>
               <div className="font-semibold">Portal Pasien</div>
-              <div className="text-xs text-[hsl(var(--muted-foreground))]">{me.data.name}</div>
+              <div className="text-xs text-[hsl(var(--muted-foreground))]">{user.name}</div>
             </div>
             <Button
               variant="outline"

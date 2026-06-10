@@ -15,5 +15,13 @@ export class CreateUserDto {
   @IsArray()
   @IsString({ each: true })
   roleKeys?: string[];
+
+  @IsOptional()
+  @IsString()
+  hospitalId?: string;
+
+  @IsOptional()
+  @IsString()
+  departmentId?: string;
 }
 

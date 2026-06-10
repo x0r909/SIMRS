@@ -1,5 +1,14 @@
 import { api } from './api';
 
+type ApiEnvelope<T> = { success?: boolean; data?: T };
+
+function unwrapEnvelope<T>(payload: ApiEnvelope<T> | T): T {
+  if (payload && typeof payload === 'object' && 'data' in payload && payload.data !== undefined) {
+    return payload.data as T;
+  }
+  return payload as T;
+}
+
 export interface DatabaseBackup {
   id: string;
   filename: string;
@@ -27,29 +36,34 @@ export interface BackupResponse {
 }
 
 export async function createBackup(description?: string) {
-  const response = await api.post<{ message: string; data: DatabaseBackup }>('/backup/create', {
+  const response = await api.post<ApiEnvelope<DatabaseBackup>>('/backup/create', {
     description
   });
-  return response.data;
+  return unwrapEnvelope(response.data);
 }
 
 export async function listBackups(page = 1, limit = 20) {
-  const response = await api.get<BackupResponse>('/backup', {
+  const response = await api.get<ApiEnvelope<BackupResponse>>('/backup', {
     params: { page, limit }
   });
-  return response.data;
+  const body = unwrapEnvelope(response.data);
+  return {
+    data: body?.data ?? [],
+    meta: body?.meta ?? { page, limit, total: 0, totalPages: 0 }
+  };
 }
 
 export async function getBackup(id: string) {
-  const response = await api.get<{ data: DatabaseBackup }>(`/backup/${id}`);
-  return response.data;
+  const response = await api.get<ApiEnvelope<DatabaseBackup>>(`/backup/${id}`);
+  return unwrapEnvelope(response.data);
 }
 
 export async function restoreBackup(backupId: string) {
-  const response = await api.post<{ message: string }>('/backup/restore', {
-    backupId
-  });
-  return response.data;
+  const response = await api.post<ApiEnvelope<{ message: string }>>(
+    `/backup/${backupId}/restore`,
+    { confirmText: "CONFIRM_RESTORE" }
+  );
+  return unwrapEnvelope(response.data);
 }
 
 export async function downloadBackup(id: string) {
@@ -60,8 +74,8 @@ export async function downloadBackup(id: string) {
 }
 
 export async function deleteBackup(id: string) {
-  const response = await api.delete<{ message: string }>(`/backup/${id}`);
-  return response.data;
+  const response = await api.delete<ApiEnvelope<{ message: string }>>(`/backup/${id}`);
+  return unwrapEnvelope(response.data);
 }
 
 // Helper to download file

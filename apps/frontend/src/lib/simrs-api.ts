@@ -74,15 +74,27 @@ export function getApiErrorMessage(error: unknown) {
   return "Unexpected error";
 }
 
-export async function login(input: { email: string; password: string }) {
-  const response = await api.post<ApiEnvelope<LoginResult>>("/auth/login", input);
+export async function loginStaff(input: { email: string; password: string }) {
+  const response = await api.post<ApiEnvelope<LoginResult>>("/auth/login/staff", input);
   return unwrap<LoginResult>(response.data);
+}
+
+export async function loginPatient(input: { email: string; password: string }) {
+  const response = await api.post<ApiEnvelope<LoginResult>>("/auth/login/patient", input);
+  return unwrap<LoginResult>(response.data);
+}
+
+/** @deprecated Gunakan loginStaff atau loginPatient */
+export async function login(input: { email: string; password: string }) {
+  return loginStaff(input);
 }
 
 export async function registerPatient(input: {
   email: string;
   password: string;
   name: string;
+  captchaId: string;
+  captchaAnswer: string;
   phone?: string;
   address?: string;
   birthDate?: string;

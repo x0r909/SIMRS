@@ -1,12 +1,14 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import bcrypt from "bcrypt";
-import { AuditAction } from "@prisma/client";
+import { AuditAction, Prisma } from "@prisma/client";
 
 import { PrismaService } from "../../shared/prisma/prisma.service";
 import { AuditLogsService } from "../audit-logs/audit-logs.service";
+import type { JwtPayload } from "../auth/types";
 
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
+import { filterHospitalAssignableRoles, HOSPITAL_ASSIGNABLE_ROLES } from "./hospital-staff.roles";
 
 type UserListItem = {
   id: string;
@@ -53,30 +55,83 @@ export class UsersService {
     return this.toPublicUser(user);
   }
 
-  async list() {
+  private isSystemAdmin(actor?: JwtPayload): boolean {
+    return Boolean(actor?.roles?.includes("SYSTEM_ADMIN") || actor?.roles?.includes("admin"));
+  }
+
+  private buildListWhere(actor?: JwtPayload): Prisma.UserWhereInput {
+    if (this.isSystemAdmin(actor)) {
+      return {};
+    }
+
+    const where: Prisma.UserWhereInput = {
+      NOT: { roles: { some: { role: { key: "SYSTEM_ADMIN" } } } }
+    };
+
+    if (actor?.hospitalId) {
+      where.hospitalId = actor.hospitalId;
+    }
+
+    return where;
+  }
+
+  async list(actor?: JwtPayload) {
     const users = await this.prisma.user.findMany({
+      where: this.buildListWhere(actor),
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
         email: true,
         name: true,
         status: true,
+        hospitalId: true,
+        departmentId: true,
         createdAt: true,
         updatedAt: true,
         roles: { select: { role: { select: { id: true, key: true, name: true } } } }
       }
     });
-    return users.map((user: any) => this.toPublicUser(user));
+    return users.map((user: UserListItem) => this.toPublicUser(user));
   }
 
-  async create(actorId: string | undefined, input: CreateUserDto) {
+  listAssignableRoles() {
+    return this.prisma.role.findMany({
+      where: { key: { in: [...HOSPITAL_ASSIGNABLE_ROLES] } },
+      select: { key: true, name: true },
+      orderBy: { name: "asc" }
+    });
+  }
+
+  async create(actorId: string | undefined, input: CreateUserDto, actor?: JwtPayload) {
     const passwordHash = await bcrypt.hash(input.password, 12);
+    let hospitalId = input.hospitalId;
+    let departmentId = input.departmentId;
+    let roleKeys = input.roleKeys;
+
+    if (actor && !this.isSystemAdmin(actor)) {
+      if (!actor.hospitalId) {
+        throw new ForbiddenException("Akun admin rumah sakit belum terhubung ke rumah sakit");
+      }
+      hospitalId = actor.hospitalId;
+      roleKeys = filterHospitalAssignableRoles(roleKeys ?? []);
+      if (roleKeys.length === 0) {
+        throw new ForbiddenException("Pilih minimal satu role staff yang valid");
+      }
+    }
+
     const user = await this.prisma.user.create({
-      data: { email: input.email, name: input.name, passwordHash, status: "ACTIVE" }
+      data: {
+        email: input.email,
+        name: input.name,
+        passwordHash,
+        status: "ACTIVE",
+        hospitalId,
+        departmentId
+      }
     });
 
-    if (input.roleKeys?.length) {
-      const roles = await this.prisma.role.findMany({ where: { key: { in: input.roleKeys } } });
+    if (roleKeys?.length) {
+      const roles = await this.prisma.role.findMany({ where: { key: { in: roleKeys } } });
       await this.prisma.userRole.createMany({
         data: roles.map((r: any) => ({ userId: user.id, roleId: r.id })),
         skipDuplicates: true
@@ -94,24 +149,50 @@ export class UsersService {
     return this.get(user.id);
   }
 
-  async update(actorId: string | undefined, id: string, input: UpdateUserDto) {
-    await this.get(id);
+  private async assertCanManageUser(actor: JwtPayload | undefined, userId: string) {
+    if (!actor || this.isSystemAdmin(actor)) return;
+
+    const target = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { roles: { include: { role: true } } }
+    });
+    if (!target) throw new NotFoundException("User not found");
+
+    const isSystemUser = target.roles.some((r) => r.role.key === "SYSTEM_ADMIN");
+    if (isSystemUser) {
+      throw new ForbiddenException("Tidak dapat mengubah akun system admin");
+    }
+
+    if (actor.hospitalId && target.hospitalId && target.hospitalId !== actor.hospitalId) {
+      throw new ForbiddenException("Pengguna berada di luar rumah sakit Anda");
+    }
+  }
+
+  async update(actorId: string | undefined, id: string, input: UpdateUserDto, actor?: JwtPayload) {
+    await this.assertCanManageUser(actor, id);
 
     const passwordHash = input.password ? await bcrypt.hash(input.password, 12) : undefined;
+    let roleKeys = input.roleKeys;
+
+    if (actor && !this.isSystemAdmin(actor) && roleKeys) {
+      roleKeys = filterHospitalAssignableRoles(roleKeys);
+    }
+
     await this.prisma.user.update({
       where: { id },
       data: {
         email: input.email,
         name: input.name,
         status: input.status,
-        passwordHash
+        passwordHash,
+        ...(input.departmentId !== undefined ? { departmentId: input.departmentId } : {})
       }
     });
 
-    if (input.roleKeys) {
+    if (roleKeys) {
       await this.prisma.userRole.deleteMany({ where: { userId: id } });
-      if (input.roleKeys.length > 0) {
-        const roles = await this.prisma.role.findMany({ where: { key: { in: input.roleKeys } } });
+      if (roleKeys.length > 0) {
+        const roles = await this.prisma.role.findMany({ where: { key: { in: roleKeys } } });
         await this.prisma.userRole.createMany({
           data: roles.map((role: any) => ({ userId: id, roleId: role.id })),
           skipDuplicates: true
@@ -123,7 +204,8 @@ export class UsersService {
     return this.get(id);
   }
 
-  async remove(actorId: string | undefined, id: string) {
+  async remove(actorId: string | undefined, id: string, actor?: JwtPayload) {
+    await this.assertCanManageUser(actor, id);
     const existing = await this.findById(id);
     if (!existing) throw new NotFoundException("User not found");
     await this.prisma.user.delete({ where: { id } });

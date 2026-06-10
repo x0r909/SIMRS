@@ -19,6 +19,10 @@ export const getActionLabel = (action: AuditAction): string => {
     [AuditAction.MEDICAL_RECORD_UPDATE]: 'Update Rekam Medis',
     [AuditAction.PRESCRIPTION_ADD]: 'Tambah Resep',
     [AuditAction.LAB_RESULT_UPLOAD]: 'Upload Hasil Lab',
+    [AuditAction.LAB_RESULT_VERIFY]: 'Verifikasi Hasil Lab',
+    [AuditAction.RADIOLOGY_RESULT_UPLOAD]: 'Upload Hasil Radiologi',
+    [AuditAction.FILE_UPLOAD]: 'Upload File',
+    [AuditAction.FILE_DOWNLOAD]: 'Download File',
     [AuditAction.APPOINTMENT_BOOK]: 'Booking Jadwal',
     [AuditAction.APPOINTMENT_RESCHEDULE]: 'Ubah Jadwal',
     [AuditAction.APPOINTMENT_CANCEL]: 'Batal Jadwal',
@@ -29,6 +33,12 @@ export const getActionLabel = (action: AuditAction): string => {
     [AuditAction.DATABASE_RESTORE]: 'Restore Database',
     [AuditAction.SYSTEM_ERROR]: 'Error Sistem',
     [AuditAction.SETTING_UPDATE]: 'Update Setting',
+    [AuditAction.MEDICAL_RECORD_FINALIZE]: 'Finalisasi Rekam Medis',
+    [AuditAction.PRESCRIPTION_DISPENSE]: 'Serah Terima Resep',
+    [AuditAction.MFA_ENABLE]: 'Aktifkan MFA',
+    [AuditAction.MFA_DISABLE]: 'Nonaktifkan MFA',
+    [AuditAction.SESSION_REVOKE]: 'Cabut Sesi',
+    [AuditAction.FORCE_LOGOUT]: 'Logout Paksa',
     [AuditAction.OTHER]: 'Lainnya',
   };
   return labels[action] || action;
@@ -56,7 +66,7 @@ export const getStatusColor = (status: AuditStatus): string => {
 
 export const getActionColor = (action: AuditAction): string => {
   // Success actions - green
-  const successActions = [
+  const successActions: AuditAction[] = [
     AuditAction.LOGIN,
     AuditAction.USER_CREATE,
     AuditAction.PATIENT_CREATE,
@@ -67,15 +77,13 @@ export const getActionColor = (action: AuditAction): string => {
     AuditAction.LAB_RESULT_UPLOAD,
   ];
 
-  // Delete actions - red
-  const deleteActions = [
+  const deleteActions: AuditAction[] = [
     AuditAction.USER_DELETE,
     AuditAction.PATIENT_DELETE,
     AuditAction.APPOINTMENT_CANCEL,
   ];
 
-  // Update actions - blue
-  const updateActions = [
+  const updateActions: AuditAction[] = [
     AuditAction.USER_UPDATE,
     AuditAction.PATIENT_UPDATE,
     AuditAction.MEDICAL_RECORD_UPDATE,
@@ -84,8 +92,7 @@ export const getActionColor = (action: AuditAction): string => {
     AuditAction.SETTING_UPDATE,
   ];
 
-  // Warning/error actions - yellow/red
-  const warningActions = [
+  const warningActions: AuditAction[] = [
     AuditAction.LOGIN_FAILED,
     AuditAction.SYSTEM_ERROR,
   ];

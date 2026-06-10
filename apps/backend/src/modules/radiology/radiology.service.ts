@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { Prisma, AuditAction } from "@prisma/client";
+import { Prisma, AuditAction, RadiologyOrderStatus } from "@prisma/client";
 
 import { PaginationQueryDto, toSkipTake } from "../../common/pagination/pagination";
 import { PrismaService } from "../../shared/prisma/prisma.service";
@@ -7,8 +7,6 @@ import { AuditLogsService } from "../audit-logs/audit-logs.service";
 
 import { CreateRadiologyOrderDto } from "./dto/create-radiology-order.dto";
 import { CreateRadiologyResultDto } from "./dto/create-radiology-result.dto";
-
-type RadiologyOrderStatus = "MENUNGGU" | "PROSES" | "SELESAI" | "BATAL";
 
 function startOfDay(d: Date) {
   const x = new Date(d);
@@ -84,13 +82,13 @@ export class RadiologyService {
 
     const [menunggu, proses, selesai] = await Promise.all([
       this.prisma.radiologyOrder.count({
-        where: { orderedAt: { gte: from, lte: to }, status: "MENUNGGU" }
+        where: { orderedAt: { gte: from, lte: to }, status: "PENDING" }
       }),
       this.prisma.radiologyOrder.count({
-        where: { orderedAt: { gte: from, lte: to }, status: "PROSES" }
+        where: { orderedAt: { gte: from, lte: to }, status: "IN_PROGRESS" }
       }),
       this.prisma.radiologyOrder.count({
-        where: { orderedAt: { gte: from, lte: to }, status: "SELESAI" }
+        where: { orderedAt: { gte: from, lte: to }, status: "COMPLETED" }
       })
     ]);
 
@@ -134,7 +132,7 @@ export class RadiologyService {
         doctorId: input.doctorId,
         examType: input.examType,
         notes: input.notes,
-        status: "MENUNGGU"
+        status: "PENDING"
       }
     });
 
@@ -176,8 +174,8 @@ export class RadiologyService {
       }
     });
 
-    if (order.status === "MENUNGGU") {
-      await this.prisma.radiologyOrder.update({ where: { id: orderId }, data: { status: "PROSES" } });
+    if (order.status === "PENDING") {
+      await this.prisma.radiologyOrder.update({ where: { id: orderId }, data: { status: "IN_PROGRESS" } });
     }
 
     await this.audit.create({

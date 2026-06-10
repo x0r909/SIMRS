@@ -17,7 +17,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { NativeCaptcha } from "@/components/native-captcha";
 import { authStore } from "@/lib/auth-store";
-import { getApiErrorMessage, login as loginRequest } from "@/lib/simrs-api";
+import { resolveDashboardPath } from "@/lib/dashboard-routes";
+import { roleStore } from "@/lib/role-store";
+import { hasStaffLoginRole } from "@/lib/role-utils";
+import { getApiErrorMessage, loginStaff } from "@/lib/simrs-api";
 import { cn } from "@/lib/utils";
 
 const schema = z.object({
@@ -40,12 +43,19 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
   });
 
   const loginMutation = useMutation({
-    mutationFn: (values: FormValues) => loginRequest(values),
+    mutationFn: (values: FormValues) => loginStaff(values),
     onSuccess: (data) => {
+      if (!hasStaffLoginRole(data.user.roles)) {
+        authStore.clear();
+        roleStore.clear();
+        toast.error("Akun pasien tidak dapat login di portal staff. Gunakan login pasien.");
+        return;
+      }
+
       authStore.setTokens(data.accessToken, data.refreshToken);
+      roleStore.setRoles(data.user.roles);
       toast.success("Login berhasil");
-      const nextPath = data.user.roles.includes("patient") ? "/portal" : "/dashboard";
-      router.replace(nextPath);
+      router.replace(resolveDashboardPath(data.user.roles));
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error));

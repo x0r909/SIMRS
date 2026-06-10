@@ -1,8 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
-import { Activity, ArrowLeft, UserPlus } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Activity, AlertTriangle, ArrowLeft, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -17,8 +17,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CaptchaField } from "@/components/captcha-field";
 import { PasswordStrengthIndicator } from "@/components/password-strength-indicator";
+import { LoadingBlock } from "@/components/ui/state-block";
 import { getApiErrorMessage, registerPatient } from "@/lib/simrs-api";
 import { validatePasswordStrength } from "@/lib/password-validator";
+import { getPublicSystemSettings } from "@/lib/system-settings-api";
 
 const passwordSchema = z
   .string()
@@ -50,6 +52,19 @@ type FormValues = z.infer<typeof schema>;
 export default function SignupPage() {
   const router = useRouter();
   const [captchaError, setCaptchaError] = useState<string>();
+
+  const { data: publicSettings, isLoading: settingsLoading } = useQuery({
+    queryKey: ["public-system-settings"],
+    queryFn: getPublicSystemSettings,
+    refetchInterval: 30_000
+  });
+
+  const maintenanceBlocksSignup =
+    publicSettings?.maintenanceMode === true ||
+    publicSettings?.allowPatientRegistration === false;
+  const maintenanceMessage =
+    publicSettings?.maintenanceMessage ||
+    "Registrasi pasien sedang ditutup. Silakan hubungi rumah sakit.";
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -95,6 +110,14 @@ export default function SignupPage() {
   });
 
 
+  if (settingsLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-6">
+        <LoadingBlock label="Memuat status registrasi..." />
+      </div>
+    );
+  }
+
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-10">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(201_84%_56%/.2),transparent_40%),radial-gradient(circle_at_bottom_left,hsl(174_62%_47%/.16),transparent_45%)]" />
@@ -122,10 +145,34 @@ export default function SignupPage() {
             </Button>
           </div>
 
+          {maintenanceBlocksSignup && (
+            <div className="mb-4 flex gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+              <div>
+                <p className="font-medium">Registrasi tidak tersedia</p>
+                <p className="mt-1 text-amber-800">{maintenanceMessage}</p>
+                {publicSettings?.maintenanceMode && (
+                  <Link
+                    className="mt-2 inline-block text-xs font-medium underline underline-offset-2"
+                    href="/maintenance"
+                  >
+                    Lihat detail maintenance
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
+
           <Form {...form}>
             <form
               className="grid gap-4 md:grid-cols-2"
-              onSubmit={form.handleSubmit((values) => signupMutation.mutate(values))}
+              onSubmit={form.handleSubmit((values) => {
+                if (maintenanceBlocksSignup) {
+                  toast.error(maintenanceMessage);
+                  return;
+                }
+                signupMutation.mutate(values);
+              })}
             >
               <FormField
                 control={form.control}
@@ -264,7 +311,11 @@ export default function SignupPage() {
                 <p className="text-xs text-[hsl(var(--muted-foreground))]">
                   Setelah registrasi berhasil, silakan login melalui halaman login pasien.
                 </p>
-                <Button className="min-w-44" disabled={signupMutation.isPending} type="submit">
+                <Button
+                  className="min-w-44"
+                  disabled={signupMutation.isPending || maintenanceBlocksSignup}
+                  type="submit"
+                >
                   {signupMutation.isPending ? (
                     <span className="inline-flex items-center gap-2">
                       <Activity className="size-4 animate-spin" />

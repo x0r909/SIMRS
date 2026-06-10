@@ -22,10 +22,23 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = "Internal server error";
+    let code: string | undefined;
+    let maintenanceScope: string | undefined;
+    let maintenanceEndsAt: string | null | undefined;
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
-      message = normalizeMessage(exception.getResponse(), exception.message);
+      const response = exception.getResponse();
+      message = normalizeMessage(response, exception.message);
+      if (response && typeof response === "object" && !Array.isArray(response)) {
+        const payload = response as Record<string, unknown>;
+        if (typeof payload.code === "string") code = payload.code;
+        if (typeof payload.scope === "string") maintenanceScope = payload.scope;
+        if (payload.endsAt !== undefined) {
+          maintenanceEndsAt =
+            payload.endsAt === null ? null : String(payload.endsAt);
+        }
+      }
     } else if (exception instanceof Error && "code" in exception) {
       status = HttpStatus.BAD_REQUEST;
       const code = (exception as any).code;
@@ -41,6 +54,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       error: {
         status,
         message,
+        ...(code ? { code } : {}),
+        ...(maintenanceScope ? { scope: maintenanceScope } : {}),
+        ...(maintenanceEndsAt !== undefined ? { endsAt: maintenanceEndsAt } : {}),
         path: req.url,
         timestamp: new Date().toISOString()
       }

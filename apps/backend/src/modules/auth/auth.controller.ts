@@ -1,9 +1,19 @@
+<<<<<<< HEAD
 import { Body, Controller, Get, Post, UseGuards, Request, BadRequestException, UnauthorizedException, Param } from "@nestjs/common";
+=======
+import { Body, Controller, Delete, Get, Patch, Post, Param, Req, UseGuards } from "@nestjs/common";
+>>>>>>> 0e7136b (Update besar besaran fitur pada frontend dan backend serta database)
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
 
 import { CurrentUser } from "../../common/auth/current-user.decorator";
 import { JwtAuthGuard } from "../../common/auth/jwt-auth.guard";
+<<<<<<< HEAD
+=======
+import { RequirePermissions } from "../../common/auth/permissions.decorator";
+import { PermissionsGuard } from "../../common/auth/permissions.guard";
+
+>>>>>>> 0e7136b (Update besar besaran fitur pada frontend dan backend serta database)
 import { AuthService } from "./auth.service";
 
 import { PasswordValidator } from "../../common/validators/password-validator";
@@ -11,7 +21,12 @@ import { PasswordValidator } from "../../common/validators/password-validator";
 import { LoginDto } from "./dto/login.dto";
 import { RefreshTokenDto } from "./dto/refresh-token.dto";
 import { RegisterPatientDto } from "./dto/register-patient.dto";
+<<<<<<< HEAD
 import { RegisterDto, ChangePasswordDto } from "./dto/auth-validation.dto";
+=======
+import { UpdateProfileDto } from "./dto/update-profile.dto";
+import type { JwtPayload } from "./types";
+>>>>>>> 0e7136b (Update besar besaran fitur pada frontend dan backend serta database)
 
 @ApiTags("auth")
 @Controller("auth")
@@ -65,6 +80,7 @@ export class AuthController {
    * Login - Rate limited to 5 per 60 seconds
    */
   @Post("login")
+<<<<<<< HEAD
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   async login(
     @Body() dto: LoginDto,
@@ -87,6 +103,42 @@ export class AuthController {
     } catch (error) {
       throw new UnauthorizedException((error as Error).message);
     }
+=======
+  login(@Body() dto: LoginDto, @Req() req: { ip?: string; headers: Record<string, string> }) {
+    return this.auth.login(
+      dto.email,
+      dto.password,
+      { ip: req.ip, userAgent: req.headers["user-agent"] },
+      "staff"
+    );
+  }
+
+  @Post("login/staff")
+  loginStaff(@Body() dto: LoginDto, @Req() req: { ip?: string; headers: Record<string, string> }) {
+    return this.auth.login(
+      dto.email,
+      dto.password,
+      { ip: req.ip, userAgent: req.headers["user-agent"] },
+      "staff"
+    );
+  }
+
+  @Post("login/patient")
+  loginPatient(@Body() dto: LoginDto, @Req() req: { ip?: string; headers: Record<string, string> }) {
+    return this.auth.login(
+      dto.email,
+      dto.password,
+      { ip: req.ip, userAgent: req.headers["user-agent"] },
+      "patient"
+    );
+  }
+
+  @Post("logout")
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  logout(@CurrentUser() user: JwtPayload, @Body() body: { refreshToken?: string }) {
+    return this.auth.logout(user.jti, body.refreshToken);
+>>>>>>> 0e7136b (Update besar besaran fitur pada frontend dan backend serta database)
   }
 
   /**
@@ -230,6 +282,7 @@ export class AuthController {
   async me(@CurrentUser("sub") userId: string) {
     return this.auth.me(userId);
   }
+<<<<<<< HEAD
 
   /**
    * Health check
@@ -239,4 +292,48 @@ export class AuthController {
     return { status: "ok", message: "Authentication service is running" };
   }
 }
+=======
+>>>>>>> 0e7136b (Update besar besaran fitur pada frontend dan backend serta database)
 
+  @Patch("profile")
+  updateProfile(@CurrentUser("sub") userId: string, @Body() dto: UpdateProfileDto) {
+    return this.auth.updateProfile(userId, dto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post("enable-mfa")
+  enableMfa(@CurrentUser("sub") userId: string) {
+    return this.auth.enableMfa(userId);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post("verify-mfa")
+  verifyMfa(@CurrentUser("sub") userId: string, @Body() body: { token: string; enable?: boolean }) {
+    if (body.enable) return this.auth.verifyAndEnableMfa(userId, body.token);
+    return this.auth.verifyMfa(userId, body.token);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get("sessions")
+  sessions(@CurrentUser("sub") userId: string) {
+    return this.auth.listSessions(userId);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Delete("sessions/:id")
+  revokeSession(@CurrentUser("sub") userId: string, @Param("id") sessionId: string) {
+    return this.auth.revokeSession(userId, sessionId);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions("users.force-logout")
+  @Post("users/:userId/force-logout")
+  forceLogout(@CurrentUser("sub") actorId: string, @Param("userId") targetUserId: string) {
+    return this.auth.forceLogoutUser(actorId, targetUserId);
+  }
+}
