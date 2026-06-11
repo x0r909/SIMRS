@@ -20,7 +20,7 @@ Sistem Informasi Manajemen Rumah Sakit (SIMRS) — monorepo untuk operasional ru
 - **Registrasi pasien** — self-service di `/signup`
 - **Mode maintenance** — cakupan registrasi / portal pasien / penuh (Admin Sistem)
 - **Modul klinis** — pasien, janji temu, antrian, kunjungan, rekam medis, resep, farmasi, lab, radiologi, billing
-- **Keamanan** — MFA TOTP, session Redis, brute-force lockout, enkripsi field sensitif, audit log & system log
+- **Keamanan** — MFA TOTP, session Redis, brute-force lockout, rate limiting API, enkripsi field sensitif, audit log & system log
 - **Operasional** — health check, backup database, laporan harian RS, monitoring (Prometheus/Grafana/Loki)
 
 ## Struktur repositori
@@ -48,8 +48,8 @@ docs/                   Panduan deployment & operasional
 ## Quick start (setup otomatis)
 
 ```bash
-git clone <url-repo> simrs
-cd simrs
+git clone https://github.com/x0r909/SIMRS.git
+cd SIMRS
 pnpm setup
 ```
 
@@ -204,7 +204,7 @@ Password default semua akun seed: **`Admin123!`**
 | Admin Rumah Sakit | `hospital-admin@simrs.local` | `/login` | `/hospital-admin` |
 | Dokter | `doctor@simrs.local` | `/login` | `/doctor` |
 | Staff / Kasir / dll. | lihat `packages/db/prisma/seed.ts` | `/login` | `/staff` |
-| Pasien | `pasien.andi@simrs.local` | `/patient-login` | `/patient` |
+| Pasien | `patient@simrs.local` | `/patient-login` | `/patient` |
 
 **Catatan peran:**
 
@@ -292,6 +292,34 @@ Panduan lengkap: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
 GitHub Actions (`.github/workflows/ci.yml`) menjalankan `lint`, `typecheck`, `test:policy`, dan `build` pada push/PR ke `main` / `develop`.
 
 ## Troubleshooting
+
+### `ERR_PNPM_JSON_PARSE` saat `db:migrate` / `db:seed`
+
+Biasanya disebabkan marker konflik merge Git (`<<<<<<<`, `=======`, `>>>>>>>`) di `package.json` atau file lain. Perbaiki konflik lalu jalankan:
+
+```bash
+pnpm install
+pnpm db:migrate
+pnpm db:seed
+```
+
+Cari sisa marker di seluruh repo:
+
+```bash
+git grep '<<<<<<<'
+```
+
+### Migrasi gagal: enum `FILE_UPLOAD` sudah ada
+
+Terjadi jika migrasi `add_auth_security_models` bentrok dengan `v2_schema`. Untuk database development yang sudah terlanjur:
+
+```bash
+cd packages/db
+npx prisma migrate resolve --applied "20260608090758_add_auth_security_models"
+pnpm db:migrate
+```
+
+Untuk instalasi bersih, cukup `pnpm db:setup` atau `pnpm db:reset`.
 
 ### Prisma `EPERM` / engine lock (Windows)
 

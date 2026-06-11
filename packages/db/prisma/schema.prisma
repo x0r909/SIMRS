@@ -312,10 +312,6 @@ model User {
   restoreLogs     RestoreLog[]   @relation("RestorePerformer")
   backupRecords   BackupRecord[]
   databaseBackups DatabaseBackup[]
-<<<<<<< HEAD
-  refreshTokens RefreshToken[]
-  sessions      UserSession[]
-=======
   files           FileObject[]   @relation("FileUploader")
   notifications   Notification[]
   patientProfile  Patient?       @relation("UserPatient")
@@ -325,7 +321,6 @@ model User {
   @@index([nationalIdBlindIndex])
   @@index([hospitalId])
   @@index([departmentId])
->>>>>>> 0e7136b (Update besar besaran fitur pada frontend dan backend serta database)
 }
 
 model Role {
@@ -949,37 +944,3 @@ model DatabaseBackup {
   @@index([createdAt])
   @@index([status])
 }
-<<<<<<< HEAD
-
-model RefreshToken {
-  id        String   @id @default(cuid())
-  hash      String   @unique
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  metadata  Json?
-  expiresAt DateTime
-  revokedAt DateTime?
-  createdAt DateTime @default(now())
-
-  @@index([userId])
-  @@index([expiresAt])
-  @@index([revokedAt])
-}
-
-model UserSession {
-  id           String   @id @default(cuid())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  ip           String?
-  userAgent    String?
-  lastActivity DateTime @default(now())
-  expiresAt    DateTime
-  createdAt    DateTime @default(now())
-
-  @@index([userId])
-  @@index([expiresAt])
-  @@index([lastActivity])
-}
-
-=======
->>>>>>> 0e7136b (Update besar besaran fitur pada frontend dan backend serta database)

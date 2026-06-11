@@ -1,12 +1,8 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-<<<<<<< HEAD
-import { APP_INTERCEPTOR, APP_GUARD } from "@nestjs/core";
+import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { ScheduleModule } from "@nestjs/schedule";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
-=======
-import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
->>>>>>> 0e7136b (Update besar besaran fitur pada frontend dan backend serta database)
 
 import { AppController } from "./app.controller";
 import { AccessControlModule } from "./common/auth/access-control.module";
@@ -60,18 +56,18 @@ import { StorageModule } from "./shared/storage/storage.module";
       {
         name: "short",
         ttl: 1000,
-        limit: 10,
+        limit: 10
       },
       {
         name: "long",
         ttl: 60000,
-        limit: 100,
+        limit: 100
       },
       {
         name: "login",
         ttl: 60000,
-        limit: 5,
-      },
+        limit: 5
+      }
     ]),
     PrismaModule,
     RedisModule,
@@ -107,22 +103,11 @@ import { StorageModule } from "./shared/storage/storage.module";
     NotificationsModule
   ],
   providers: [
-<<<<<<< HEAD
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: AuditLoggingInterceptor,
-    },
-  ],
-=======
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_INTERCEPTOR, useClass: AuditLoggingInterceptor },
     { provide: APP_INTERCEPTOR, useClass: SystemLoggingInterceptor },
     { provide: APP_GUARD, useClass: AbacGuard },
     { provide: APP_GUARD, useClass: MacGuard }
   ]
->>>>>>> 0e7136b (Update besar besaran fitur pada frontend dan backend serta database)
 })
 export class AppModule {}

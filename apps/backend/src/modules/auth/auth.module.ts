@@ -4,12 +4,9 @@ import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
 
 import { AuditLogsModule } from "../audit-logs/audit-logs.module";
-<<<<<<< HEAD
-import { PrismaModule } from "../../shared/prisma/prisma.module";
-=======
 import { CaptchaModule } from "../captcha/captcha.module";
 import { UsersModule } from "../users/users.module";
->>>>>>> 0e7136b (Update besar besaran fitur pada frontend dan backend serta database)
+import { PrismaModule } from "../../shared/prisma/prisma.module";
 
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";

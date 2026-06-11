@@ -13,10 +13,6 @@ import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { createReadStream } from "fs";
 import type { Response } from "express";
 
-<<<<<<< HEAD
-@Controller('backup')
-@UseGuards(JwtAuthGuard)
-=======
 import { CurrentUser } from "../../common/auth/current-user.decorator";
 import { JwtAuthGuard } from "../../common/auth/jwt-auth.guard";
 import { RequirePermissions } from "../../common/auth/permissions.decorator";
@@ -31,7 +27,6 @@ import { RestoreBackupDto } from "./dto/restore-backup.dto";
 @Controller("backup")
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @ApiBearerAuth()
->>>>>>> 0e7136b (Update besar besaran fitur pada frontend dan backend serta database)
 export class BackupController {
   constructor(private readonly backup: BackupService) {}
 
@@ -59,20 +54,9 @@ export class BackupController {
     createReadStream(file.path).pipe(res);
   }
 
-<<<<<<< HEAD
-  @Get()
-  async listBackups(@Query('page') page = 1, @Query('limit') limit = 20) {
-    const result = await this.backup.listBackups(parseInt(page as any), parseInt(limit as any));
-    return { success: true, data: result.data, meta: result.meta };
-  }
-
-  @Get(':id')
-  async getBackup(@Param('id') id: string) {
-=======
   @Get(":id")
   @RequirePermissions("backup.create")
   get(@Param("id") id: string) {
->>>>>>> 0e7136b (Update besar besaran fitur pada frontend dan backend serta database)
     return this.backup.getBackup(id);
   }
 
