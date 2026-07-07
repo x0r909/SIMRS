@@ -1,3 +1,10 @@
+/**
+ * @file billing.module.ts
+ * @path apps/backend/src/modules/billing/billing.module.ts
+ * @description Modul NestJS billing: wiring dependency injection. Billing & pembayaran: invoice, tagihan kunjungan, metode bayar.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Module } from "@nestjs/common";
 
 import { AuditLogsModule } from "../audit-logs/audit-logs.module";

@@ -1,6 +1,21 @@
+// =============================================================================
+// @file schema.prisma
+// @path packages/db/prisma/schema.prisma
+// @description Skema database Prisma SIMRS v2 — model, enum, relasi seluruh domain.
+//
+// Grup model:
+//   - Sistem: Hospital, User, Role, Permission, Session, Notification
+//   - Klinis: Patient, Doctor, Appointment, QueueEntry, Visit
+//   - Rekam medis: MedicalRecord, Diagnosis, Prescription
+//   - Penunjang: LaboratoryOrder/Result, RadiologyOrder/Result
+//   - Billing: Billing, BillingInvoice, Payment
+//   - Operasional: AuditLog, SystemLog, BackupRecord, FileObject
+// @see docs/CODEBASE.md §4 — dokumentasi database lengkap
+// =============================================================================
+
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x", "debian-openssl-3.0.x"]
 }
 
 datasource db {

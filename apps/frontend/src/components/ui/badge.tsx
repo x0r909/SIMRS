@@ -1,3 +1,10 @@
+/**
+ * @file badge.tsx
+ * @path apps/frontend/src/components/ui/badge.tsx
+ * @description Komponen UI shadcn/ui: badge.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 

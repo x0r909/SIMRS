@@ -1,3 +1,10 @@
+/**
+ * @file update-system-settings.dto.ts
+ * @path apps/backend/src/modules/system-settings/dto/update-system-settings.dto.ts
+ * @description DTO validasi request system-settings: update-system-settings (class-validator).
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Type } from "class-transformer";
 import {
   IsBoolean,

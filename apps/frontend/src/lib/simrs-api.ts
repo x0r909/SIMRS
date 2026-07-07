@@ -1,3 +1,10 @@
+/**
+ * @file simrs-api.ts
+ * @path apps/frontend/src/lib/simrs-api.ts
+ * @description API client terpusat: wrapper endpoint SIMRS dengan unwrap envelope.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import axios from "axios";
 
 import { api } from "@/lib/api";
@@ -182,6 +189,20 @@ export async function createAppointment(input: {
   return unwrap<Appointment>(response.data);
 }
 
+export async function createMyAppointment(input: {
+  doctorId: string;
+  scheduledAt: string;
+  notes?: string;
+}) {
+  const response = await api.post<ApiEnvelope<Appointment>>("/appointments/me", input);
+  return unwrap<Appointment>(response.data);
+}
+
+export async function getMyPatient() {
+  const response = await api.get<ApiEnvelope<Patient>>("/patients/me");
+  return unwrap<Patient>(response.data);
+}
+
 export async function setAppointmentStatus(id: string, status: AppointmentStatus) {
   const response = await api.put<ApiEnvelope<Appointment>>(`/appointments/${id}/status`, { status });
   return unwrap<Appointment>(response.data);
@@ -249,9 +270,19 @@ export async function listBilling(params?: { page?: number; limit?: number; q?: 
   return unwrapPaginated<BillingInvoice>(response.data as ApiEnvelope<BillingInvoice[]>);
 }
 
-export async function listMyBilling(params?: { page?: number; limit?: number; q?: string }) {
+export async function listMyBilling(params?: {
+  page?: number;
+  limit?: number;
+  q?: string;
+  status?: string;
+}) {
   const response = await api.get<ApiEnvelope<BillingInvoice[]>>("/billing/me", { params });
   return unwrapPaginated<BillingInvoice>(response.data as ApiEnvelope<BillingInvoice[]>);
+}
+
+export async function listMyLaboratoryOrders(params?: { page?: number; limit?: number; q?: string }) {
+  const response = await api.get<ApiEnvelope<LaboratoryOrder[]>>("/laboratory/orders/me", { params });
+  return unwrapPaginated<LaboratoryOrder>(response.data as ApiEnvelope<LaboratoryOrder[]>);
 }
 
 export async function listLaboratoryOrders(params?: { page?: number; limit?: number; q?: string }) {

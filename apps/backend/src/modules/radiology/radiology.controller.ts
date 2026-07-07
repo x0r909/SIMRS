@@ -1,3 +1,10 @@
+/**
+ * @file radiology.controller.ts
+ * @path apps/backend/src/modules/radiology/radiology.controller.ts
+ * @description Controller REST API radiology: endpoint HTTP. Radiologi: order pemeriksaan, upload hasil, verifikasi.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Body, Controller, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 

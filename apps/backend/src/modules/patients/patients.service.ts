@@ -1,3 +1,10 @@
+/**
+ * @file patients.service.ts
+ * @path apps/backend/src/modules/patients/patients.service.ts
+ * @description Service bisnis patients: logika domain & Prisma. Manajemen pasien: MRN, data sensitif terenkripsi, blind index, CRUD.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma, AuditAction } from "@prisma/client";
 
@@ -5,6 +12,7 @@ import { PaginationQueryDto, toSkipTake } from "../../common/pagination/paginati
 import { HospitalContextService } from "../../shared/context/hospital-context.service";
 import { PrismaService } from "../../shared/prisma/prisma.service";
 import { AuditLogsService } from "../audit-logs/audit-logs.service";
+import type { JwtPayload } from "../auth/types";
 
 import { CreatePatientDto } from "./dto/create-patient.dto";
 import { UpdatePatientDto } from "./dto/update-patient.dto";
@@ -17,16 +25,24 @@ export class PatientsService {
     private readonly hospitalContext: HospitalContextService
   ) {}
 
-  async list(query: PaginationQueryDto) {
+  private isSystemAdmin(actor?: JwtPayload): boolean {
+    return Boolean(actor?.roles?.includes("SYSTEM_ADMIN") || actor?.roles?.includes("admin"));
+  }
+
+  async list(query: PaginationQueryDto, actor?: JwtPayload) {
     const { skip, take, page, limit } = toSkipTake(query.page, query.limit);
-    const where: any = query.q
-      ? {
-          OR: [
-            { name: { contains: query.q, mode: "insensitive" as const } },
-            { mrn: { contains: query.q, mode: "insensitive" as const } }
-          ]
-        }
-      : {};
+    const where: Prisma.PatientWhereInput = {};
+
+    if (actor && !this.isSystemAdmin(actor) && actor.hospitalId) {
+      where.hospitalId = actor.hospitalId;
+    }
+
+    if (query.q) {
+      where.OR = [
+        { name: { contains: query.q, mode: "insensitive" as const } },
+        { mrn: { contains: query.q, mode: "insensitive" as const } }
+      ];
+    }
 
     const [total, data] = await Promise.all([
       this.prisma.patient.count({ where }),
@@ -39,6 +55,19 @@ export class PatientsService {
     const patient = await this.prisma.patient.findUnique({ where: { id } });
     if (!patient) throw new NotFoundException("Patient not found");
     return patient;
+  }
+
+  async getByUserId(userId: string, actor?: JwtPayload) {
+    const patient = await this.prisma.patient.findFirst({ where: { userId } });
+    if (!patient) throw new NotFoundException("Patient profile not found");
+    if (actor && !this.isSystemAdmin(actor) && actor.hospitalId && patient.hospitalId !== actor.hospitalId) {
+      throw new NotFoundException("Patient profile not found");
+    }
+    return patient;
+  }
+
+  async getMine(userId: string) {
+    return this.getByUserId(userId);
   }
 
   async create(actorId: string | undefined, input: CreatePatientDto) {

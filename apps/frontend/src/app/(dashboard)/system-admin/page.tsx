@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file page.tsx
+ * @path apps/frontend/src/app/(dashboard)/system-admin/page.tsx
+ * @description Dashboard Admin Sistem: ringkasan platform.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";

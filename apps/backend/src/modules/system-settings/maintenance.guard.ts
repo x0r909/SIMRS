@@ -1,3 +1,10 @@
+/**
+ * @file maintenance.guard.ts
+ * @path apps/backend/src/modules/system-settings/maintenance.guard.ts
+ * @description Guard system-settings: proteksi route berdasarkan kondisi bisnis.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import {
   CanActivate,
   ExecutionContext,

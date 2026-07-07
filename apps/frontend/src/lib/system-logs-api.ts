@@ -1,3 +1,10 @@
+/**
+ * @file system-logs-api.ts
+ * @path apps/frontend/src/lib/system-logs-api.ts
+ * @description API client system log.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { api } from "./api";
 
 type ApiEnvelope<T> = { success?: boolean; data?: T };

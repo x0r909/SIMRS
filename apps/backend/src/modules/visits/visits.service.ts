@@ -1,3 +1,10 @@
+/**
+ * @file visits.service.ts
+ * @path apps/backend/src/modules/visits/visits.service.ts
+ * @description Service bisnis visits: logika domain & Prisma. Kunjungan klinis: registrasi kunjungan, diagnosis, hubungan ke rekam medis.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma, AppointmentStatus, AuditAction } from "@prisma/client";
 

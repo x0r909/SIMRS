@@ -1,3 +1,10 @@
+/**
+ * @file system-overview.service.ts
+ * @path apps/backend/src/modules/health/system-overview.service.ts
+ * @description Service bisnis health: logika domain & Prisma. Health check: status Postgres, Redis, MinIO, metrik sistem.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable } from "@nestjs/common";
 import { HealthCheckService } from "@nestjs/terminus";
 

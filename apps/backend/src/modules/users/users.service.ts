@@ -1,3 +1,10 @@
+/**
+ * @file users.service.ts
+ * @path apps/backend/src/modules/users/users.service.ts
+ * @description Service bisnis users: logika domain & Prisma. Manajemen pengguna staff: CRUD user, assignment role & departemen.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import bcrypt from "bcrypt";
 import { AuditAction, Prisma } from "@prisma/client";
@@ -8,7 +15,11 @@ import type { JwtPayload } from "../auth/types";
 
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
-import { filterHospitalAssignableRoles, HOSPITAL_ASSIGNABLE_ROLES } from "./hospital-staff.roles";
+import {
+  filterHospitalAssignableRoles,
+  HOSPITAL_ASSIGNABLE_ROLES,
+  shouldPreserveRolesForHospitalAdmin
+} from "./hospital-staff.roles";
 
 type UserListItem = {
   id: string;
@@ -17,7 +28,16 @@ type UserListItem = {
   status: string;
   createdAt: Date;
   updatedAt: Date;
+  hospitalId?: string | null;
+  departmentId?: string | null;
   roles: { role: { id: string; key: string; name: string } }[];
+  patientProfile?: {
+    id: string;
+    mrn: string;
+    phone: string | null;
+    address: string | null;
+    birthDate: Date | null;
+  } | null;
 };
 
 @Injectable()
@@ -32,9 +52,16 @@ export class UsersService {
   }
 
   private toPublicUser(user: UserListItem) {
+    const { patientProfile, ...rest } = user;
     return {
-      ...user,
-      roles: user.roles.map((r) => r.role)
+      ...rest,
+      roles: user.roles.map((r) => r.role),
+      patientProfile: patientProfile
+        ? {
+            ...patientProfile,
+            birthDate: patientProfile.birthDate?.toISOString() ?? null
+          }
+        : null
     };
   }
 
@@ -88,7 +115,10 @@ export class UsersService {
         departmentId: true,
         createdAt: true,
         updatedAt: true,
-        roles: { select: { role: { select: { id: true, key: true, name: true } } } }
+        roles: { select: { role: { select: { id: true, key: true, name: true } } } },
+        patientProfile: {
+          select: { id: true, mrn: true, phone: true, address: true, birthDate: true }
+        }
       }
     });
     return users.map((user: UserListItem) => this.toPublicUser(user));
@@ -174,8 +204,21 @@ export class UsersService {
     const passwordHash = input.password ? await bcrypt.hash(input.password, 12) : undefined;
     let roleKeys = input.roleKeys;
 
-    if (actor && !this.isSystemAdmin(actor) && roleKeys) {
-      roleKeys = filterHospitalAssignableRoles(roleKeys);
+    if (actor && !this.isSystemAdmin(actor) && roleKeys !== undefined) {
+      const target = await this.prisma.user.findUnique({
+        where: { id },
+        include: { roles: { include: { role: true } } }
+      });
+      const targetRoleKeys = target?.roles.map((r) => r.role.key) ?? [];
+
+      if (shouldPreserveRolesForHospitalAdmin(targetRoleKeys)) {
+        roleKeys = undefined;
+      } else {
+        roleKeys = filterHospitalAssignableRoles(roleKeys);
+        if ((input.roleKeys?.length ?? 0) > 0 && roleKeys.length === 0) {
+          throw new ForbiddenException("Role staff tidak valid untuk rumah sakit ini");
+        }
+      }
     }
 
     await this.prisma.user.update({

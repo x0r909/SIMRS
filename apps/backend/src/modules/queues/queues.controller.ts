@@ -1,3 +1,10 @@
+/**
+ * @file queues.controller.ts
+ * @path apps/backend/src/modules/queues/queues.controller.ts
+ * @description Controller REST API queues: endpoint HTTP. Antrian poli: nomor antrian, prioritas, status panggilan.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Body, Controller, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 

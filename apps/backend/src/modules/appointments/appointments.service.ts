@@ -1,5 +1,12 @@
+/**
+ * @file appointments.service.ts
+ * @path apps/backend/src/modules/appointments/appointments.service.ts
+ * @description Service bisnis appointments: logika domain & Prisma. Janji temu: penjadwalan, status lifecycle, booking pasien mandiri.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 // Fixed AppointmentStatus import for Vercel build
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma, AppointmentStatus, AuditAction } from "@prisma/client";
 
 import { PaginationQueryDto, toSkipTake } from "../../common/pagination/pagination";
@@ -8,6 +15,7 @@ import { PrismaService } from "../../shared/prisma/prisma.service";
 import { AuditLogsService } from "../audit-logs/audit-logs.service";
 
 import { CreateAppointmentDto } from "./dto/create-appointment.dto";
+import { CreateMyAppointmentDto } from "./dto/create-my-appointment.dto";
 import { UpdateAppointmentDto } from "./dto/update-appointment.dto";
 
 @Injectable()
@@ -103,7 +111,20 @@ export class AppointmentsService {
     return appt;
   }
 
-  async create(actorId: string | undefined, input: CreateAppointmentDto) {
+  async createMine(userId: string, input: CreateMyAppointmentDto) {
+    const patientId = await this.ensurePatientProfile(userId);
+    return this.create(userId, { ...input, patientId }, ["PATIENT"]);
+  }
+
+  async create(actorId: string | undefined, input: CreateAppointmentDto, actorRoles?: string[]) {
+    if (actorRoles?.some((role) => role.toUpperCase() === "PATIENT")) {
+      if (!actorId) throw new ForbiddenException("Authentication required");
+      const ownPatientId = await this.ensurePatientProfile(actorId);
+      if (input.patientId !== ownPatientId) {
+        throw new ForbiddenException("Cannot create appointment for another patient");
+      }
+    }
+
     await this.ensurePatientAndDoctor(input.patientId, input.doctorId);
     const scheduledAt = new Date(input.scheduledAt);
     if (Number.isNaN(scheduledAt.getTime())) throw new BadRequestException("Invalid scheduledAt");

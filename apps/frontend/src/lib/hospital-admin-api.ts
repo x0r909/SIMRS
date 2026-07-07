@@ -1,3 +1,10 @@
+/**
+ * @file hospital-admin-api.ts
+ * @path apps/frontend/src/lib/hospital-admin-api.ts
+ * @description API client modul admin rumah sakit.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { api } from "./api";
 import type { DashboardStat } from "@/components/dashboard-overview";
 
@@ -46,6 +53,13 @@ export type StaffUser = {
   departmentId?: string | null;
   roles: Array<{ id: string; key: string; name: string }>;
   createdAt: string;
+  patientProfile?: {
+    id: string;
+    mrn: string;
+    phone?: string | null;
+    address?: string | null;
+    birthDate?: string | null;
+  } | null;
 };
 
 export type DailyReport = {
@@ -137,6 +151,36 @@ export async function updateHospitalStaff(
 ): Promise<StaffUser> {
   const response = await api.put<ApiEnvelope<StaffUser>>(`/users/${id}`, input);
   return unwrap(response.data);
+}
+
+export async function updateHospitalPatientAccount(
+  userId: string,
+  patientId: string,
+  input: {
+    name: string;
+    email: string;
+    password?: string;
+    status?: "ACTIVE" | "DISABLED";
+    mrn: string;
+    phone?: string;
+    address?: string;
+    birthDate?: string;
+  }
+): Promise<void> {
+  await updateHospitalStaff(userId, {
+    name: input.name,
+    email: input.email,
+    password: input.password,
+    status: input.status
+  });
+  const response = await api.put<ApiEnvelope<unknown>>(`/patients/${patientId}`, {
+    name: input.name,
+    mrn: input.mrn,
+    phone: input.phone,
+    address: input.address,
+    birthDate: input.birthDate || undefined
+  });
+  unwrap(response.data);
 }
 
 export async function getDailyReport(date?: string): Promise<DailyReport> {

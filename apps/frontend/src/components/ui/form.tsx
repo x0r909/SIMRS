@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file form.tsx
+ * @path apps/frontend/src/components/ui/form.tsx
+ * @description Komponen UI shadcn/ui: form.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Slot } from "@radix-ui/react-slot";
 import * as React from "react";
 import {

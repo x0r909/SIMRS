@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file page.tsx
+ * @path apps/frontend/src/app/(app)/patients/page.tsx
+ * @description Legacy: daftar pasien (app shell).
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useMemo, useState } from "react";

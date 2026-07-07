@@ -1,3 +1,10 @@
+/**
+ * @file hospitals.service.ts
+ * @path apps/backend/src/modules/hospitals/hospitals.service.ts
+ * @description Service bisnis hospitals: logika domain & Prisma. Data rumah sakit: profil institusi, pengaturan RS.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable, NotFoundException } from "@nestjs/common";
 
 import { PrismaService } from "../../shared/prisma/prisma.service";

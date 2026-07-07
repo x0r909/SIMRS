@@ -1,3 +1,10 @@
+/**
+ * @file appointments.module.ts
+ * @path apps/backend/src/modules/appointments/appointments.module.ts
+ * @description Modul NestJS appointments: wiring dependency injection. Janji temu: penjadwalan, status lifecycle, booking pasien mandiri.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Module } from "@nestjs/common";
 
 import { AuditLogsModule } from "../audit-logs/audit-logs.module";

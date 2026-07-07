@@ -1,3 +1,10 @@
+/**
+ * @file departments.service.ts
+ * @path apps/backend/src/modules/departments/departments.service.ts
+ * @description Service bisnis departments: logika domain & Prisma. Departemen/poli rumah sakit per institusi.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable, NotFoundException } from "@nestjs/common";
 
 import { HospitalContextService } from "../../shared/context/hospital-context.service";

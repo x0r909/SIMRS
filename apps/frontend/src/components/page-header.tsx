@@ -1,3 +1,10 @@
+/**
+ * @file page-header.tsx
+ * @path apps/frontend/src/components/page-header.tsx
+ * @description Header halaman dengan judul dan aksi.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import Link from "next/link";
 import type { ReactNode } from "react";
 

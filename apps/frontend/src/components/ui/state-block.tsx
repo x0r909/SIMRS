@@ -1,3 +1,10 @@
+/**
+ * @file state-block.tsx
+ * @path apps/frontend/src/components/ui/state-block.tsx
+ * @description Komponen UI shadcn/ui: state-block.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { AlertTriangle, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";

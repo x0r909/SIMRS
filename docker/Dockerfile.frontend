@@ -1,0 +1,63 @@
+# syntax=docker/dockerfile:1
+
+FROM node:20-bookworm-slim AS base
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable && corepack prepare pnpm@9.15.6 --activate
+WORKDIR /app
+
+FROM base AS prune
+COPY . .
+RUN pnpm dlx turbo@2.5.6 prune @simrs/frontend --docker
+
+FROM base AS prune-db
+COPY . .
+RUN pnpm dlx turbo@2.5.6 prune @simrs/db --docker
+
+FROM base AS deps
+COPY --from=prune /app/out/json/ .
+COPY --from=prune /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+RUN pnpm install --frozen-lockfile
+
+FROM base AS deps-db
+COPY --from=prune-db /app/out/json/ .
+COPY --from=prune-db /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+RUN pnpm install --frozen-lockfile --prod=false
+
+FROM base AS build
+ARG NEXT_PUBLIC_API_URL=
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+COPY --from=prune /app/out/full/ .
+COPY --from=prune /app/packages/db ./packages/db
+COPY --from=prune /app/packages/tsconfig ./packages/tsconfig
+COPY --from=prune /app/tsconfig.base.json ./tsconfig.base.json
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/frontend/node_modules ./apps/frontend/node_modules
+COPY --from=deps-db /app/packages/db/node_modules ./packages/db/node_modules
+RUN ./packages/db/node_modules/.bin/prisma generate --schema=./packages/db/prisma/schema.prisma \
+  && pnpm --filter @simrs/frontend build
+
+FROM node:20-bookworm-slim AS runner
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/* \
+  && groupadd --system --gid 1001 nodejs \
+  && useradd --system --uid 1001 --gid nodejs nextjs
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+COPY --from=build --chown=nextjs:nodejs /app/apps/frontend/.next/standalone ./
+COPY --from=build --chown=nextjs:nodejs /app/apps/frontend/.next/static ./apps/frontend/.next/static
+COPY --from=build --chown=nextjs:nodejs /app/apps/frontend/public ./apps/frontend/public
+
+USER nextjs
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:3000/').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
+CMD ["node", "apps/frontend/server.js"]

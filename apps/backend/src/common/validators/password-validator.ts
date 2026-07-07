@@ -1,4 +1,11 @@
 /**
+ * @file password-validator.ts
+ * @path apps/backend/src/common/validators/password-validator.ts
+ * @description Validator custom class-validator (password kuat, dll.).
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
+/**
  * Password Validator Service
  * Validates password complexity requirements
  */

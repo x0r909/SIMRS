@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file page.tsx
+ * @path apps/frontend/src/app/portal/appointments/page.tsx
+ * @description Halaman route /portal/appointments.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -16,7 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EmptyBlock, ErrorBlock, LoadingBlock } from "@/components/ui/state-block";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { createAppointment, fetchMe, getApiErrorMessage, listDoctors, listMyAppointments } from "@/lib/simrs-api";
+import { createMyAppointment, getApiErrorMessage, listDoctors, listMyAppointments } from "@/lib/simrs-api";
 
 function statusVariant(status: string): "default" | "success" | "warning" | "danger" | "outline" {
   switch (status) {
@@ -48,11 +56,6 @@ export default function PortalAppointmentsPage() {
     queryFn: () => listMyAppointments({ page: 1, limit: 20, q })
   });
 
-  const me = useQuery({
-    queryKey: ["me"],
-    queryFn: fetchMe
-  });
-
   const doctors = useQuery({
     queryKey: ["portal", "appointments", "doctors-options"],
     queryFn: () => listDoctors({ page: 1, limit: 100 })
@@ -64,13 +67,7 @@ export default function PortalAppointmentsPage() {
   });
 
   const create = useMutation({
-    mutationFn: (values: AppointmentFormValues) => {
-      if (!me.data) throw new Error("User not authenticated");
-      return createAppointment({
-        patientId: me.data.id,
-        ...values
-      });
-    },
+    mutationFn: (values: AppointmentFormValues) => createMyAppointment(values),
     onSuccess: async () => {
       toast.success("Jadwal berhasil dibuat");
       form.reset();
@@ -139,7 +136,7 @@ export default function PortalAppointmentsPage() {
                 )}
               />
               <div className="md:col-span-2">
-                <Button type="submit" disabled={create.isPending || me.isLoading}>
+                <Button type="submit" disabled={create.isPending}>
                   {create.isPending ? "Menyimpan..." : "Buat Jadwal"}
                 </Button>
               </div>

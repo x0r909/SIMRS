@@ -1,5 +1,13 @@
 'use client';
 
+
+/**
+ * @file page.tsx
+ * @path apps/frontend/src/app/(app)/admin/activity-log/page.tsx
+ * @description Legacy: log aktivitas audit.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { useState, useCallback, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';

@@ -1,3 +1,10 @@
+/**
+ * @file system-logging.interceptor.ts
+ * @path apps/backend/src/modules/system-logs/system-logging.interceptor.ts
+ * @description Interceptor system-logs: middleware request/response.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { randomUUID } from "node:crypto";
 
 import {

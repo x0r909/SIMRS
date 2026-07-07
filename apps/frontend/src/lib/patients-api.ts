@@ -1,3 +1,10 @@
+/**
+ * @file patients-api.ts
+ * @path apps/frontend/src/lib/patients-api.ts
+ * @description API client khusus modul pasien.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { api } from "./api";
 import type { ApiEnvelope, Paginated, Patient } from "./types";
 

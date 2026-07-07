@@ -1,5 +1,13 @@
 "use client"
 
+
+/**
+ * @file dropdown-menu.tsx
+ * @path apps/frontend/src/components/ui/dropdown-menu.tsx
+ * @description Komponen UI shadcn/ui: dropdown-menu.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
 import { Check, ChevronRight, Circle } from "lucide-react"

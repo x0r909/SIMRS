@@ -1,5 +1,13 @@
 "use client"
 
+
+/**
+ * @file nav-main.tsx
+ * @path apps/frontend/src/components/nav-main.tsx
+ * @description Navigasi utama sidebar.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { ChevronRight, type LucideIcon } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"

@@ -21,6 +21,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-simrs}:${POSTGRES_PASSWORD:-simrs}@postgres:5432/${POSTGRES_DB:-simrs}?schema=public
       POSTGRES_USER: ${POSTGRES_USER:-simrs}
       POSTGRES_DB: ${POSTGRES_DB:-simrs}
+      SEED_DEFAULT_PASSWORD: ${SEED_DEFAULT_PASSWORD:?Set SEED_DEFAULT_PASSWORD in .env}
     depends_on:
       postgres:
         condition: service_healthy

@@ -1,0 +1,34 @@
+# Dependencies & build output
+**/node_modules
+**/.next
+**/dist
+**/.turbo
+
+# Git & IDE
+.git
+.gitignore
+.cursor
+.vscode
+.idea
+
+# Environment (gunakan docker-compose env / secrets)
+.env
+.env.*
+!.env.production.example
+apps/**/.env
+packages/**/.env
+
+# Tests & docs
+**/*.test.ts
+**/*.spec.ts
+coverage
+docs
+
+# OS & logs
+.DS_Store
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Docker artifacts
+docker-compose.override.yml

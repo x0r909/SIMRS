@@ -1,3 +1,10 @@
+/**
+ * @file system-logs.controller.ts
+ * @path apps/backend/src/modules/system-logs/system-logs.controller.ts
+ * @description Controller REST API system-logs: endpoint HTTP. System log: log operasional aplikasi dan error backend.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Controller, Get, Query, Sse, UseGuards } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { map, Observable } from "rxjs";

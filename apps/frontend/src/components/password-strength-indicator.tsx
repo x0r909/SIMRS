@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file password-strength-indicator.tsx
+ * @path apps/frontend/src/components/password-strength-indicator.tsx
+ * @description Indikator visual kekuatan password.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { useEffect, useState } from "react";
 import { useWatch } from "react-hook-form";
 import {

@@ -1,3 +1,10 @@
+/**
+ * @file auth.service.ts
+ * @path apps/backend/src/modules/auth/auth.service.ts
+ * @description Service bisnis auth: logika domain & Prisma. Autentikasi JWT, sesi Redis, MFA TOTP, login staff/pasien, registrasi, dan profil.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import {
   BadRequestException,
   Injectable,

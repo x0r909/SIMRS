@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file layout.tsx
+ * @path apps/frontend/src/app/(app)/layout.tsx
+ * @description Layout route /layout.tsx: shell navigasi dan auth guard client.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { useQuery } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";

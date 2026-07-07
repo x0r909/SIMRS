@@ -1,3 +1,10 @@
+/**
+ * @file medicines.service.ts
+ * @path apps/backend/src/modules/medicines/medicines.service.ts
+ * @description Service bisnis medicines: logika domain & Prisma. Master obat: inventori, stok, dan katalog farmasi.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma, AuditAction } from "@prisma/client";
 

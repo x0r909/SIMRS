@@ -1,5 +1,13 @@
 "use client"
 
+
+/**
+ * @file app-sidebar.tsx
+ * @path apps/frontend/src/components/app-sidebar.tsx
+ * @description Sidebar navigasi legacy app shell.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import {
   ActivitySquare,
   ClipboardList,

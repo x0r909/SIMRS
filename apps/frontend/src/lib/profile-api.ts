@@ -1,3 +1,10 @@
+/**
+ * @file profile-api.ts
+ * @path apps/frontend/src/lib/profile-api.ts
+ * @description API client profil pengguna.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { api } from "./api";
 
 type ApiEnvelope<T> = { success?: boolean; data?: T };

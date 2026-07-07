@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file page.tsx
+ * @path apps/frontend/src/app/(dashboard)/system-admin/settings/page.tsx
+ * @description Admin Sistem: konfigurasi global & maintenance.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Power, PowerOff, Save, Settings2 } from "lucide-react";

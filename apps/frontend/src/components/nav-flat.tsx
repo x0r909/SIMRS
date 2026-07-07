@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file nav-flat.tsx
+ * @path apps/frontend/src/components/nav-flat.tsx
+ * @description Navigasi datar untuk dashboard.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { LucideIcon } from "lucide-react";

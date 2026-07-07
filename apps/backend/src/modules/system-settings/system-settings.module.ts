@@ -1,3 +1,10 @@
+/**
+ * @file system-settings.module.ts
+ * @path apps/backend/src/modules/system-settings/system-settings.module.ts
+ * @description Modul NestJS system-settings: wiring dependency injection. Pengaturan sistem: maintenance mode, konfigurasi publik.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Global, Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { JwtModule } from "@nestjs/jwt";

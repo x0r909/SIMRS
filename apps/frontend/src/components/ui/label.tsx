@@ -1,5 +1,13 @@
 "use client"
 
+
+/**
+ * @file label.tsx
+ * @path apps/frontend/src/components/ui/label.tsx
+ * @description Komponen UI shadcn/ui: label.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { cva, type VariantProps } from "class-variance-authority"
 import * as React from "react"

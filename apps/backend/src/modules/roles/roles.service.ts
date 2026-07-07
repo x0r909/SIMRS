@@ -1,3 +1,10 @@
+/**
+ * @file roles.service.ts
+ * @path apps/backend/src/modules/roles/roles.service.ts
+ * @description Service bisnis roles: logika domain & Prisma. Role RBAC: definisi peran dan assignment permission.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable, NotFoundException } from "@nestjs/common";
 
 import { PrismaService } from "../../shared/prisma/prisma.service";

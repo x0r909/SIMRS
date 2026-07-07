@@ -1,3 +1,10 @@
+/**
+ * @file system-settings.types.ts
+ * @path apps/backend/src/modules/system-settings/system-settings.types.ts
+ * @description Definisi tipe TypeScript modul system-settings.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import type { MaintenanceScope } from "./maintenance.util";
 
 export type HospitalOperationalSettings = {

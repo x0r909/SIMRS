@@ -1,3 +1,10 @@
+/**
+ * @file mac-level.decorator.ts
+ * @path apps/backend/src/common/decorators/mac-level.decorator.ts
+ * @description Decorator NestJS custom untuk metadata handler.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { SetMetadata } from "@nestjs/common";
 import type { ConfidentialityLevel } from "@prisma/client";
 

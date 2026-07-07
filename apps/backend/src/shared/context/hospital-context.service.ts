@@ -1,3 +1,10 @@
+/**
+ * @file hospital-context.service.ts
+ * @path apps/backend/src/shared/context/hospital-context.service.ts
+ * @description Request context: hospital/department scope per request.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable, OnModuleInit } from "@nestjs/common";
 
 import { PrismaService } from "../prisma/prisma.service";

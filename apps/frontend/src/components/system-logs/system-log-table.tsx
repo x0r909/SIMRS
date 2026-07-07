@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file system-log-table.tsx
+ * @path apps/frontend/src/components/system-logs/system-log-table.tsx
+ * @description Tabel system log dengan filter.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import { ChevronDown, ChevronRight } from "lucide-react";

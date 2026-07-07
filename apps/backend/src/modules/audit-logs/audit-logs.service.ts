@@ -1,3 +1,10 @@
+/**
+ * @file audit-logs.service.ts
+ * @path apps/backend/src/modules/audit-logs/audit-logs.service.ts
+ * @description Service bisnis audit-logs: logika domain & Prisma. Audit trail: pencatatan aksi pengguna untuk compliance.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable } from "@nestjs/common";
 import { Prisma, AuditAction, AuditModule, AuditStatus } from "@prisma/client";
 

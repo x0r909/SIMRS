@@ -1,3 +1,10 @@
+/**
+ * @file users.controller.ts
+ * @path apps/backend/src/modules/users/users.controller.ts
+ * @description Controller REST API users: endpoint HTTP. Manajemen pengguna staff: CRUD user, assignment role & departemen.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 

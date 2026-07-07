@@ -1,3 +1,10 @@
+/**
+ * @file doctors.service.ts
+ * @path apps/backend/src/modules/doctors/doctors.service.ts
+ * @description Service bisnis doctors: logika domain & Prisma. Data dokter: spesialisasi, jadwal, lisensi, profil terhubung user.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma, AuditAction } from "@prisma/client";
 

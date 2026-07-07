@@ -1,3 +1,10 @@
+/**
+ * @file files.controller.ts
+ * @path apps/backend/src/modules/files/files.controller.ts
+ * @description Controller REST API files: endpoint HTTP. Upload/download file ke MinIO (hasil lab, radiologi, lampiran).
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Controller, Get, Param, Post, Query, Res, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";

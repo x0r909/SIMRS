@@ -1,5 +1,13 @@
 "use client"
 
+
+/**
+ * @file sheet.tsx
+ * @path apps/frontend/src/components/ui/sheet.tsx
+ * @description Komponen UI shadcn/ui: sheet.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import * as React from "react"
 import * as SheetPrimitive from "@radix-ui/react-dialog"
 import { cva, type VariantProps } from "class-variance-authority"

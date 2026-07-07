@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file page.tsx
+ * @path apps/frontend/src/app/signup/page.tsx
+ * @description Registrasi self-service pasien baru.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Activity, AlertTriangle, ArrowLeft, UserPlus } from "lucide-react";

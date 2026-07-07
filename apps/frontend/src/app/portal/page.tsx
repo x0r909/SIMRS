@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file page.tsx
+ * @path apps/frontend/src/app/portal/page.tsx
+ * @description Portal pasien (legacy, redirect ke /patient).
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { CalendarDays, ClipboardList, CreditCard } from "lucide-react";
 import Link from "next/link";
@@ -37,24 +45,23 @@ export default function PortalHomePage() {
     queryFn: fetchMe
   });
 
-  const [appointments, visits, billing] = useQueries({
+  const [appointments, visits, unpaidBilling] = useQueries({
     queries: [
       { queryKey: ["portal", "appointments"], queryFn: () => listMyAppointments({ page: 1, limit: 5 }) },
       { queryKey: ["portal", "visits"], queryFn: () => listMyVisits({ page: 1, limit: 5 }) },
-      { queryKey: ["portal", "billing"], queryFn: () => listMyBilling({ page: 1, limit: 5 }) }
+      { queryKey: ["portal", "billing", "unpaid"], queryFn: () => listMyBilling({ page: 1, limit: 1, status: "UNPAID" }) }
     ]
   });
 
   const stats = useMemo(() => {
-    const unpaidCount = (billing.data?.data ?? []).filter((invoice) => invoice.status === "UNPAID").length;
     return {
       appointments: appointments.data?.meta.total ?? 0,
       visits: visits.data?.meta.total ?? 0,
-      unpaid: unpaidCount
+      unpaid: unpaidBilling.data?.meta.total ?? 0
     };
-  }, [appointments.data?.meta.total, billing.data?.data, visits.data?.meta.total]);
+  }, [appointments.data?.meta.total, unpaidBilling.data?.meta.total, visits.data?.meta.total]);
 
-  if (me.isLoading || appointments.isLoading || visits.isLoading || billing.isLoading) {
+  if (me.isLoading || appointments.isLoading || visits.isLoading || unpaidBilling.isLoading) {
     return (
       <div className="p-6">
         <LoadingBlock label="Loading patient summary..." />
@@ -62,7 +69,7 @@ export default function PortalHomePage() {
     );
   }
 
-  if (me.isError || appointments.isError || visits.isError || billing.isError) {
+  if (me.isError || appointments.isError || visits.isError || unpaidBilling.isError) {
     return (
       <div className="p-6">
         <ErrorBlock message="Failed to load patient summary" />
@@ -100,7 +107,7 @@ export default function PortalHomePage() {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">Jadwal Terdekat</CardTitle>
           <Button asChild size="sm" variant="outline">
-            <Link href="/portal/appointments">Lihat semua</Link>
+            <Link href="/patient/appointments">Lihat semua</Link>
           </Button>
         </CardHeader>
         <CardContent className="space-y-3">

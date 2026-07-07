@@ -1,3 +1,10 @@
+/**
+ * @file pagination.ts
+ * @path apps/backend/src/common/pagination/pagination.ts
+ * @description Utilitas paginasi: parse query page/limit dan meta response.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Transform } from "class-transformer";
 import { IsInt, IsOptional, Max, Min } from "class-validator";
 

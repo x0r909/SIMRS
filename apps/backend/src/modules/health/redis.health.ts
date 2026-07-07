@@ -1,3 +1,10 @@
+/**
+ * @file redis.health.ts
+ * @path apps/backend/src/modules/health/redis.health.ts
+ * @description Kode backend modul health.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable } from "@nestjs/common";
 import { HealthIndicator, HealthIndicatorResult, HealthCheckError } from "@nestjs/terminus";
 

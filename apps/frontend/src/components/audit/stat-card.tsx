@@ -1,5 +1,13 @@
 'use client';
 
+
+/**
+ * @file stat-card.tsx
+ * @path apps/frontend/src/components/audit/stat-card.tsx
+ * @description Komponen UI audit log: stat-card.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Card, CardContent } from '@/components/ui/card';
 import { Activity, LogIn, Pencil, AlertCircle } from 'lucide-react';
 

@@ -1,3 +1,10 @@
+/**
+ * @file strong-password.validator.ts
+ * @path apps/backend/src/common/validators/strong-password.validator.ts
+ * @description Validator custom class-validator (password kuat, dll.).
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import {
   registerDecorator,
   ValidationOptions,

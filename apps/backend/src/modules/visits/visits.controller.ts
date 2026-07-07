@@ -1,3 +1,10 @@
+/**
+ * @file visits.controller.ts
+ * @path apps/backend/src/modules/visits/visits.controller.ts
+ * @description Controller REST API visits: endpoint HTTP. Kunjungan klinis: registrasi kunjungan, diagnosis, hubungan ke rekam medis.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Body, Controller, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 

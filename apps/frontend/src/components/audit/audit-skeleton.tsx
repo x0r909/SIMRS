@@ -1,5 +1,13 @@
 'use client';
 
+
+/**
+ * @file audit-skeleton.tsx
+ * @path apps/frontend/src/components/audit/audit-skeleton.tsx
+ * @description Komponen UI audit log: audit-skeleton.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,

@@ -1,3 +1,10 @@
+/**
+ * @file hospital-overview.service.ts
+ * @path apps/backend/src/modules/health/hospital-overview.service.ts
+ * @description Service bisnis health: logika domain & Prisma. Health check: status Postgres, Redis, MinIO, metrik sistem.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable, NotFoundException } from "@nestjs/common";
 
 import { PrismaService } from "../../shared/prisma/prisma.service";

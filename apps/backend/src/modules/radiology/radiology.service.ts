@@ -1,3 +1,10 @@
+/**
+ * @file radiology.service.ts
+ * @path apps/backend/src/modules/radiology/radiology.service.ts
+ * @description Service bisnis radiology: logika domain & Prisma. Radiologi: order pemeriksaan, upload hasil, verifikasi.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma, AuditAction, RadiologyOrderStatus } from "@prisma/client";
 

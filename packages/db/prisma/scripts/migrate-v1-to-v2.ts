@@ -1,4 +1,11 @@
 /**
+ * @file migrate-v1-to-v2.ts
+ * @path packages/db/prisma/scripts/migrate-v1-to-v2.ts
+ * @description Package monorepo: packages/db/prisma/scripts/migrate-v1-to-v2.ts.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
+/**
  * One-time data migration script from SIMRS v1.x schema to v2.
  * Run AFTER applying migration 20260610120000_v2_schema on a database with v1 data.
  *

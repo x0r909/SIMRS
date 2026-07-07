@@ -1,3 +1,10 @@
+/**
+ * @file minio.service.ts
+ * @path apps/backend/src/shared/storage/minio.service.ts
+ * @description Integrasi MinIO object storage.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Client } from "minio";

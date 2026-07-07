@@ -1,3 +1,10 @@
+/**
+ * @file env.schema.ts
+ * @path apps/backend/src/config/env.schema.ts
+ * @description Validasi schema environment variable backend (Zod/class-validator).
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { z } from "zod";
 
 const csvToArray = z

@@ -1,3 +1,10 @@
+/**
+ * @file departments.controller.ts
+ * @path apps/backend/src/modules/departments/departments.controller.ts
+ * @description Controller REST API departments: endpoint HTTP. Departemen/poli rumah sakit per institusi.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 

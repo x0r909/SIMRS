@@ -1,14 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+/**
+ * @file page.tsx
+ * @path apps/frontend/src/app/(dashboard)/patient/lab-results/page.tsx
+ * @description Pasien: hasil laboratorium terverifikasi.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
 
-export default function PatientLabResultsPage() {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Hasil Laboratorium</CardTitle>
-      </CardHeader>
-      <CardContent className="text-sm text-muted-foreground">
-        Hasil lab yang sudah diverifikasi akan muncul di sini.
-      </CardContent>
-    </Card>
-  );
-}
+export { default } from "@/app/portal/lab-results/page";

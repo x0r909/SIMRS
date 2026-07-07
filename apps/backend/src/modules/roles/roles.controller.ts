@@ -1,3 +1,10 @@
+/**
+ * @file roles.controller.ts
+ * @path apps/backend/src/modules/roles/roles.controller.ts
+ * @description Controller REST API roles: endpoint HTTP. Role RBAC: definisi peran dan assignment permission.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Body, Controller, Get, Param, Post, Put, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 

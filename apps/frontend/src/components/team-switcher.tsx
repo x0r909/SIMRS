@@ -1,5 +1,13 @@
 "use client"
 
+
+/**
+ * @file team-switcher.tsx
+ * @path apps/frontend/src/components/team-switcher.tsx
+ * @description Switcher tim/departemen di sidebar.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import * as React from "react"
 import { ChevronsUpDown, Plus } from "lucide-react"
 

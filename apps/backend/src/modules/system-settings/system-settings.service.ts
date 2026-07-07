@@ -1,3 +1,10 @@
+/**
+ * @file system-settings.service.ts
+ * @path apps/backend/src/modules/system-settings/system-settings.service.ts
+ * @description Service bisnis system-settings: logika domain & Prisma. Pengaturan sistem: maintenance mode, konfigurasi publik.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { AuditAction, AuditModule, AuditStatus, Prisma } from "@prisma/client";

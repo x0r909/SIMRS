@@ -1,3 +1,10 @@
+/**
+ * @file textarea.tsx
+ * @path apps/frontend/src/components/ui/textarea.tsx
+ * @description Komponen UI shadcn/ui: textarea.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import * as React from "react";
 
 import { cn } from "@/lib/utils";

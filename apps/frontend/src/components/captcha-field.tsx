@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file captcha-field.tsx
+ * @path apps/frontend/src/components/captcha-field.tsx
+ * @description Field input CAPTCHA pada form publik.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { RefreshCw } from "lucide-react";

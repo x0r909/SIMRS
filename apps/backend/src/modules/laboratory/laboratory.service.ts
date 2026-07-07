@@ -1,3 +1,10 @@
+/**
+ * @file laboratory.service.ts
+ * @path apps/backend/src/modules/laboratory/laboratory.service.ts
+ * @description Service bisnis laboratory: logika domain & Prisma. Laboratorium: order tes, hasil, verifikasi analis.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma, AuditAction, LabOrderStatus } from "@prisma/client";
 
@@ -66,6 +73,50 @@ export class LaboratoryService {
           },
           doctor: { select: { id: true, code: true, name: true, specialty: true } },
           results: true
+        }
+      })
+    ]);
+
+    return { data, meta: { page, limit, total } };
+  }
+
+  private async ensurePatientProfile(userId: string) {
+    const patient = await this.prisma.patient.findFirst({ where: { userId }, select: { id: true } });
+    if (!patient) throw new NotFoundException("Patient profile not found");
+    return patient.id;
+  }
+
+  async listMine(userId: string, query: PaginationQueryDto) {
+    const patientId = await this.ensurePatientProfile(userId);
+    const { skip, take, page, limit } = toSkipTake(query.page, query.limit);
+    const baseWhere: Prisma.LaboratoryOrderWhereInput = { visit: { patientId } };
+    const where: Prisma.LaboratoryOrderWhereInput = query.q
+      ? {
+          ...baseWhere,
+          OR: [
+            { testType: { contains: query.q, mode: "insensitive" as const } },
+            { doctor: { name: { contains: query.q, mode: "insensitive" as const } } }
+          ]
+        }
+      : baseWhere;
+
+    const [total, data] = await Promise.all([
+      this.prisma.laboratoryOrder.count({ where }),
+      this.prisma.laboratoryOrder.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { orderedAt: "desc" },
+        include: {
+          visit: {
+            select: {
+              id: true,
+              startedAt: true,
+              patient: { select: { id: true, mrn: true, name: true } }
+            }
+          },
+          doctor: { select: { id: true, code: true, name: true, specialty: true } },
+          results: { orderBy: { resultedAt: "desc" } }
         }
       })
     ]);

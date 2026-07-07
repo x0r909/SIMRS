@@ -1,3 +1,10 @@
+/**
+ * @file backup.service.ts
+ * @path apps/backend/src/modules/backup/backup.service.ts
+ * @description Service bisnis backup: logika domain & Prisma. Backup & restore database PostgreSQL terenkripsi.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import {
   Injectable,
   BadRequestException,

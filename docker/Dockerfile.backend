@@ -1,0 +1,75 @@
+# syntax=docker/dockerfile:1
+
+FROM node:20-bookworm-slim AS base
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable && corepack prepare pnpm@9.15.6 --activate
+WORKDIR /app
+
+FROM base AS prune
+COPY . .
+RUN pnpm dlx turbo@2.5.6 prune @simrs/backend --docker
+
+FROM base AS prune-db
+COPY . .
+RUN pnpm dlx turbo@2.5.6 prune @simrs/db --docker
+
+FROM base AS deps
+COPY --from=prune /app/out/json/ .
+COPY --from=prune /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+RUN pnpm install --frozen-lockfile
+
+FROM base AS deps-db
+COPY --from=prune-db /app/out/json/ .
+COPY --from=prune-db /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+RUN pnpm install --frozen-lockfile --prod=false
+
+FROM base AS build
+COPY --from=prune /app/out/full/ .
+COPY --from=prune /app/packages/db ./packages/db
+COPY --from=prune /app/packages/tsconfig ./packages/tsconfig
+COPY --from=prune /app/tsconfig.base.json ./tsconfig.base.json
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/backend/node_modules ./apps/backend/node_modules
+COPY --from=deps-db /app/packages/db/node_modules ./packages/db/node_modules
+RUN ./packages/db/node_modules/.bin/prisma generate --schema=./packages/db/prisma/schema.prisma \
+  && pnpm --filter @simrs/backend exec nest build
+
+FROM base AS migrator
+COPY --from=prune-db /app/out/json/ .
+COPY --from=prune-db /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+RUN pnpm install --frozen-lockfile --prod=false
+COPY --from=prune-db /app/out/full/ .
+COPY docker/scripts/migrate.sh /migrate.sh
+RUN chmod +x /migrate.sh
+WORKDIR /app
+ENTRYPOINT ["/migrate.sh"]
+
+FROM node:20-bookworm-slim AS runner
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/* \
+  && groupadd --system --gid 1001 nodejs \
+  && useradd --system --uid 1001 --gid nodejs nestjs
+WORKDIR /app
+ENV NODE_ENV=production
+
+# Pertahankan struktur monorepo agar resolusi modul pnpm benar.
+COPY --from=build --chown=nestjs:nodejs /app/node_modules ./node_modules
+COPY --from=build --chown=nestjs:nodejs /app/apps/backend/dist ./apps/backend/dist
+COPY --from=build --chown=nestjs:nodejs /app/apps/backend/package.json ./apps/backend/package.json
+COPY --from=build --chown=nestjs:nodejs /app/apps/backend/node_modules ./apps/backend/node_modules
+COPY --from=build --chown=nestjs:nodejs /app/packages/db/prisma ./packages/db/prisma
+COPY --chown=nestjs:nodejs docker/scripts/backend-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+WORKDIR /app/apps/backend
+USER nestjs
+EXPOSE 4000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:4000/v1/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["node", "dist/main.js"]

@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file page.tsx
+ * @path apps/frontend/src/app/(dashboard)/doctor/history/page.tsx
+ * @description Dokter: riwayat kunjungan.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { useQuery } from "@tanstack/react-query";
 import { listVisits } from "@/lib/simrs-api";
 import { LoadingBlock, ErrorBlock } from "@/components/ui/state-block";

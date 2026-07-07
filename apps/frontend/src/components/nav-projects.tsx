@@ -1,5 +1,13 @@
 "use client"
 
+
+/**
+ * @file nav-projects.tsx
+ * @path apps/frontend/src/components/nav-projects.tsx
+ * @description Navigasi proyek/departemen.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import {
   Folder,
   Forward,

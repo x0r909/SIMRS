@@ -1,3 +1,10 @@
+/**
+ * @file reports.service.ts
+ * @path apps/backend/src/modules/reports/reports.service.ts
+ * @description Service bisnis reports: logika domain & Prisma. Laporan operasional: ringkasan harian order RS.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable } from "@nestjs/common";
 
 import { HospitalOverviewService } from "../health/hospital-overview.service";

@@ -1,3 +1,10 @@
+/**
+ * @file prescriptions.controller.ts
+ * @path apps/backend/src/modules/prescriptions/prescriptions.controller.ts
+ * @description Controller REST API prescriptions: endpoint HTTP. Resep obat: item resep, status dispensing farmasi.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 

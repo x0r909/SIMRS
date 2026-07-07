@@ -1,3 +1,10 @@
+/**
+ * @file auth.controller.ts
+ * @path apps/backend/src/modules/auth/auth.controller.ts
+ * @description Controller REST API auth: endpoint HTTP. Autentikasi JWT, sesi Redis, MFA TOTP, login staff/pasien, registrasi, dan profil.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Body, Controller, Delete, Get, Patch, Post, Param, Req, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
@@ -78,6 +85,8 @@ export class AuthController {
     return this.auth.me(userId);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Patch("profile")
   updateProfile(@CurrentUser("sub") userId: string, @Body() dto: UpdateProfileDto) {
     return this.auth.updateProfile(userId, dto);

@@ -1,3 +1,10 @@
+/**
+ * @file appointments.controller.ts
+ * @path apps/backend/src/modules/appointments/appointments.controller.ts
+ * @description Controller REST API appointments: endpoint HTTP. Janji temu: penjadwalan, status lifecycle, booking pasien mandiri.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
@@ -9,6 +16,7 @@ import { PaginationQueryDto } from "../../common/pagination/pagination";
 
 import { AppointmentsService } from "./appointments.service";
 import { CreateAppointmentDto } from "./dto/create-appointment.dto";
+import { CreateMyAppointmentDto } from "./dto/create-my-appointment.dto";
 import { SetAppointmentStatusDto } from "./dto/set-appointment-status.dto";
 import { UpdateAppointmentDto } from "./dto/update-appointment.dto";
 
@@ -40,9 +48,15 @@ export class AppointmentsController {
   }
 
   @RequirePermissions("appointments.write")
+  @Post("me")
+  createMine(@CurrentUser("sub") userId: string, @Body() dto: CreateMyAppointmentDto) {
+    return this.appts.createMine(userId, dto);
+  }
+
+  @RequirePermissions("appointments.write")
   @Post()
-  create(@CurrentUser("sub") actorId: string, @Body() dto: CreateAppointmentDto) {
-    return this.appts.create(actorId, dto);
+  create(@CurrentUser() user: { sub: string; roles?: string[] }, @Body() dto: CreateAppointmentDto) {
+    return this.appts.create(user.sub, dto, user.roles);
   }
 
   @RequirePermissions("appointments.write")

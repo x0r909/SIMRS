@@ -1,3 +1,10 @@
+/**
+ * @file captcha.service.ts
+ * @path apps/backend/src/modules/captcha/captcha.service.ts
+ * @description Service bisnis captcha: logika domain & Prisma. CAPTCHA native untuk proteksi form publik.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable } from '@nestjs/common';
 import { randomBytes } from 'crypto';
 

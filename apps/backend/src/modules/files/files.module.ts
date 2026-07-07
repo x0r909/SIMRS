@@ -1,3 +1,10 @@
+/**
+ * @file files.module.ts
+ * @path apps/backend/src/modules/files/files.module.ts
+ * @description Modul NestJS files: wiring dependency injection. Upload/download file ke MinIO (hasil lab, radiologi, lampiran).
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Module } from "@nestjs/common";
 
 import { AuditLogsModule } from "../audit-logs/audit-logs.module";

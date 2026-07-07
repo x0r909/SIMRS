@@ -1,3 +1,10 @@
+/**
+ * @file audit-api.ts
+ * @path apps/frontend/src/lib/audit-api.ts
+ * @description API client audit log.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { api } from './api';
 import { AuditAction, AuditModule, AuditStatus } from '@prisma/client';
 

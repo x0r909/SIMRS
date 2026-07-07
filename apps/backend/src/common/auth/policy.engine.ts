@@ -1,3 +1,10 @@
+/**
+ * @file policy.engine.ts
+ * @path apps/backend/src/common/auth/policy.engine.ts
+ * @description Mesin policy ABAC: hospital_scope, department_scope, dll.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable } from "@nestjs/common";
 
 export const ABAC_POLICY_KEY = "abac_policy";

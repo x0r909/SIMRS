@@ -1,3 +1,10 @@
+/**
+ * @file notifications.controller.ts
+ * @path apps/backend/src/modules/notifications/notifications.controller.ts
+ * @description Controller REST API notifications: endpoint HTTP. Notifikasi in-app untuk pengguna.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Controller, Get, Param, Patch, Post, Body, Query, UseGuards } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { NotificationType } from "@prisma/client";

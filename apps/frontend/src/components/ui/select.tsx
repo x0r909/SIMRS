@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file select.tsx
+ * @path apps/frontend/src/components/ui/select.tsx
+ * @description Komponen UI shadcn/ui: select.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import * as React from "react";

@@ -1,3 +1,10 @@
+/**
+ * @file permissions.guard.ts
+ * @path apps/backend/src/common/auth/permissions.guard.ts
+ * @description Guard RBAC: cek permission key pada handler.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 

@@ -1,3 +1,10 @@
+/**
+ * @file medical-records.service.ts
+ * @path apps/backend/src/modules/medical-records/medical-records.service.ts
+ * @description Service bisnis medical-records: logika domain & Prisma. Rekam medis elektronik: SOAP, diagnosis ICD, finalisasi, kerahasiaan.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { AuditAction, MedicalRecordStatus } from "@prisma/client";
 

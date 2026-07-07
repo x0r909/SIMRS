@@ -1,5 +1,13 @@
 'use client';
 
+
+/**
+ * @file audit-table.tsx
+ * @path apps/frontend/src/components/audit/audit-table.tsx
+ * @description Komponen UI audit log: audit-table.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import {
   Table,
   TableBody,

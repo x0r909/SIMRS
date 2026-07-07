@@ -1,3 +1,10 @@
+/**
+ * @file auth.module.ts
+ * @path apps/backend/src/modules/auth/auth.module.ts
+ * @description Modul NestJS auth: wiring dependency injection. Autentikasi JWT, sesi Redis, MFA TOTP, login staff/pasien, registrasi, dan profil.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";

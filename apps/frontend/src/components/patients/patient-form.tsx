@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file patient-form.tsx
+ * @path apps/frontend/src/components/patients/patient-form.tsx
+ * @description Form create/edit data pasien.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";

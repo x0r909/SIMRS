@@ -1,3 +1,10 @@
+/**
+ * @file captcha.controller.ts
+ * @path apps/backend/src/modules/captcha/captcha.controller.ts
+ * @description Controller REST API captcha: endpoint HTTP. CAPTCHA native untuk proteksi form publik.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CaptchaService } from './captcha.service';

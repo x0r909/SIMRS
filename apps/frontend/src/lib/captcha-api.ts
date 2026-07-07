@@ -1,3 +1,10 @@
+/**
+ * @file captcha-api.ts
+ * @path apps/frontend/src/lib/captcha-api.ts
+ * @description API client CAPTCHA challenge.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { api } from "@/lib/api";
 import type { ApiEnvelope } from "@/lib/types";
 

@@ -1,3 +1,10 @@
+/**
+ * @file encryption.service.ts
+ * @path apps/backend/src/modules/encryption/encryption.service.ts
+ * @description Service bisnis encryption: logika domain & Prisma. Layanan enkripsi/dekripsi field sensitif (AES, blind index).
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { createBlindIndex, decrypt, encrypt, getEncryptionKey } from "../../shared/encryption/crypto";

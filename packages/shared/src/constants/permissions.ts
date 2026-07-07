@@ -1,3 +1,10 @@
+/**
+ * @file permissions.ts
+ * @path packages/shared/src/constants/permissions.ts
+ * @description Konstanta permission key RBAC bersama.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 export const PERMISSION_KEYS = [
   "users.read",
   "users.write",

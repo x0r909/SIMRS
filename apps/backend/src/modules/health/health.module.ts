@@ -1,3 +1,10 @@
+/**
+ * @file health.module.ts
+ * @path apps/backend/src/modules/health/health.module.ts
+ * @description Modul NestJS health: wiring dependency injection. Health check: status Postgres, Redis, MinIO, metrik sistem.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Module } from "@nestjs/common";
 import { TerminusModule } from "@nestjs/terminus";
 

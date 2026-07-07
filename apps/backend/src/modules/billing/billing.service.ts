@@ -1,3 +1,10 @@
+/**
+ * @file billing.service.ts
+ * @path apps/backend/src/modules/billing/billing.service.ts
+ * @description Service bisnis billing: logika domain & Prisma. Billing & pembayaran: invoice, tagihan kunjungan, metode bayar.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { randomUUID } from "crypto";
 
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
@@ -7,6 +14,7 @@ import { PaginationQueryDto, toSkipTake } from "../../common/pagination/paginati
 import { PrismaService } from "../../shared/prisma/prisma.service";
 import { AuditLogsService } from "../audit-logs/audit-logs.service";
 
+import { BillingListQueryDto } from "./dto/billing-list-query.dto";
 import { InvoiceItemDto } from "./dto/create-invoice.dto";
 
 function makeNumber() {
@@ -67,18 +75,21 @@ export class BillingService {
     return { data, meta: { page, limit, total } };
   }
 
-  async listMine(userId: string, query: PaginationQueryDto) {
+  async listMine(userId: string, query: BillingListQueryDto) {
     const patientId = await this.ensurePatientProfile(userId);
     const { skip, take, page, limit } = toSkipTake(query.page, query.limit);
-    const where: any = query.q
+    const baseWhere: Prisma.BillingInvoiceWhereInput = { visit: { patientId } };
+    if (query.status) baseWhere.status = query.status;
+
+    const where: Prisma.BillingInvoiceWhereInput = query.q
       ? {
-          visit: { patientId },
+          ...baseWhere,
           OR: [
             { number: { contains: query.q, mode: "insensitive" as const } },
             { visit: { doctor: { name: { contains: query.q, mode: "insensitive" as const } } } }
           ]
         }
-      : { visit: { patientId } };
+      : baseWhere;
 
     const [total, data] = await Promise.all([
       this.prisma.billingInvoice.count({ where }),

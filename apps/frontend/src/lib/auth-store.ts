@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file auth-store.ts
+ * @path apps/frontend/src/lib/auth-store.ts
+ * @description Penyimpanan token JWT access/refresh di localStorage.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 const ACCESS = "simrs.access";
 const REFRESH = "simrs.refresh";
 

@@ -1,3 +1,10 @@
+/**
+ * @file update-user.dto.ts
+ * @path apps/backend/src/modules/users/dto/update-user.dto.ts
+ * @description DTO validasi request users: update-user (class-validator).
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { IsArray, IsEmail, IsIn, IsOptional, IsString, MinLength } from "class-validator";
 
 export class UpdateUserDto {

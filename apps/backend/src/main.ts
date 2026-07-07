@@ -1,3 +1,10 @@
+/**
+ * @file main.ts
+ * @path apps/backend/src/main.ts
+ * @description Entry point backend: bootstrap NestJS, Swagger, helmet, versioning /v1.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import "reflect-metadata";
 
 import { randomUUID } from "node:crypto";
@@ -15,6 +22,11 @@ import { GlobalExceptionFilter } from "./common/http/global-exception.filter";
 import { ResponseInterceptor } from "./common/http/response.interceptor";
 import { SystemLogsService } from "./modules/system-logs/system-logs.service";
 
+/**
+ * Membuat dan mengonfigurasi instance NestJS tanpa listen port.
+ * Mengaktifkan: CORS, helmet, compression, URI versioning `/v1`,
+ * ValidationPipe global, exception filter, response envelope, Swagger.
+ */
 export async function createNestApp() {
   const app = await NestFactory.create(AppModule, { cors: false });
   const config = app.get(ConfigService);
@@ -75,6 +87,10 @@ function getLanAddresses(): string[] {
   return addresses;
 }
 
+/**
+ * Menjalankan server HTTP pada `0.0.0.0:PORT` dan mencatat startup ke system log.
+ * Entry point utama saat `node dist/main.js`.
+ */
 export async function bootstrap() {
   const logger = new Logger("Bootstrap");
   const app = await createNestApp();

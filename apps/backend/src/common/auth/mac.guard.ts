@@ -1,3 +1,10 @@
+/**
+ * @file mac.guard.ts
+ * @path apps/backend/src/common/auth/mac.guard.ts
+ * @description Guard MAC: mandatory access control rekam medis sensitif.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { ConfidentialityLevel } from "@prisma/client";

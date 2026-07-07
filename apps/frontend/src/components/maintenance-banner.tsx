@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file maintenance-banner.tsx
+ * @path apps/frontend/src/components/maintenance-banner.tsx
+ * @description Banner peringatan maintenance mode di UI.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle } from "lucide-react";
 import Link from "next/link";

@@ -1,3 +1,10 @@
+/**
+ * @file redis.service.ts
+ * @path apps/backend/src/shared/redis/redis.service.ts
+ * @description Koneksi Redis untuk cache dan sesi.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable, OnModuleDestroy } from "@nestjs/common";
 import Redis from "ioredis";
 

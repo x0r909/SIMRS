@@ -1,3 +1,10 @@
+/**
+ * @file medical-records.controller.ts
+ * @path apps/backend/src/modules/medical-records/medical-records.controller.ts
+ * @description Controller REST API medical-records: endpoint HTTP. Rekam medis elektronik: SOAP, diagnosis ICD, finalisasi, kerahasiaan.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Body, Controller, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 

@@ -1,3 +1,10 @@
+/**
+ * @file role-utils.ts
+ * @path apps/frontend/src/lib/role-utils.ts
+ * @description Utilitas role: deteksi patient/staff/admin.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 const ROLE_PATIENT = "PATIENT";
 
 const STAFF_LOGIN_ROLES = new Set([

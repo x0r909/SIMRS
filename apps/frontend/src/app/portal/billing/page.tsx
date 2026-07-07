@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file page.tsx
+ * @path apps/frontend/src/app/portal/billing/page.tsx
+ * @description Halaman route /portal/billing.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 

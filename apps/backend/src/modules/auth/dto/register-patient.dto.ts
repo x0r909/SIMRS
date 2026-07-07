@@ -1,3 +1,10 @@
+/**
+ * @file register-patient.dto.ts
+ * @path apps/backend/src/modules/auth/dto/register-patient.dto.ts
+ * @description DTO validasi request auth: register-patient (class-validator).
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Transform } from "class-transformer";
 import { IsDateString, IsEmail, IsOptional, IsString, Matches, MinLength } from "class-validator";
 

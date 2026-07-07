@@ -1,3 +1,10 @@
+/**
+ * @file encryption.ts
+ * @path packages/db/src/encryption.ts
+ * @description Utilitas enkripsi AES dan blind index untuk field sensitif DB.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { createCipheriv, createDecipheriv, createHmac, randomBytes } from "crypto";
 
 const ALGORITHM = "aes-256-gcm";

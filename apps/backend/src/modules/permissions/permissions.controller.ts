@@ -1,3 +1,10 @@
+/**
+ * @file permissions.controller.ts
+ * @path apps/backend/src/modules/permissions/permissions.controller.ts
+ * @description Controller REST API permissions: endpoint HTTP. Permission RBAC: daftar hak akses granular per modul.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Controller, Get, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 

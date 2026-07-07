@@ -1,5 +1,13 @@
 'use client';
 
+
+/**
+ * @file audit-filters.tsx
+ * @path apps/frontend/src/components/audit/audit-filters.tsx
+ * @description Komponen UI audit log: audit-filters.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { useState } from 'react';
 import {
   Select,

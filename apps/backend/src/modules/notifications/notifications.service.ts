@@ -1,3 +1,10 @@
+/**
+ * @file notifications.service.ts
+ * @path apps/backend/src/modules/notifications/notifications.service.ts
+ * @description Service bisnis notifications: logika domain & Prisma. Notifikasi in-app untuk pengguna.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { NotificationType } from "@prisma/client";
 

@@ -1,7 +1,15 @@
 "use client";
 
+
+/**
+ * @file login-form.tsx
+ * @path apps/frontend/src/components/login-form.tsx
+ * @description Form login staff dengan validasi dan redirect role.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Activity } from "lucide-react";
 import * as React from "react";
 import Image from "next/image";
@@ -16,9 +24,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { NativeCaptcha } from "@/components/native-captcha";
-import { authStore } from "@/lib/auth-store";
+import { clearAuthSession, establishAuthSession } from "@/lib/auth-session";
 import { resolveDashboardPath } from "@/lib/dashboard-routes";
-import { roleStore } from "@/lib/role-store";
 import { hasStaffLoginRole } from "@/lib/role-utils";
 import { getApiErrorMessage, loginStaff } from "@/lib/simrs-api";
 import { cn } from "@/lib/utils";
@@ -32,13 +39,14 @@ type FormValues = z.infer<typeof schema>;
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [captchaSolved, setCaptchaSolved] = React.useState(false);
   const captchaSolvedRef = React.useRef(false);
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { 
-      email: "admin@simrs.local", 
-      password: "Admin123!"
+    defaultValues: {
+      email: "",
+      password: ""
     }
   });
 
@@ -46,14 +54,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     mutationFn: (values: FormValues) => loginStaff(values),
     onSuccess: (data) => {
       if (!hasStaffLoginRole(data.user.roles)) {
-        authStore.clear();
-        roleStore.clear();
+        clearAuthSession(queryClient);
         toast.error("Akun pasien tidak dapat login di portal staff. Gunakan login pasien.");
         return;
       }
 
-      authStore.setTokens(data.accessToken, data.refreshToken);
-      roleStore.setRoles(data.user.roles);
+      establishAuthSession(data.accessToken, data.refreshToken, data.user.roles, queryClient);
       toast.success("Login berhasil");
       router.replace(resolveDashboardPath(data.user.roles));
     },

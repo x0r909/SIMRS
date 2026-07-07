@@ -1,3 +1,10 @@
+/**
+ * @file query.ts
+ * @path packages/db/query.ts
+ * @description Helper query SQL/Prisma untuk debugging atau laporan.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 ﻿import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 (async () => {

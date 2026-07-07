@@ -1,5 +1,13 @@
 "use client"
 
+
+/**
+ * @file tooltip.tsx
+ * @path apps/frontend/src/components/ui/tooltip.tsx
+ * @description Komponen UI shadcn/ui: tooltip.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import * as React from "react"
 import * as TooltipPrimitive from "@radix-ui/react-tooltip"
 

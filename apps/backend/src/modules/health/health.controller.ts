@@ -1,3 +1,10 @@
+/**
+ * @file health.controller.ts
+ * @path apps/backend/src/modules/health/health.controller.ts
+ * @description Controller REST API health: endpoint HTTP. Health check: status Postgres, Redis, MinIO, metrik sistem.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Controller, Get, Query, UseGuards } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { HealthCheck, HealthCheckService } from "@nestjs/terminus";

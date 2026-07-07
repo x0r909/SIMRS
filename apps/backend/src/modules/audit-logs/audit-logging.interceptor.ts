@@ -1,3 +1,10 @@
+/**
+ * @file audit-logging.interceptor.ts
+ * @path apps/backend/src/modules/audit-logs/audit-logging.interceptor.ts
+ * @description Interceptor audit-logs: middleware request/response.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import {
   Injectable,
   NestInterceptor,

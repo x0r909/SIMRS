@@ -1,3 +1,10 @@
+/**
+ * @file abac.guard.ts
+ * @path apps/backend/src/common/auth/abac.guard.ts
+ * @description Guard ABAC: evaluasi policy hospital/department/doctor-patient.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 

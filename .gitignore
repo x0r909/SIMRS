@@ -1,8 +1,19 @@
-# Dependencies
+# =============================================================================
+# SIMRS — Git ignore (development, production, GitHub)
+# =============================================================================
+
+# ── Dependencies ─────────────────────────────────────────────────────────────
 node_modules/
 .pnpm-store/
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
 
-# Build & cache
+# ── Build & cache ────────────────────────────────────────────────────────────
 .next/
 out/
 dist/
@@ -11,8 +22,9 @@ coverage/
 .turbo/
 *.tsbuildinfo
 .eslintcache
+.nyc_output/
 
-# Logs
+# ── Logs ─────────────────────────────────────────────────────────────────────
 logs/
 *.log
 npm-debug.log*
@@ -21,17 +33,38 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
-# Environment & secrets (keep examples)
+# ── Environment & secrets (commit hanya file *.example) ───────────────────────
 .env
-.env.*
-!.env.example
-**/.env
-**/.env.*
-!**/.env.example
 .env.local
 .env.*.local
+.env.production
+.env.development
+.env.test
 
-# OS
+# Pola umum — lalu whitelist file contoh
+.env.*
+!.env.example
+!.env.production.example
+
+**/.env
+**/.env.local
+**/.env.*.local
+**/.env.production
+**/.env.*
+!**/.env.example
+!**/.env.production.example
+
+# Credential / dump lokal (jangan commit ke GitHub)
+example-db.txt
+packages/db/loginreq.json
+secrets/
+*.pem
+*.key
+*.p12
+*.crt
+!docker/nginx/certs/.gitkeep
+
+# ── OS ───────────────────────────────────────────────────────────────────────
 .DS_Store
 .DS_Store?
 ._*
@@ -41,7 +74,7 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# Editors & IDEs
+# ── Editors & IDEs ───────────────────────────────────────────────────────────
 .idea/
 *.swp
 *.swo
@@ -53,8 +86,9 @@ Desktop.ini
 # Cursor / AI local state
 .cursor/
 .agent-transcripts/
+.claude/
 
-# Runtime & generated data
+# ── Runtime & generated data ─────────────────────────────────────────────────
 apps/backend/backups/
 backups/
 uploads/
@@ -63,8 +97,9 @@ temp/
 *.tmp
 *.bak
 *.backup
+*.pid
 
-# Database local files & dumps
+# ── Database local files & dumps ─────────────────────────────────────────────
 *.sqlite
 *.sqlite3
 *.db
@@ -73,39 +108,34 @@ temp/
 *.dump
 prisma/*.db
 
-# Prisma local tooling output
-packages/db/loginreq.json
-
-# Docker local overrides & runtime
+# ── Docker ───────────────────────────────────────────────────────────────────
 docker-compose.override.yml
 .docker/
 
-# Test & coverage artifacts
-.nyc_output/
+# nginx TLS — generate lokal (lihat docker/scripts/generate-nginx-certs.sh)
+docker/nginx/certs/*.pem
+docker/nginx/certs/*.key
+
+# Volume data lokal (jika bind-mount)
+data/postgres/
+data/redis/
+data/minio/
+minio-data/
+
+# ── Test & coverage artifacts ────────────────────────────────────────────────
 junit.xml
 test-results/
 playwright-report/
 playwright/.cache/
 
-# Deployment platforms
+# ── Deployment platforms ─────────────────────────────────────────────────────
 .vercel/
 .netlify/
 
-# Certificates & keys
-*.pem
-*.key
-*.p12
-*.crt
-secrets/
+# ── Monitoring stack (data persist lokal) ────────────────────────────────────
+monitoring/grafana-data/
+monitoring/prometheus-data/
+monitoring/loki-data/
 
-# Package manager
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
-.pnp.*
-
-# Misc
+# ── Misc ─────────────────────────────────────────────────────────────────────
 *.orig

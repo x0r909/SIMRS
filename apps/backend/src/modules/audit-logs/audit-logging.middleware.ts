@@ -1,3 +1,10 @@
+/**
+ * @file audit-logging.middleware.ts
+ * @path apps/backend/src/modules/audit-logs/audit-logging.middleware.ts
+ * @description Kode backend modul audit-logs.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import {
   Injectable,
   NestMiddleware,

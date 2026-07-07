@@ -1,3 +1,10 @@
+/**
+ * @file redis.module.ts
+ * @path apps/backend/src/shared/redis/redis.module.ts
+ * @description Koneksi Redis untuk cache dan sesi.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Global, Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 

@@ -1,11 +1,20 @@
 "use client";
 
+
+/**
+ * @file page.tsx
+ * @path apps/frontend/src/app/maintenance/page.tsx
+ * @description Halaman maintenance mode saat sistem ditangguhkan.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
 import { AlertTriangle, Clock, Home } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { format } from "date-fns";
-import { id as idLocale } from "date-fns/locale";
+import { Suspense } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +27,7 @@ const SCOPE_LABELS: Record<string, string> = {
   full: "Sistem tidak tersedia"
 };
 
-export default function MaintenancePage() {
+function MaintenanceContent() {
   const searchParams = useSearchParams();
   const urlMessage = searchParams.get("msg");
 
@@ -86,5 +95,19 @@ export default function MaintenancePage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function MaintenancePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center p-6">
+          <LoadingBlock label="Memuat status sistem..." />
+        </div>
+      }
+    >
+      <MaintenanceContent />
+    </Suspense>
   );
 }

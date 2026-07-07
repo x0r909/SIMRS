@@ -1,3 +1,10 @@
+/**
+ * @file jwt.strategy.ts
+ * @path apps/backend/src/modules/auth/jwt.strategy.ts
+ * @description Kode backend modul auth.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";

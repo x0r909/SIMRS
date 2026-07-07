@@ -1,3 +1,10 @@
+/**
+ * @file system-overview-api.ts
+ * @path apps/frontend/src/lib/system-overview-api.ts
+ * @description API client ringkasan sistem.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { api } from "./api";
 
 type ApiEnvelope<T> = { success?: boolean; data?: T };

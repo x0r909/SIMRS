@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file layout.tsx
+ * @path apps/frontend/src/app/portal/layout.tsx
+ * @description Layout route /portal: shell navigasi dan auth guard client.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { useQuery } from "@tanstack/react-query";
 import { CalendarDays, ClipboardList, CreditCard, LayoutDashboard, LogOut } from "lucide-react";
 import Link from "next/link";
@@ -15,10 +23,10 @@ import { fetchMe } from "@/lib/simrs-api";
 import { cn } from "@/lib/utils";
 
 const nav = [
-  { href: "/portal", label: "Ringkasan", icon: LayoutDashboard },
-  { href: "/portal/appointments", label: "Jadwal Berobat", icon: CalendarDays },
-  { href: "/portal/visits", label: "Riwayat Kunjungan", icon: ClipboardList },
-  { href: "/portal/billing", label: "Tagihan", icon: CreditCard }
+  { href: "/patient", label: "Ringkasan", icon: LayoutDashboard },
+  { href: "/patient/appointments", label: "Jadwal Berobat", icon: CalendarDays },
+  { href: "/patient/medical-records", label: "Riwayat Kunjungan", icon: ClipboardList },
+  { href: "/patient/billing", label: "Tagihan", icon: CreditCard }
 ];
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
@@ -38,9 +46,14 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
     const token = authStore.getAccessToken();
     setHasToken(Boolean(token));
     setIsHydrated(true);
-    if (!token) router.replace("/patient-login");
-    else router.replace("/patient");
-  }, [router]);
+    if (!token) {
+      router.replace("/patient-login");
+      return;
+    }
+    if (pathname.startsWith("/portal")) {
+      router.replace(pathname.replace(/^\/portal/, "/patient") || "/patient");
+    }
+  }, [router, pathname]);
 
   const me = useQuery({
     queryKey: ["auth-me"],
@@ -61,7 +74,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
     if (!me.data) return;
     roleStore.setRoles(me.data.roles);
     if (!hasPatientRole(me.data.roles)) {
-      router.replace("/login");
+      router.replace("/patient-login");
     }
   }, [me.data, router]);
 

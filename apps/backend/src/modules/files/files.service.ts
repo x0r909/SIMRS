@@ -1,3 +1,10 @@
+/**
+ * @file files.service.ts
+ * @path apps/backend/src/modules/files/files.service.ts
+ * @description Service bisnis files: logika domain & Prisma. Upload/download file ke MinIO (hasil lab, radiologi, lampiran).
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { randomUUID } from "crypto";
 import { extname } from "path";
 

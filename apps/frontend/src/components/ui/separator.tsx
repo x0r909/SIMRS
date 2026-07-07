@@ -1,5 +1,13 @@
 "use client"
 
+
+/**
+ * @file separator.tsx
+ * @path apps/frontend/src/components/ui/separator.tsx
+ * @description Komponen UI shadcn/ui: separator.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import * as React from "react"
 import * as SeparatorPrimitive from "@radix-ui/react-separator"
 

@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file dashboard-overview.tsx
+ * @path apps/frontend/src/components/dashboard-overview.tsx
+ * @description Kartu ringkasan statistik dashboard.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Loader2 } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

@@ -1,3 +1,10 @@
+/**
+ * @file update-maintenance.dto.ts
+ * @path apps/backend/src/modules/system-settings/dto/update-maintenance.dto.ts
+ * @description DTO validasi request system-settings: update-maintenance (class-validator).
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { IsBoolean, IsIn, IsISO8601, IsOptional, IsString, ValidateIf } from "class-validator";
 
 import { MAINTENANCE_SCOPES } from "../maintenance.util";

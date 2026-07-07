@@ -1,3 +1,10 @@
+/**
+ * @file hospitals.controller.ts
+ * @path apps/backend/src/modules/hospitals/hospitals.controller.ts
+ * @description Controller REST API hospitals: endpoint HTTP. Data rumah sakit: profil institusi, pengaturan RS.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Body, Controller, Get, Param, Patch, UseGuards } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 

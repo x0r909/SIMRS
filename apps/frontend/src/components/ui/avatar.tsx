@@ -1,5 +1,13 @@
 "use client"
 
+
+/**
+ * @file avatar.tsx
+ * @path apps/frontend/src/components/ui/avatar.tsx
+ * @description Komponen UI shadcn/ui: avatar.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import * as React from "react"
 import * as AvatarPrimitive from "@radix-ui/react-avatar"
 

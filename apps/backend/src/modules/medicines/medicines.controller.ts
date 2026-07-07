@@ -1,3 +1,10 @@
+/**
+ * @file medicines.controller.ts
+ * @path apps/backend/src/modules/medicines/medicines.controller.ts
+ * @description Controller REST API medicines: endpoint HTTP. Master obat: inventori, stok, dan katalog farmasi.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 

@@ -1,3 +1,10 @@
+/**
+ * @file backup-api.ts
+ * @path apps/frontend/src/lib/backup-api.ts
+ * @description API client backup database.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { api } from './api';
 
 type ApiEnvelope<T> = { success?: boolean; data?: T };

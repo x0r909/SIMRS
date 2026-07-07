@@ -1,37 +1,44 @@
 "use client";
 
+
+/**
+ * @file api.ts
+ * @path apps/frontend/src/lib/api.ts
+ * @description Klien HTTP Axios: base URL dinamis, interceptor JWT, refresh token.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import axios from "axios";
 
 import { authStore } from "./auth-store";
 
 const LOCALHOST_HOSTS = new Set(["localhost", "127.0.0.1"]);
 
-function parseApiPort(configured?: string): string {
-  if (!configured) return "4000";
-  try {
-    return new URL(configured).port || "4000";
-  } catch {
-    return "4000";
-  }
-}
-
 function resolveApiBaseUrl() {
   const configured = process.env.NEXT_PUBLIC_API_URL?.trim();
-  const apiPort = parseApiPort(configured);
 
   if (typeof window !== "undefined") {
     const pageHost = window.location.hostname;
     let apiHost = "localhost";
+    let configuredPort = "";
+
     if (configured) {
       try {
-        apiHost = new URL(configured).hostname;
+        const parsed = new URL(configured);
+        apiHost = parsed.hostname;
+        configuredPort = parsed.port;
       } catch {
         apiHost = "127.0.0.1";
       }
     }
 
+    // Akses via IP/domain LAN sementara build memakai localhost (nginx gateway :80/:443)
     if (!LOCALHOST_HOSTS.has(pageHost) && LOCALHOST_HOSTS.has(apiHost)) {
+      if (!configuredPort || configuredPort === "80" || configuredPort === "443") {
+        return `${window.location.origin}/v1`;
+      }
       const protocol = window.location.protocol === "https:" ? "https" : "http";
+      const apiPort = configuredPort || "4000";
       return `${protocol}://${pageHost}:${apiPort}/v1`;
     }
   }

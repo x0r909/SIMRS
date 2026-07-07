@@ -1,3 +1,10 @@
+/**
+ * @file audit.types.ts
+ * @path apps/frontend/src/lib/audit.types.ts
+ * @description Tipe data audit log frontend.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 // Audit Log Types - replicate from @prisma/client for frontend use
 // Do NOT import @prisma/client in frontend - use these types instead
 

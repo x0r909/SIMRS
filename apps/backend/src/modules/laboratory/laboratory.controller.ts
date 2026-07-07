@@ -1,3 +1,10 @@
+/**
+ * @file laboratory.controller.ts
+ * @path apps/backend/src/modules/laboratory/laboratory.controller.ts
+ * @description Controller REST API laboratory: endpoint HTTP. Laboratorium: order tes, hasil, verifikasi analis.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Body, Controller, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
@@ -23,6 +30,13 @@ export class LaboratoryController {
   @Get()
   async list(@Query() query: PaginationQueryDto) {
     const result = await this.laboratory.list(query);
+    return { success: true, data: result.data, meta: result.meta };
+  }
+
+  @RequirePermissions("laboratory.read")
+  @Get("me")
+  async listMine(@CurrentUser("sub") userId: string, @Query() query: PaginationQueryDto) {
+    const result = await this.laboratory.listMine(userId, query);
     return { success: true, data: result.data, meta: result.meta };
   }
 

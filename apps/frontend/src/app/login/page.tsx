@@ -1,3 +1,10 @@
+/**
+ * @file page.tsx
+ * @path apps/frontend/src/app/login/page.tsx
+ * @description Halaman login staff (admin, dokter, perawat, dll.).
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { LoginForm } from "@/components/login-form";
 
 export default function LoginPage() {

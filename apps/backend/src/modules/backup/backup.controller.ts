@@ -1,3 +1,10 @@
+/**
+ * @file backup.controller.ts
+ * @path apps/backend/src/modules/backup/backup.controller.ts
+ * @description Controller REST API backup: endpoint HTTP. Backup & restore database PostgreSQL terenkripsi.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import {
   Body,
   Controller,

@@ -1,3 +1,10 @@
+/**
+ * @file global-exception.filter.ts
+ * @path apps/backend/src/common/http/global-exception.filter.ts
+ * @description Filter exception global: format error response konsisten.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import type { Request, Response } from "express";

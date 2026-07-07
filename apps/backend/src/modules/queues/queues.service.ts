@@ -1,3 +1,10 @@
+/**
+ * @file queues.service.ts
+ * @path apps/backend/src/modules/queues/queues.service.ts
+ * @description Service bisnis queues: logika domain & Prisma. Antrian poli: nomor antrian, prioritas, status panggilan.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma, AuditAction } from "@prisma/client";
 

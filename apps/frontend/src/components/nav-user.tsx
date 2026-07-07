@@ -1,5 +1,13 @@
 "use client"
 
+
+/**
+ * @file nav-user.tsx
+ * @path apps/frontend/src/components/nav-user.tsx
+ * @description Menu user profil dan logout.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import {
   ChevronsUpDown,
   LogOut,

@@ -1,3 +1,10 @@
+/**
+ * @file audit.types.ts
+ * @path apps/backend/src/modules/audit-logs/audit.types.ts
+ * @description Definisi tipe TypeScript modul audit-logs.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { AuditAction, AuditModule, AuditStatus } from '@prisma/client';
 
 export interface CreateAuditLogDTO {

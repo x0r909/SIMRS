@@ -1,4 +1,11 @@
 /**
+ * @file password-validator.ts
+ * @path apps/frontend/src/lib/password-validator.ts
+ * @description Validasi kekuatan password di form frontend.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
+/**
  * Password strength validator
  * Requirements: minimum 12 characters, uppercase, lowercase, number, and symbol
  */

@@ -1,3 +1,10 @@
+/**
+ * @file prescriptions.service.ts
+ * @path apps/backend/src/modules/prescriptions/prescriptions.service.ts
+ * @description Service bisnis prescriptions: logika domain & Prisma. Resep obat: item resep, status dispensing farmasi.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { AuditAction } from "@prisma/client";
 

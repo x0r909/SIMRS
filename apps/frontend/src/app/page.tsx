@@ -1,3 +1,10 @@
+/**
+ * @file page.tsx
+ * @path apps/frontend/src/app/page.tsx
+ * @description Halaman route /page.tsx.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Activity, ArrowRight, CalendarCheck2, HeartPulse, ShieldCheck, Stethoscope } from "lucide-react";
 import Link from "next/link";
 

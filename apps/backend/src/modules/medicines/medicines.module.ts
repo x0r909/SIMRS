@@ -1,3 +1,10 @@
+/**
+ * @file medicines.module.ts
+ * @path apps/backend/src/modules/medicines/medicines.module.ts
+ * @description Modul NestJS medicines: wiring dependency injection. Master obat: inventori, stok, dan katalog farmasi.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Module } from "@nestjs/common";
 
 import { AuditLogsModule } from "../audit-logs/audit-logs.module";

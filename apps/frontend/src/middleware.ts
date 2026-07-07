@@ -1,3 +1,10 @@
+/**
+ * @file middleware.ts
+ * @path apps/frontend/src/middleware.ts
+ * @description Next.js middleware: auth guard, maintenance redirect, role routing.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -123,8 +130,16 @@ function canAccessStaffPath(roles: string[], pathname: string): boolean {
   return hasStaffLoginRole(roles);
 }
 
+function resolveServerApiBase(): string {
+  const internal = process.env.INTERNAL_API_URL?.trim();
+  if (internal) return internal.replace(/\/+$/, "");
+  const configured = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (configured) return configured.replace(/\/+$/, "");
+  return "http://127.0.0.1:4000";
+}
+
 async function fetchMaintenanceStatus(): Promise<PublicSettings | null> {
-  const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000";
+  const apiBase = resolveServerApiBase();
   try {
     const response = await fetch(`${apiBase}/v1/system/settings/public`, {
       next: { revalidate: 10 }
@@ -186,7 +201,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (pathname === "/dashboard" || pathname.startsWith("/portal") || pathname.startsWith("/(app)")) {
+  if (pathname.startsWith("/portal")) {
+    const target = pathname.replace(/^\/portal/, "/patient") || "/patient";
+    return NextResponse.redirect(new URL(target, request.url));
+  }
+
+  if (pathname === "/dashboard" || pathname.startsWith("/(app)")) {
     const home = roleHome(roles);
     if (home) {
       return NextResponse.redirect(new URL(home, request.url));

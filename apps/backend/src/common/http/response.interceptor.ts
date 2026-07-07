@@ -1,3 +1,10 @@
+/**
+ * @file response.interceptor.ts
+ * @path apps/backend/src/common/http/response.interceptor.ts
+ * @description Interceptor response: bungkus payload API envelope { success, data }.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nestjs/common";
 import { map, Observable } from "rxjs";
 

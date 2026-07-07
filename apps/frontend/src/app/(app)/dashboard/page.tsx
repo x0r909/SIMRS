@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file page.tsx
+ * @path apps/frontend/src/app/(app)/dashboard/page.tsx
+ * @description Legacy dashboard redirect ke role home.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { CalendarClock, ClipboardList, CreditCard, Pill, Stethoscope, Users } from "lucide-react";
 import { useMemo } from "react";

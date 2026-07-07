@@ -1,5 +1,13 @@
 'use client';
 
+
+/**
+ * @file page.tsx
+ * @path apps/frontend/src/app/(app)/admin/backup/page.tsx
+ * @description Legacy: backup database.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';

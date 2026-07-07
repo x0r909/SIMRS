@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file page.tsx
+ * @path apps/frontend/src/app/(app)/files/page.tsx
+ * @description Legacy: manajemen file upload.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Download, UploadCloud } from "lucide-react";
 import { useRef, useState } from "react";

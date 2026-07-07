@@ -1,3 +1,10 @@
+/**
+ * @file types.ts
+ * @path apps/frontend/src/lib/types.ts
+ * @description Tipe TypeScript frontend: mirror model API dan envelope response.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 export type ApiErrorPayload = {
   status: number;
   message: string;

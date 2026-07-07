@@ -1,3 +1,10 @@
+/**
+ * @file system-logs.service.ts
+ * @path apps/backend/src/modules/system-logs/system-logs.service.ts
+ * @description Service bisnis system-logs: logika domain & Prisma. System log: log operasional aplikasi dan error backend.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Injectable } from "@nestjs/common";
 import { LogLevel, Prisma } from "@prisma/client";
 import { Observable, Subject } from "rxjs";

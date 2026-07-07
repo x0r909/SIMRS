@@ -1,3 +1,10 @@
+/**
+ * @file health-api.ts
+ * @path apps/frontend/src/lib/health-api.ts
+ * @description API client health check infrastruktur.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import axios from "axios";
 
 import { api } from "./api";

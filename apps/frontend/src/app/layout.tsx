@@ -1,3 +1,10 @@
+/**
+ * @file layout.tsx
+ * @path apps/frontend/src/app/layout.tsx
+ * @description Layout route /layout.tsx: shell navigasi dan auth guard client.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 

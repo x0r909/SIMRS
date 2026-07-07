@@ -1,5 +1,13 @@
 'use client';
 
+
+/**
+ * @file audit-pagination.tsx
+ * @path apps/frontend/src/components/audit/audit-pagination.tsx
+ * @description Komponen UI audit log: audit-pagination.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 

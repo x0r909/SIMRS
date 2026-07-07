@@ -1,3 +1,10 @@
+/**
+ * @file reports.controller.ts
+ * @path apps/backend/src/modules/reports/reports.controller.ts
+ * @description Controller REST API reports: endpoint HTTP. Laporan operasional: ringkasan harian order RS.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Controller, Get, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 

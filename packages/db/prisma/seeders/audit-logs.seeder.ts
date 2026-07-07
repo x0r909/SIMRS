@@ -1,3 +1,10 @@
+/**
+ * @file audit-logs.seeder.ts
+ * @path packages/db/prisma/seeders/audit-logs.seeder.ts
+ * @description Seeder data: audit-logs.seeder.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { AuditAction, AuditModule, AuditStatus } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 

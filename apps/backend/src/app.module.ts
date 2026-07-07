@@ -1,3 +1,10 @@
+/**
+ * @file app.module.ts
+ * @path apps/backend/src/app.module.ts
+ * @description Root module NestJS: registrasi semua modul, guard global, interceptor audit.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";

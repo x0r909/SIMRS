@@ -1,4 +1,11 @@
 /**
+ * @file auth-validation.dto.ts
+ * @path apps/backend/src/modules/auth/dto/auth-validation.dto.ts
+ * @description DTO validasi request auth: auth-validation (class-validator).
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
+/**
  * Authentication DTOs with validation
  */
 

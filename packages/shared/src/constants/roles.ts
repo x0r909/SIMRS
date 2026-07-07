@@ -1,3 +1,10 @@
+/**
+ * @file roles.ts
+ * @path packages/shared/src/constants/roles.ts
+ * @description Konstanta role key yang dibagikan frontend/backend.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 export const ROLE_KEYS = {
   SYSTEM_ADMIN: "SYSTEM_ADMIN",
   HOSPITAL_ADMIN: "HOSPITAL_ADMIN",

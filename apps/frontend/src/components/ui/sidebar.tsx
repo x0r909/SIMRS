@@ -1,5 +1,13 @@
 "use client"
 
+
+/**
+ * @file sidebar.tsx
+ * @path apps/frontend/src/components/ui/sidebar.tsx
+ * @description Komponen UI shadcn/ui: sidebar.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"

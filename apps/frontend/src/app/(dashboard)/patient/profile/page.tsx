@@ -1,14 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+/**
+ * @file page.tsx
+ * @path apps/frontend/src/app/(dashboard)/patient/profile/page.tsx
+ * @description Pasien: profil dan data akun.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
 
-export default function PatientProfilePage() {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Profil Pasien</CardTitle>
-      </CardHeader>
-      <CardContent className="text-sm text-muted-foreground">
-        Edit profil dan data kontak.
-      </CardContent>
-    </Card>
-  );
-}
+export { default } from "@/app/portal/profile/page";

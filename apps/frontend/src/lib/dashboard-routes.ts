@@ -1,3 +1,10 @@
+/**
+ * @file dashboard-routes.ts
+ * @path apps/frontend/src/lib/dashboard-routes.ts
+ * @description Routing dashboard: resolve path per role, access control path.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { hasPatientRole, hasStaffLoginRole } from "@/lib/role-utils";
 
 const STAFF_ROLES = [
@@ -96,8 +103,11 @@ export function canAccessPath(roles: string[], pathname: string): boolean {
   return true;
 }
 
-export function resolveLoginPath(roles: string[]): string {
+export function resolveLoginPath(roles: string[], options?: { preferPatient?: boolean }): string {
   if (hasPatientRole(roles) && !hasStaffLoginRole(roles)) {
+    return "/patient-login";
+  }
+  if (options?.preferPatient) {
     return "/patient-login";
   }
   return "/login";

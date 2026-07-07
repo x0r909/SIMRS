@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file role-store.ts
+ * @path apps/frontend/src/lib/role-store.ts
+ * @description Penyimpanan role user di cookie untuk middleware Next.js.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 const ROLES_KEY = "simrs.roles";
 
 export const roleStore = {

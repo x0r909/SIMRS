@@ -1,3 +1,10 @@
+/**
+ * @file audit-utils.ts
+ * @path apps/frontend/src/lib/audit-utils.ts
+ * @description Utilitas format dan filter audit log.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { AuditAction, AuditStatus } from '@prisma/client';
 
 export const getActionLabel = (action: AuditAction): string => {

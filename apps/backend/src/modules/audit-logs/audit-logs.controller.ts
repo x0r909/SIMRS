@@ -1,3 +1,10 @@
+/**
+ * @file audit-logs.controller.ts
+ * @path apps/backend/src/modules/audit-logs/audit-logs.controller.ts
+ * @description Controller REST API audit-logs: endpoint HTTP. Audit trail: pencatatan aksi pengguna untuk compliance.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Controller, Get, Query, UseGuards, Res, BadRequestException } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';

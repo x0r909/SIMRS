@@ -1,3 +1,10 @@
+/**
+ * @file seed.ts
+ * @path packages/db/prisma/seed.ts
+ * @description Seed database: role, permission, user demo, data master awal.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 
@@ -120,7 +127,15 @@ const ROLE_SEEDS: { key: string; name: string; description: string; isSystem: bo
     name: "Pasien",
     description: "Portal pasien",
     isSystem: true,
-    permissions: ["patients.read", "appointments.read", "visits.read", "billing.read", "medical-records.read"]
+    permissions: [
+      "appointments.read",
+      "appointments.write",
+      "visits.read",
+      "billing.read",
+      "medical-records.read",
+      "doctors.read",
+      "laboratory.read"
+    ]
   }
 ];
 
@@ -195,11 +210,18 @@ async function main() {
     }
   }
 
-  const passwordHash = await bcrypt.hash("Admin123!", 12);
+  const seedPassword = process.env.SEED_DEFAULT_PASSWORD?.trim();
+  if (!seedPassword || seedPassword.length < 12) {
+    throw new Error(
+      "SEED_DEFAULT_PASSWORD wajib di-set (min. 12 karakter). Contoh: export SEED_DEFAULT_PASSWORD='...'"
+    );
+  }
+  const passwordHash = await bcrypt.hash(seedPassword, 12);
+  const userPasswordUpdate = { passwordHash };
 
   const systemAdmin = await prisma.user.upsert({
     where: { email: "admin@simrs.local" },
-    update: {},
+    update: userPasswordUpdate,
     create: {
       email: "admin@simrs.local",
       name: "System Administrator",
@@ -216,7 +238,7 @@ async function main() {
 
   const hospitalAdmin = await prisma.user.upsert({
     where: { email: "hospital-admin@simrs.local" },
-    update: {},
+    update: userPasswordUpdate,
     create: {
       email: "hospital-admin@simrs.local",
       name: "Admin Rumah Sakit",
@@ -234,7 +256,7 @@ async function main() {
 
   const doctorUser = await prisma.user.upsert({
     where: { email: "doctor@simrs.local" },
-    update: {},
+    update: userPasswordUpdate,
     create: {
       email: "doctor@simrs.local",
       name: "Dr. Budi Santoso",
@@ -276,7 +298,7 @@ async function main() {
   for (const su of staffUsers) {
     const user = await prisma.user.upsert({
       where: { email: su.email },
-      update: {},
+      update: userPasswordUpdate,
       create: {
         email: su.email,
         name: su.name,
@@ -295,7 +317,7 @@ async function main() {
 
   const patientUser = await prisma.user.upsert({
     where: { email: "patient@simrs.local" },
-    update: {},
+    update: userPasswordUpdate,
     create: {
       email: "patient@simrs.local",
       name: "Pasien Demo",
@@ -369,11 +391,25 @@ async function main() {
     create: { sku: "MED-001", name: "Paracetamol 500mg", unit: "tablet", stock: 500, price: 500, minStock: 50 }
   });
 
+  const seedAccounts = [
+    "admin@simrs.local (Admin Sistem)",
+    "hospital-admin@simrs.local (Admin RS)",
+    "doctor@simrs.local (Dokter)",
+    "receptionist@simrs.local",
+    "nurse@simrs.local",
+    "cashier@simrs.local",
+    "pharmacist@simrs.local",
+    "lab@simrs.local",
+    "radiology@simrs.local",
+    "patient@simrs.local (Pasien)"
+  ];
+
   console.log("Seed completed.");
   console.log("  Hospital:", hospital.name);
-  console.log("  Login: admin@simrs.local / Admin123!");
-  console.log("  Doctor: doctor@simrs.local / Admin123!");
-  console.log("  Patient: patient@simrs.local / Admin123!");
+  console.log("  Password akun seed: [dari SEED_DEFAULT_PASSWORD — tidak ditampilkan]");
+  for (const account of seedAccounts) {
+    console.log(`  - ${account}`);
+  }
 }
 
 main()

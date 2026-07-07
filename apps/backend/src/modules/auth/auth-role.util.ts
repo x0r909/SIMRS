@@ -1,3 +1,10 @@
+/**
+ * @file auth-role.util.ts
+ * @path apps/backend/src/modules/auth/auth-role.util.ts
+ * @description Fungsi utilitas modul auth.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 export const ROLE_PATIENT = "PATIENT";
 
 /** Role yang boleh masuk lewat portal staff (bukan pasien). */

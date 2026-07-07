@@ -1,3 +1,10 @@
+/**
+ * @file doctors.controller.ts
+ * @path apps/backend/src/modules/doctors/doctors.controller.ts
+ * @description Controller REST API doctors: endpoint HTTP. Data dokter: spesialisasi, jadwal, lisensi, profil terhubung user.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 

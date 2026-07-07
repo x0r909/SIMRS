@@ -1,3 +1,10 @@
+/**
+ * @file crypto.ts
+ * @path apps/backend/src/shared/encryption/crypto.ts
+ * @description Layanan enkripsi/dekripsi field sensitif (AES, blind index).
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { createCipheriv, createDecipheriv, createHmac, randomBytes } from "crypto";
 
 const ALGORITHM = "aes-256-gcm";

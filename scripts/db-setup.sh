@@ -26,6 +26,18 @@ pnpm db:generate
 echo "==> prisma migrate deploy"
 pnpm db:migrate
 
+if [[ -f .env ]]; then
+  set -a
+  # shellcheck disable=SC1091
+  source .env
+  set +a
+fi
+if [[ -z "${SEED_DEFAULT_PASSWORD:-}" ]]; then
+  echo "SEED_DEFAULT_PASSWORD belum di-set. Tambahkan ke .env (min. 12 karakter)." >&2
+  exit 1
+fi
+export SEED_DEFAULT_PASSWORD
+
 echo "==> prisma db seed"
 pnpm db:seed
 

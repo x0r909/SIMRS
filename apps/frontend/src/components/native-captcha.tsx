@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file native-captcha.tsx
+ * @path apps/frontend/src/components/native-captcha.tsx
+ * @description Widget CAPTCHA native SIMRS.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { RefreshCcw } from "lucide-react";
 import * as React from "react";
 

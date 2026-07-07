@@ -1,3 +1,10 @@
+/**
+ * @file postgres-cli.util.ts
+ * @path apps/backend/src/modules/backup/postgres-cli.util.ts
+ * @description Fungsi utilitas modul backup.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { execSync } from "node:child_process";
 import * as fs from "node:fs";
 

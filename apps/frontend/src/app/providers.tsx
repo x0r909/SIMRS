@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file providers.tsx
+ * @path apps/frontend/src/app/providers.tsx
+ * @description Provider global React: QueryClient, theme, toast.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider } from "next-themes";

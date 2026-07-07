@@ -1,3 +1,10 @@
+/**
+ * @file skeleton.tsx
+ * @path apps/frontend/src/components/ui/skeleton.tsx
+ * @description Komponen UI shadcn/ui: skeleton.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import { cn } from "@/lib/utils"
 
 function Skeleton({

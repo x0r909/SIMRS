@@ -1,5 +1,13 @@
 "use client";
 
+
+/**
+ * @file dashboard-shell.tsx
+ * @path apps/frontend/src/components/dashboard-shell.tsx
+ * @description Shell layout dashboard role-based dengan sidebar navigasi.
+ * @see docs/CODEBASE.md — dokumentasi arsitektur lengkap SIMRS
+ */
+
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -29,6 +37,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "@/components/app-sidebar";
 import { ErrorBlock, LoadingBlock } from "@/components/ui/state-block";
 import { MaintenanceBanner } from "@/components/maintenance-banner";
+import { clearAuthSession } from "@/lib/auth-session";
 import { authStore } from "@/lib/auth-store";
 import { canAccessPath, resolveLoginPath } from "@/lib/dashboard-routes";
 import { roleStore } from "@/lib/role-store";
@@ -73,7 +82,7 @@ export function getNavItems(prefix: string, roleKeys: string[]): NavItem[] {
   if (prefix === "/hospital-admin") {
     return [
       ...items,
-      { href: `${base}/staff`, label: "Staff", icon: ICONS.users },
+      { href: `${base}/staff`, label: "Pengguna", icon: ICONS.users },
       { href: `${base}/departments`, label: "Departemen", icon: ICONS.departments },
       { href: `${base}/reports/daily`, label: "Laporan", icon: ClipboardList },
       { href: `${base}/settings`, label: "Profil Saya", icon: ICONS.settings }
@@ -118,12 +127,12 @@ export function getNavItems(prefix: string, roleKeys: string[]): NavItem[] {
 
   if (prefix === "/patient") {
     return [
-      ...items,
-      { href: `${base}/appointments`, label: "Appointments", icon: ICONS.appointments },
-      { href: `${base}/medical-records`, label: "Medical Records", icon: ICONS.soap },
-      { href: `${base}/lab-results`, label: "Lab Results", icon: ICONS.laboratory },
-      { href: `${base}/billing`, label: "Billing", icon: ICONS.billing },
-      { href: `${base}/profile`, label: "Profile", icon: ICONS.settings }
+      { href: base, label: "Ringkasan", icon: ICONS.dashboard },
+      { href: `${base}/appointments`, label: "Jadwal Berobat", icon: ICONS.appointments },
+      { href: `${base}/medical-records`, label: "Riwayat Kunjungan", icon: ICONS.soap },
+      { href: `${base}/lab-results`, label: "Hasil Lab", icon: ICONS.laboratory },
+      { href: `${base}/billing`, label: "Tagihan", icon: ICONS.billing },
+      { href: `${base}/profile`, label: "Profil", icon: ICONS.settings }
     ];
   }
 
@@ -139,6 +148,7 @@ type DashboardShellProps = {
 export function DashboardShell({ children, prefix, title }: DashboardShellProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const isPatientArea = prefix.startsWith("/patient");
   const [isHydrated, setIsHydrated] = useState(false);
   const [hasToken, setHasToken] = useState(false);
 
@@ -146,30 +156,31 @@ export function DashboardShell({ children, prefix, title }: DashboardShellProps)
     const token = authStore.getAccessToken();
     setHasToken(Boolean(token));
     setIsHydrated(true);
-    if (!token) router.replace(prefix.startsWith("/patient") ? "/patient-login" : "/login");
-  }, [router, prefix]);
+    if (!token) router.replace(isPatientArea ? "/patient-login" : "/login");
+  }, [router, isPatientArea]);
 
   const me = useQuery({
     queryKey: ["auth-me"],
     queryFn: fetchMe,
     retry: false,
-    enabled: isHydrated && hasToken
+    enabled: isHydrated && hasToken,
+    staleTime: 0,
+    refetchOnMount: "always"
   });
 
   useEffect(() => {
     if (!me.isError) return;
-    authStore.clear();
-    roleStore.clear();
-    router.replace(resolveLoginPath(me.data?.roles ?? []));
-  }, [me.isError, me.data?.roles, router]);
+    clearAuthSession();
+    router.replace(resolveLoginPath(me.data?.roles ?? [], { preferPatient: isPatientArea }));
+  }, [me.isError, me.data?.roles, router, isPatientArea]);
 
   useEffect(() => {
-    if (!me.data) return;
+    if (!me.isSuccess || me.isFetching || !me.data) return;
     roleStore.setRoles(me.data.roles);
     if (!canAccessPath(me.data.roles, pathname)) {
-      router.replace(resolveLoginPath(me.data.roles));
+      router.replace(resolveLoginPath(me.data.roles, { preferPatient: isPatientArea }));
     }
-  }, [me.data, pathname, router]);
+  }, [me.isSuccess, me.isFetching, me.data, pathname, router, isPatientArea]);
 
   const navItems = useMemo(
     () => (me.data ? getNavItems(prefix, me.data.roles) : []),
@@ -182,9 +193,8 @@ export function DashboardShell({ children, prefix, title }: DashboardShellProps)
   }, [navItems, pathname, title]);
 
   const handleLogout = () => {
-    authStore.clear();
-    roleStore.clear();
-    router.replace(prefix.startsWith("/patient") ? "/patient-login" : "/login");
+    clearAuthSession();
+    router.replace(isPatientArea ? "/patient-login" : "/login");
   };
 
   if (!isHydrated || !hasToken) return null;
@@ -235,7 +245,7 @@ export function DashboardShell({ children, prefix, title }: DashboardShellProps)
         <main className="min-w-0 p-4 pb-20 md:p-6 md:pb-6">{children}</main>
         <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-background/95 backdrop-blur md:hidden">
           <div className="flex items-stretch justify-around">
-            {navItems.slice(0, 5).map((item) => {
+            {navItems.map((item) => {
               const Icon = item.icon;
               const active = pathname === item.href || pathname.startsWith(item.href + "/");
               return (
